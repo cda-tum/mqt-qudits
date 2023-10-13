@@ -1,6 +1,9 @@
 from __future__ import annotations
-import numpy as np
+
 from abc import ABC, abstractmethod
+
+import numpy as np
+
 from mqt.exceptions.circuiterror import CircuitError
 
 
@@ -34,6 +37,10 @@ class Gate(ABC):
     # Set higher priority than Numpy array and matrix classes
     __array_priority__ = 20
 
+    @abstractmethod
+    def __array__(self, dytpe='complex'):
+        pass
+
     def to_matrix(self) -> np.ndarray:
         """Return a Numpy.array for the gate unitary matrix.
 
@@ -45,8 +52,8 @@ class Gate(ABC):
                 exception will be raised when this base class method is called.
         """
         if hasattr(self, "__array__"):
-            return self.__array__(dtype=complex)
-        raise CircuitError(f"to_matrix not defined for this {type(self)}")
+            return self.__array__
+        raise CircuitError("to_matrix not defined for this ", {type(self)})
 
     @abstractmethod
     def control(
