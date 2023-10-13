@@ -1,0 +1,112 @@
+[build-system]
+requires = [
+    "setuptools>=61",
+    "setuptools_scm[toml]>=7"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mqt.quditstateprep"
+description = "MQT Qudits: A framework for mixed-dimensional qudit quantum computing"
+readme = "README.md"
+authors = [
+    { name = "Kevin Mato", email = "kevin.mato@tum.de" },
+]
+
+keywords = ["MQT", "quantum computing", "design automation", "quantum circuit", "qudits"]
+license = { file = "LICENSE" }
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: C++",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "numpy==2.0.2"
+]
+
+dynamic = ["version"]
+
+[project.optional-dependencies]
+
+
+[project.urls]
+Homepage = "https://github.com/cda-tum/mqt-qudits"
+Discussions = "https://github.com/cda-tum/mqt-qudits/discussions"
+Research = "https://www.cda.cit.tum.de/research/"
+
+[tool.ruff]
+select = [
+    "E", "F", "W", # flake8
+    "A", # flake8-builtins
+    "ARG", # flake8-unused-arguments
+    "B", "B904", # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "EM", # flake8-errmsg
+    "EXE", # flake8-executable
+    "I", # isort
+    "ICN", # flake8-import-conventions
+    "ISC", # flake8-implicit-str-concat
+    "N", # flake8-naming
+    "PGH", # pygrep-hooks
+    "PIE", # flake8-pie
+    "PL", # pylint
+    "PT", # flake8-pytest-style
+    "PTH", # flake8-use-pathlib
+    "PYI", # flake8-pyi
+    "Q", # flake8-quotes
+    "RET", # flake8-return
+    "RSE", # flake8-raise
+    "RUF", # Ruff-specific
+    "SIM", # flake8-simplify
+    "TCH", # flake8-type-checking
+    "TID", # flake8-tidy-imports
+    "TRY", # tryceratops
+    "UP", # pyupgrade
+    "YTT", # flake8-2020
+]
+ignore = [
+    "E501", # Line too long (Black is enough)
+    "PLR2004", # Magic values
+    "PLR0913", # Too many arguments
+]
+target-version = "py38"
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "extern",
+]
+
+line-length = 120
+
+[tool.black]
+line-length = 120
