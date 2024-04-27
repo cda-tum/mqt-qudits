@@ -558,8 +558,7 @@ dd::MDDPackage::mEdge getGate(const ddpkg& dd, const Instruction& instruction) {
       dd::SeptMatrix matrix = dd::RZ7(phi, leva, levb);
       gate = dd->makeGateDD<dd::SeptMatrix>(matrix, numberRegs, controlSet, tq);
     }
-    }
-    else if (tag == "rh") {
+  } else if (tag == "rh") {
 
     auto pl = params.cast<py::list>();
     auto leva = pl[0].cast<size_t>();
@@ -574,11 +573,12 @@ dd::MDDPackage::mEdge getGate(const ddpkg& dd, const Instruction& instruction) {
       gate = dd->makeGateDD<dd::TritMatrix>(matrix, numberRegs, controlSet, tq);
 
     } else if (checkDim(dims, 4)) {
-      dd::QuartMatrix matrix = dd::RH4( leva, levb);
-      gate = dd->makeGateDD<dd::QuartMatrix>(matrix, numberRegs, controlSet, tq);
+      dd::QuartMatrix matrix = dd::RH4(leva, levb);
+      gate =
+          dd->makeGateDD<dd::QuartMatrix>(matrix, numberRegs, controlSet, tq);
 
     } else if (checkDim(dims, 5)) {
-      dd::QuintMatrix matrix = dd::RH5( leva, levb);
+      dd::QuintMatrix matrix = dd::RH5(leva, levb);
       gate =
           dd->makeGateDD<dd::QuintMatrix>(matrix, numberRegs, controlSet, tq);
     } else if (checkDim(dims, 6)) {
@@ -588,8 +588,7 @@ dd::MDDPackage::mEdge getGate(const ddpkg& dd, const Instruction& instruction) {
       dd::SeptMatrix matrix = dd::RH7(leva, levb);
       gate = dd->makeGateDD<dd::SeptMatrix>(matrix, numberRegs, controlSet, tq);
     }
-    }
-  else if (tag == "virtrz") {
+  } else if (tag == "virtrz") {
     auto pl = params.cast<py::list>();
 
     auto leva = pl[0].cast<size_t>();

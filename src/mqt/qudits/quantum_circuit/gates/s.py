@@ -14,20 +14,20 @@ if TYPE_CHECKING:
 
 class S(Gate):
     def __init__(
-            self,
-            circuit: QuantumCircuit,
-            name: str,
-            target_qudits: list[int] | int,
-            dimensions: list[int] | int,
-            controls: ControlData | None = None,
+        self,
+        circuit: QuantumCircuit,
+        name: str,
+        target_qudits: list[int] | int,
+        dimensions: list[int] | int,
+        controls: ControlData | None = None,
     ) -> None:
         super().__init__(
-                circuit=circuit,
-                name=name,
-                gate_type=GateTypes.SINGLE,
-                target_qudits=target_qudits,
-                dimensions=dimensions,
-                control_set=controls,
+            circuit=circuit,
+            name=name,
+            gate_type=GateTypes.SINGLE,
+            target_qudits=target_qudits,
+            dimensions=dimensions,
+            control_set=controls,
         )
         self.qasm_tag = "s"
 
@@ -52,7 +52,7 @@ class S(Gate):
 
             result = omega * np.outer(array1, array2)
 
-            matrix = matrix + result
+            matrix += result
 
         return matrix
 
