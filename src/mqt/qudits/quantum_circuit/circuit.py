@@ -345,7 +345,7 @@ class QuantumCircuit:
 
         return text
 
-    def save_to_file(self, file_name, file_path="/"):
+    def save_to_file(self, file_name: str, file_path: str = "./") -> str:
         """
         Save qasm into a file with the specified name and path.
 
