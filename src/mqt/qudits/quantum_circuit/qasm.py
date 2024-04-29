@@ -58,11 +58,9 @@ class QASM:
     def parse_creg(self, line, rgxs, sitemap_classic) -> bool:
         match = rgxs["creg"].match(line)
         if match:
-            name, nq, _qdims = match.groups()
-            nq = int(*re.search(r"\[(\d+)\]", nq).groups())
-            for i in range(int(nq)):
+            name, nclassics = match.groups()
+            for i in range(int(nclassics)):
                 sitemap_classic[(str(name), i)] = len(sitemap_classic)
-
             return True
         return False
 
@@ -154,7 +152,7 @@ class QASM:
             "comment_start": re.compile(r"/\*"),
             "comment_end": re.compile(r"\*/"),
             "qreg": re.compile(r"qreg\s+(\w+)\s+(\[\s*\d+\s*\])(?:\s*\[(\d+(?:,\s*\d+)*)\])?;"),
-            "creg": re.compile(r"creg\s+(\w+)\s+(\[\s*\d+\s*\])(?:\s*\[(\d+(?:,\s*\d+)*)\])?;"),
+            "creg": re.compile(r"creg\s+(\w+)\s*\[\s*(\d+)\s*\]\s*;"),
             # "ctrl_id":       re.compile(r"\s+(\w+)\s*(\[\s*\other_size+\s*\])\s*(\s*\w+\s*\[\other_size+\])*\s*"),
             "qreg_indexing": re.compile(r"\s*(\w+)\s*(\[\s*\d+\s*\])"),
             # "gate_matrix":
