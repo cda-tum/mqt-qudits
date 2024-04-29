@@ -4,8 +4,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from mqt.qudits.quantum_circuit import QuantumCircuit
-from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
+from mqt.qudits.quantum_circuit import QuantumCircuit, QuantumRegister
 
 
 class TestQuantumCircuit(TestCase):
@@ -38,8 +37,8 @@ class TestQuantumCircuit(TestCase):
         circ.cu_two([qreg_field[0], qreg_matter[1]], np.identity(7 * 2))
         circ.cu_multi([qreg_field[0], qreg_matter[1], qreg_matter[0]], np.identity(7 * 2 * 2))
 
-        circ.save_to_file("test", "/")
+        file = circ.save_to_file(file_name="test")
         program = circ.to_qasm()
         circ_new = QuantumCircuit()
         circ_new.from_qasm(program)
-        circ_new.load_from_file("/test.qasm")
+        circ_new.load_from_file(file)

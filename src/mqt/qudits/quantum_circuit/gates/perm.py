@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import operator
+from collections.abc import Collection
 from functools import reduce
 from typing import TYPE_CHECKING
 
@@ -42,11 +43,9 @@ class Perm(Gate):
 
     def validate_parameter(self, parameter) -> bool:
         """Verify that the input is a list of indices"""
-        try:
-            assert isinstance(parameter, list)
-        except AssertionError:
-            assert isinstance(parameter, tuple), "Input is not a iterable"
-            parameter = list(parameter)
+        if not isinstance(parameter, Collection):
+            return False
+
         num_nums = reduce(operator.mul, self._dimensions)
         assert all(
             (0 <= num < len(parameter) and num < num_nums) for num in parameter

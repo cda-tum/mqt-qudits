@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import copy
-import locale
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
 
-from .components.classic_register import ClassicRegister
-from .components.quantum_register import QuantumRegister
+from .components import ClassicRegister, QuantumRegister
 from .gates import (
     LS,
     MS,
@@ -360,16 +359,16 @@ class QuantumCircuit:
         """
         # Combine the file path and name to get the full file path
         self.path_save = file_path
-        full_file_path = f"{file_path}/{file_name}.qasm"
+        full_file_path = Path(file_path) / (file_name + ".qasm")
 
         # Write the text to the file
-        with open(full_file_path, "w+", encoding=locale.getpreferredencoding(False)) as file:
+        with full_file_path.open("w+") as file:
             file.write(self.to_qasm())
 
         self.path_save = None
-        return full_file_path
+        return str(full_file_path)
 
-    def load_from_file(self, file_path):
+    def load_from_file(self, file_path: str) -> None:
         """
         Load text from a file.
 
@@ -380,11 +379,12 @@ class QuantumCircuit:
             str: The text loaded from the file.
         """
         try:
-            with open(file_path, encoding=locale.getpreferredencoding(False)) as file:
+            with Path(file_path).open("r") as file:
                 text = file.read()
-            return self.from_qasm(text)
+            self.from_qasm(text)
         except FileNotFoundError:
-            return None
+            msg = f"File not found: {file_path}"
+            raise FileNotFoundError(msg)
 
     def draw(self) -> None:
         # TODO

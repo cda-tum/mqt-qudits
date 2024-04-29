@@ -35,7 +35,6 @@ class CustomMulti(Gate):
         )
         if self.validate_parameter(parameters):
             self.__array_storage = parameters
-            self._params = self.__array_storage
 
         self.qasm_tag = "cumulti"
 
@@ -43,8 +42,7 @@ class CustomMulti(Gate):
         return self.__array_storage
 
     def validate_parameter(self, parameter=None) -> bool:
-        assert isinstance(parameter, np.ndarray)
-        return True
+        return isinstance(parameter, np.ndarray)
 
     def __str__(self) -> str:
         # TODO

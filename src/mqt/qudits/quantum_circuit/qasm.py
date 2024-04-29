@@ -5,7 +5,7 @@ from pathlib import Path
 
 import numpy as np
 
-from mqt.qudits.quantum_circuit.components.extensions.controls import ControlData
+from .components.extensions.controls import ControlData
 
 
 class QASM:
@@ -86,11 +86,6 @@ class QASM:
             ctl_qudits = match.group(6)
             ctl_levels = match.group(8)
 
-            # params = (
-            #     tuple(sp.sympify(param.replace("pi", str(sp.pi))) for param in params.strip("()").split(","))
-            #     if params
-            #     else ()
-            # )
             # Evaluate params using NumPy and NumExpr
             if params:
                 if ".npy" in params:
