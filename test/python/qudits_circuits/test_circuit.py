@@ -10,6 +10,7 @@ from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegist
 
 class TestQuantumCircuit(TestCase):
     def test_to_qasm(self):
+        """Export circuit as QASM program"""
         qreg_field = QuantumRegister("field", 7, [7, 7, 7, 7, 7, 7, 7])
         qreg_matter = QuantumRegister("matter", 2, [2, 2])
 

@@ -284,6 +284,7 @@ class QuantumCircuit:
         return self
 
     def from_qasm(self, qasm_prog) -> None:
+        """Create a circuit from qasm text"""
         self.reset()
         qasm_parser = QASM().parse_ditqasm2_str(qasm_prog)
         instructions = qasm_parser["instructions"]

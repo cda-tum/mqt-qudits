@@ -41,6 +41,7 @@ class Perm(Gate):
         return np.eye(reduce(operator.mul, self._dimensions))[:, self.perm_data]
 
     def validate_parameter(self, parameter) -> bool:
+        """Verify that the input is a list of indices"""
         try:
             assert isinstance(parameter, list)
         except AssertionError:

@@ -126,6 +126,7 @@ class Gate(Instruction):
         pass
 
     def __qasm__(self) -> str:
+        """Generate QASM for Gate export"""
         string = f"{self.qasm_tag} "
         if isinstance(self._params, np.ndarray):
             string += self.return_custom_data()

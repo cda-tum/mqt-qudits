@@ -9,6 +9,9 @@ from mqt.qudits.quantum_circuit.components.extensions.controls import ControlDat
 
 
 class QASM:
+    """
+    Class that manages the parsing of QASM programs
+    """
     def __init__(self) -> None:
         self._program = None
 

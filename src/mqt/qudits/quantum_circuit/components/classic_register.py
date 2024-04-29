@@ -22,6 +22,9 @@ class ClassicRegister:
         return registers_from_qasm
 
     def __init__(self, name, size) -> None:
+        """
+        Class for classical register memories
+        """
         self.label = name
         self.size = size
         self.local_sitemap = {}

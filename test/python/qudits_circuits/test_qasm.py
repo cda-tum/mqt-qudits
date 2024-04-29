@@ -6,6 +6,7 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 
 class TestQASM(TestCase):
     def test_from_qasm(self):
+        """Create circuit from QASM program"""
         qasm = """
                 DITQASM 2.0;
                 qreg field [7][5,5,5,5,5,5,5];
