@@ -89,6 +89,7 @@ class QASM:
                 if ".npy" in params:
                     params = np.load(params)
                 else:
+                    # TODO: This does not handle "custom_data" correctly
                     params = tuple(self.safe_eval_math_expression(param) for param in params.strip("()[]").split(","))
             else:
                 params = ()
