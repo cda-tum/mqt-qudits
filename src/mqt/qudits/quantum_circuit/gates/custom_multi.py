@@ -14,23 +14,24 @@ if TYPE_CHECKING:
 
 class CustomMulti(Gate):
     """Multi body custom gate"""
+
     def __init__(
-            self,
-            circuit: QuantumCircuit,
-            name: str,
-            target_qudits: list[int] | int,
-            parameters: np.ndarray,
-            dimensions: list[int] | int,
-            controls: ControlData | None = None,
+        self,
+        circuit: QuantumCircuit,
+        name: str,
+        target_qudits: list[int] | int,
+        parameters: np.ndarray,
+        dimensions: list[int] | int,
+        controls: ControlData | None = None,
     ) -> None:
         super().__init__(
-                circuit=circuit,
-                name=name,
-                gate_type=GateTypes.MULTI,
-                target_qudits=target_qudits,
-                dimensions=dimensions,
-                control_set=controls,
-                params=parameters
+            circuit=circuit,
+            name=name,
+            gate_type=GateTypes.MULTI,
+            target_qudits=target_qudits,
+            dimensions=dimensions,
+            control_set=controls,
+            params=parameters,
         )
         if self.validate_parameter(parameters):
             self.__array_storage = parameters
@@ -41,11 +42,10 @@ class CustomMulti(Gate):
     def __array__(self) -> np.ndarray:
         return self.__array_storage
 
-    def validate_parameter(self, parameter=None):
+    def validate_parameter(self, parameter=None) -> bool:
         assert isinstance(parameter, np.ndarray)
         return True
 
     def __str__(self) -> str:
         # TODO
         pass
-

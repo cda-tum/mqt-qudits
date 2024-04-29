@@ -12,6 +12,7 @@ class QASM:
     """
     Class that manages the parsing of QASM programs
     """
+
     def __init__(self) -> None:
         self._program = None
 
@@ -54,10 +55,10 @@ class QASM:
             return True
         return False
 
-    def parse_creg(self, line, rgxs, sitemap_classic):
+    def parse_creg(self, line, rgxs, sitemap_classic) -> bool:
         match = rgxs["creg"].match(line)
         if match:
-            name, nq, qdims = match.groups()
+            name, nq, _qdims = match.groups()
             nq = int(*re.search(r"\[(\d+)\]", nq).groups())
             for i in range(int(nq)):
                 sitemap_classic[(str(name), i)] = len(sitemap_classic)
@@ -95,7 +96,7 @@ class QASM:
                 if ".npy" in params:
                     params = np.load(params)
                 else:
-                    params = (tuple(self.safe_eval_math_expression(param) for param in params.strip("()[]").split(",")))
+                    params = tuple(self.safe_eval_math_expression(param) for param in params.strip("()[]").split(","))
             else:
                 params = ()
 
@@ -153,23 +154,23 @@ class QASM:
         """
         # define regular expressions for parsing
         rgxs = {
-            "header":        re.compile(r"(DITQASM\s+2.0;)|(include\s+\"qelib1.inc\";)"),
-            "comment":       re.compile(r"^//"),
+            "header": re.compile(r"(DITQASM\s+2.0;)|(include\s+\"qelib1.inc\";)"),
+            "comment": re.compile(r"^//"),
             "comment_start": re.compile(r"/\*"),
-            "comment_end":   re.compile(r"\*/"),
-            "qreg":          re.compile(r"qreg\s+(\w+)\s+(\[\s*\d+\s*\])(?:\s*\[(\d+(?:,\s*\d+)*)\])?;"),
-            "creg":          re.compile(r"creg\s+(\w+)\s+(\[\s*\d+\s*\])(?:\s*\[(\d+(?:,\s*\d+)*)\])?;"),
+            "comment_end": re.compile(r"\*/"),
+            "qreg": re.compile(r"qreg\s+(\w+)\s+(\[\s*\d+\s*\])(?:\s*\[(\d+(?:,\s*\d+)*)\])?;"),
+            "creg": re.compile(r"creg\s+(\w+)\s+(\[\s*\d+\s*\])(?:\s*\[(\d+(?:,\s*\d+)*)\])?;"),
             # "ctrl_id":       re.compile(r"\s+(\w+)\s*(\[\s*\other_size+\s*\])\s*(\s*\w+\s*\[\other_size+\])*\s*"),
             "qreg_indexing": re.compile(r"\s*(\w+)\s*(\[\s*\d+\s*\])"),
             # "gate_matrix":
             # re.compile(r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\other_size+\]\s*(,\s*\w+\[\other_size+\])*)\s*;"),
-            "gate_matrix":   re.compile(
-                    r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\d+\]\s*(,\s*\w+\[\d+\])*)\s*"
-                    r"(ctl(\s+\w+\[\d+\]\s*(\s*\w+\s*\[\d+\])*)\s*(\[(\d+(,\s*\d+)*)\]))?"
-                    r"\s*;"
+            "gate_matrix": re.compile(
+                r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\d+\]\s*(,\s*\w+\[\d+\])*)\s*"
+                r"(ctl(\s+\w+\[\d+\]\s*(\s*\w+\s*\[\d+\])*)\s*(\[(\d+(,\s*\d+)*)\]))?"
+                r"\s*;"
             ),
-            "error":         re.compile(r"^(gate_matrix|if)"),
-            "ignore":        re.compile(r"^(measure|barrier)"),
+            "error": re.compile(r"^(gate_matrix|if)"),
+            "ignore": re.compile(r"^(measure|barrier)"),
         }
 
         # initialise number of qubits to zero and an empty list for instructions
@@ -210,11 +211,11 @@ class QASM:
             msg = f"{line}"
             raise SyntaxError(msg)
         self._program = {
-            "circuits_size":   len(sitemap),
-            "sitemap":         sitemap,
+            "circuits_size": len(sitemap),
+            "sitemap": sitemap,
             "sitemap_classic": sitemap_classic,
-            "instructions":    gates,
-            "n_gates":         len(gates),
+            "instructions": gates,
+            "n_gates": len(gates),
         }
         return self._program
 

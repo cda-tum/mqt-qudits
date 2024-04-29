@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from unittest import TestCase
+
 from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
@@ -35,13 +36,26 @@ class TestQASM(TestCase):
 
         circuit = QuantumCircuit()
         circuit.from_qasm(qasm)
-        self.assertTrue(circuit._num_cl == 9)
-        self.assertTrue(circuit._num_qudits == 9)
-        self.assertTrue(circuit._dimensions == [5, 5, 5, 5, 5, 5, 5, 2, 2])
-        self.assertTrue(circuit.number_gates == 15)
-        self.assertTrue(len(circuit.quantum_registers) == 2)
-        self.assertTrue(len(circuit.classic_registers) == 2)
-        self.assertTrue([s.qasm_tag for s in circuit.instructions] == ["x", "h", "cx", "cx", "rxy", "csum", "pm",
-                                                                       "rh", "ls", "ms", "rz", "s", "virtrz",
-                                                                       "z", "rdu"])
-
+        assert circuit._num_cl == 9
+        assert circuit._num_qudits == 9
+        assert circuit._dimensions == [5, 5, 5, 5, 5, 5, 5, 2, 2]
+        assert circuit.number_gates == 15
+        assert len(circuit.quantum_registers) == 2
+        assert len(circuit.classic_registers) == 2
+        assert [s.qasm_tag for s in circuit.instructions] == [
+            "x",
+            "h",
+            "cx",
+            "cx",
+            "rxy",
+            "csum",
+            "pm",
+            "rh",
+            "ls",
+            "ms",
+            "rz",
+            "s",
+            "virtrz",
+            "z",
+            "rdu",
+        ]
