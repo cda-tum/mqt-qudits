@@ -1,19 +1,18 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+import random
 from typing import TYPE_CHECKING
-
+import string
 from mqt.qudits.quantum_circuit.components.extensions.matrix_factory import MatrixFactory
 
 from ..exceptions import CircuitError
 from .components.extensions.controls import ControlData
 from .components.extensions.gate_types import GateTypes
 
+import numpy as np
 if TYPE_CHECKING:
     import enum
-
-    import numpy as np
-
     from .circuit import QuantumCircuit
 
 
@@ -27,17 +26,17 @@ class Gate(Instruction):
     """Unitary gate_matrix."""
 
     def __init__(
-        self,
-        circuit: QuantumCircuit,
-        name: str,
-        gate_type: enum,
-        target_qudits: list[int] | int,
-        dimensions: list[int] | int,
-        params: list | None = None,
-        control_set=None,
-        label: str | None = None,
-        duration=None,
-        unit="dt",
+            self,
+            circuit: QuantumCircuit,
+            name: str,
+            gate_type: enum,
+            target_qudits: list[int] | int,
+            dimensions: list[int] | int,
+            params: list | np.ndarray | None = None,
+            control_set=None,
+            label: str | None = None,
+            duration=None,
+            unit="dt",
     ) -> None:
         self.dagger = False
         self.parent_circuit = circuit
@@ -97,7 +96,7 @@ class Gate(Instruction):
         # AT THE MOMENT WE SUPPORT CONTROL OF SINGLE QUDIT GATES
         assert self.gate_type == GateTypes.SINGLE
         if len(indices) > self.parent_circuit.num_qudits or any(
-            idx >= self.parent_circuit.num_qudits for idx in indices
+                idx >= self.parent_circuit.num_qudits for idx in indices
         ):
             msg = "Indices or Number of Controls is beyond the Quantum Circuit Size"
             raise IndexError(msg)
@@ -128,7 +127,9 @@ class Gate(Instruction):
 
     def __qasm__(self) -> str:
         string = f"{self.qasm_tag} "
-        if self._params:
+        if isinstance(self._params, np.ndarray):
+            string += self.return_custom_data()
+        elif self._params:
             string += "("
             for parameter in self._params:
                 string += f"{parameter}, "
@@ -182,8 +183,23 @@ class Gate(Instruction):
     @property
     def control_info(self):
         return {
-            "target": self._target_qudits,
+            "target":           self._target_qudits,
             "dimensions_slice": self._dimensions,
-            "params": self._params,
-            "controls": self._controls_data,
+            "params":           self._params,
+            "controls":         self._controls_data,
         }
+
+    def return_custom_data(self):
+        string_res = ""
+        if self.parent_circuit.path_save:
+            letters = string.ascii_letters
+            key = ''.join(random.choice(letters) for _ in range(4))
+            string_res += "("
+            name_file = f"{self.parent_circuit.path_save}/{self._name}_{key}"
+            np.save(name_file, self._params)
+            string_res += name_file
+            string_res += ") "
+        else:
+            string_res += "(custom_data) "
+
+        return string_res

@@ -41,7 +41,11 @@ class Perm(Gate):
         return np.eye(reduce(operator.mul, self._dimensions))[:, self.perm_data]
 
     def validate_parameter(self, parameter) -> bool:
-        assert isinstance(parameter, list), "Input is not a list"
+        try:
+            assert isinstance(parameter, list)
+        except AssertionError:
+            assert isinstance(parameter, tuple), "Input is not a iterable"
+            parameter = list(parameter)
         num_nums = reduce(operator.mul, self._dimensions)
         assert all(
             (0 <= num < len(parameter) and num < num_nums) for num in parameter
