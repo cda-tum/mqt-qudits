@@ -199,7 +199,7 @@ class Gate(Instruction):
             letters = string.ascii_letters
             key = "".join(random.choice(letters) for _ in range(4))
             string_res += "("
-            name_file = f"{self.parent_circuit.path_save}/{self._name}_{key}"
+            name_file = f"{self.parent_circuit.path_save}{self._name}_{key}.npy"
             np.save(name_file, self._params)
             string_res += name_file
             string_res += ") "

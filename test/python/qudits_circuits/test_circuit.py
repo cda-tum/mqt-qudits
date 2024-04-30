@@ -40,5 +40,4 @@ class TestQuantumCircuit(TestCase):
         file = circ.save_to_file(file_name="test")
         program = circ.to_qasm()
         circ_new = QuantumCircuit()
-        circ_new.from_qasm(program)
         circ_new.load_from_file(file)
