@@ -5,7 +5,7 @@ from pathlib import Path
 
 import numpy as np
 
-from mqt.qudits.quantum_circuit.components.extensions.controls import ControlData
+from .components.extensions.controls import ControlData
 
 
 class QASM:
@@ -58,11 +58,9 @@ class QASM:
     def parse_creg(self, line, rgxs, sitemap_classic) -> bool:
         match = rgxs["creg"].match(line)
         if match:
-            name, nq, _qdims = match.groups()
-            nq = int(*re.search(r"\[(\d+)\]", nq).groups())
-            for i in range(int(nq)):
+            name, nclassics = match.groups()
+            for i in range(int(nclassics)):
                 sitemap_classic[(str(name), i)] = len(sitemap_classic)
-
             return True
         return False
 
@@ -86,16 +84,12 @@ class QASM:
             ctl_qudits = match.group(6)
             ctl_levels = match.group(8)
 
-            # params = (
-            #     tuple(sp.sympify(param.replace("pi", str(sp.pi))) for param in params.strip("()").split(","))
-            #     if params
-            #     else ()
-            # )
             # Evaluate params using NumPy and NumExpr
             if params:
                 if ".npy" in params:
                     params = np.load(params)
                 else:
+                    # TODO: This does not handle "custom_data" correctly
                     params = tuple(self.safe_eval_math_expression(param) for param in params.strip("()[]").split(","))
             else:
                 params = ()
@@ -159,7 +153,7 @@ class QASM:
             "comment_start": re.compile(r"/\*"),
             "comment_end": re.compile(r"\*/"),
             "qreg": re.compile(r"qreg\s+(\w+)\s+(\[\s*\d+\s*\])(?:\s*\[(\d+(?:,\s*\d+)*)\])?;"),
-            "creg": re.compile(r"creg\s+(\w+)\s+(\[\s*\d+\s*\])(?:\s*\[(\d+(?:,\s*\d+)*)\])?;"),
+            "creg": re.compile(r"creg\s+(\w+)\s*\[\s*(\d+)\s*\]\s*;"),
             # "ctrl_id":       re.compile(r"\s+(\w+)\s*(\[\s*\other_size+\s*\])\s*(\s*\w+\s*\[\other_size+\])*\s*"),
             "qreg_indexing": re.compile(r"\s*(\w+)\s*(\[\s*\d+\s*\])"),
             # "gate_matrix":

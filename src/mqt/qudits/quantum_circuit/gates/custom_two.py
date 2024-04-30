@@ -31,18 +31,17 @@ class CustomTwo(Gate):
             target_qudits=target_qudits,
             dimensions=dimensions,
             control_set=controls,
+            params=parameters,
         )
         if self.validate_parameter(parameters):
             self.__array_storage = parameters
-            self._params = self.__array_storage
         self.qasm_tag = "cutwo"
 
     def __array__(self) -> np.ndarray:
         return self.__array_storage
 
     def validate_parameter(self, parameter=None) -> bool:
-        assert isinstance(parameter, np.ndarray)
-        return True
+        return isinstance(parameter, np.ndarray)
 
     def __str__(self) -> str:
         # TODO

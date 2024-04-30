@@ -3,6 +3,7 @@ from __future__ import annotations
 import random
 import string
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -193,17 +194,11 @@ class Gate(Instruction):
             "controls": self._controls_data,
         }
 
-    def return_custom_data(self):
-        string_res = ""
-        if self.parent_circuit.path_save:
-            letters = string.ascii_letters
-            key = "".join(random.choice(letters) for _ in range(4))
-            string_res += "("
-            name_file = f"{self.parent_circuit.path_save}/{self._name}_{key}"
-            np.save(name_file, self._params)
-            string_res += name_file
-            string_res += ") "
-        else:
-            string_res += "(custom_data) "
+    def return_custom_data(self) -> str:
+        if not self.parent_circuit.path_save:
+            return "(custom_data) "
 
-        return string_res
+        key = "".join(random.choice(string.ascii_letters) for _ in range(4))
+        file_path = Path(self.parent_circuit.path_save) / f"{self._name}_{key}.npy"
+        np.save(file_path, self._params)
+        return f"({file_path}) "

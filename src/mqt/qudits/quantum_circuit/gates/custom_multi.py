@@ -43,8 +43,7 @@ class CustomMulti(Gate):
         return self.__array_storage
 
     def validate_parameter(self, parameter=None) -> bool:
-        assert isinstance(parameter, np.ndarray)
-        return True
+        return isinstance(parameter, np.ndarray)
 
     def __str__(self) -> str:
         # TODO
