@@ -403,7 +403,7 @@ Tailor your quantum compilation process to achieve optimal performance and emula
 
 ### Experimental-Inspired Compilation
 
-Emulate the features of the best experimental laboratories in your compilation process. 
+Emulate the features of the best experimental laboratories in your compilation process.
 Leverage modern compiler passes to customize optimization, gate decomposition, and noise-aware strategies, creating compiled circuits that closely resemble the challenges and advantages of cutting-edge quantum hardware.
 
 Customize, compile, and push the boundaries of quantum algorithms with a tailored approach to quantum compilation. 🛠️🔧🚀
