@@ -38,6 +38,6 @@ class TestQuantumCircuit(TestCase):
         circ.cu_multi([qreg_field[0], qreg_matter[1], qreg_matter[0]], np.identity(7 * 2 * 2))
 
         file = circ.save_to_file(file_name="test")
-        program = circ.to_qasm()
+        circ.to_qasm()
         circ_new = QuantumCircuit()
         circ_new.load_from_file(file)
