@@ -125,10 +125,8 @@ class LogAdaptiveDecomposition:
             if abs(np.angle(diag_U[i])) > 1.0e-4:
                 phase_gate = gates.VirtRz(
                     self.circuit, "VRz", self.qudit_index, [i, np.angle(diag_U[i])], self.dimension
-                )  # old version: VirtRz(np.angle(diag_U[i]), phy_n_i,
-                # dimension)
-
-                U_ = phase_gate.to_matrix(identities=0) @ U_  # matmul(phase_gate.to_matrix(identities=0), U_)
+                )  # old version: VirtRz(np.angle(diag_U[i]), phy_n_i, dimension)
+                U_ = phase_gate.to_matrix(identities=0) @ U_
                 matrices.append(phase_gate)
 
         return matrices, placement

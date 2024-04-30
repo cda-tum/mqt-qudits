@@ -8,8 +8,8 @@ class QuditCompiler:
         "PhyLocQRPass": PhyLocQRPass,
         "PhyLocAdaPass": PhyLocAdaPass,
         "LocQRPass": PhyLocQRPass,
-        "LocAdaPass": PhyLocAdaPass,  # "LogLocAdaPass": LogLocAdaPass,
-        "LogLocQRPass": LogLocQRPass,  # "LogEntQRCEXPass": LogEntQRCEXPass,
+        "LocAdaPass": PhyLocAdaPass,
+        "LogLocQRPass": LogLocQRPass,
         "ZPropagationPass": ZPropagationPass,
         "ZRemovalPass": ZRemovalPass,
     }
