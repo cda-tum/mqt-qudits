@@ -345,7 +345,7 @@ class QuantumCircuit:
 
         return text
 
-    def save_to_file(self, file_name: str, file_path: str = "./") -> str:
+    def save_to_file(self, file_name: str, file_path: str = ".") -> str:
         """
         Save qasm into a file with the specified name and path.
 
@@ -378,13 +378,9 @@ class QuantumCircuit:
         Returns:
             str: The text loaded from the file.
         """
-        try:
-            with Path(file_path).open("r") as file:
-                text = file.read()
-            self.from_qasm(text)
-        except FileNotFoundError:
-            msg = f"File not found: {file_path}"
-            raise FileNotFoundError(msg)
+        with Path(file_path).open("r") as file:
+            text = file.read()
+        self.from_qasm(text)
 
     def draw(self) -> None:
         # TODO
