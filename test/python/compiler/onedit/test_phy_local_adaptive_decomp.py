@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from unittest import TestCase
 
 from mqt.qudits.compiler.compilation_minitools import UnitaryVerifier
@@ -14,13 +16,14 @@ class TestPhyLocAdaPass(TestCase):
 class TestPhyAdaptiveDecomposition(TestCase):
     def test_execute(self):
         dim = 5
-        test_sample_edges = [(0, 4, {"delta_m": 0, "sensitivity": 1}),
-                             (0, 3, {"delta_m": 1, "sensitivity": 3}),
-                             (0, 2, {"delta_m": 1, "sensitivity": 3}),
-                             (1, 4, {"delta_m": 0, "sensitivity": 1}),
-                             (1, 3, {"delta_m": 1, "sensitivity": 3}),
-                             (1, 2, {"delta_m": 1, "sensitivity": 3})
-                             ]
+        test_sample_edges = [
+            (0, 4, {"delta_m": 0, "sensitivity": 1}),
+            (0, 3, {"delta_m": 1, "sensitivity": 3}),
+            (0, 2, {"delta_m": 1, "sensitivity": 3}),
+            (1, 4, {"delta_m": 0, "sensitivity": 1}),
+            (1, 3, {"delta_m": 1, "sensitivity": 3}),
+            (1, 2, {"delta_m": 1, "sensitivity": 3}),
+        ]
         test_sample_nodes = [0, 1, 2, 3, 4]
         test_sample_nodes_map = [3, 2, 4, 1, 0]
 
@@ -33,19 +36,20 @@ class TestPhyAdaptiveDecomposition(TestCase):
         QR = PhyQrDecomp(Htest, graph_1, Z_prop=False, not_stand_alone=False)
         # gate, graph_orig, Z_prop=False, not_stand_alone=True
 
-        decomp, _algorithmic_cost, _total_cost = QR.execute()
+        _decomp, _algorithmic_cost, _total_cost = QR.execute()
 
-        ADA = PhyAdaptiveDecomposition(Htest, graph_1, cost_limit=(1.1 * _algorithmic_cost, 1.1 * _total_cost),
-                                       dimension=5, Z_prop=False)
+        ADA = PhyAdaptiveDecomposition(
+            Htest, graph_1, cost_limit=(1.1 * _algorithmic_cost, 1.1 * _total_cost), dimension=5, Z_prop=False
+        )
         # gate, graph_orig, cost_limit=(0, 0), dimension=-1, Z_prop=False
-        matrices_decomposed, best_cost, final_graph = ADA.execute()
+        matrices_decomposed, _best_cost, final_graph = ADA.execute()
         # ##############################################
 
         V = UnitaryVerifier(
-                matrices_decomposed, Htest, [dim], test_sample_nodes, test_sample_nodes_map, final_graph.log_phy_map
+            matrices_decomposed, Htest, [dim], test_sample_nodes, test_sample_nodes_map, final_graph.log_phy_map
         )
-        self.assertEqual(len(matrices_decomposed), 17)
-        self.assertTrue(V.verify())
+        assert len(matrices_decomposed) == 17
+        assert V.verify()
 
     def test_dfs(self):
         pass

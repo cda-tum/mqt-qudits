@@ -2,12 +2,6 @@ from __future__ import annotations
 
 from unittest import TestCase
 
-from mqt.qudits.compiler.compilation_minitools import UnitaryVerifier
-from mqt.qudits.compiler.onedit.mapping_un_aware_transpilation import LogAdaptiveDecomposition
-from mqt.qudits.compiler.onedit.mapping_un_aware_transpilation.log_local_qr_decomp import QrDecomp
-from mqt.qudits.core import LevelGraph
-from mqt.qudits.quantum_circuit import QuantumCircuit
-
 
 class TestLogLocAdaPass(TestCase):
     def test_transpile(self):

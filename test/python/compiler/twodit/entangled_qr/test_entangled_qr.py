@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from unittest import TestCase
 
-from mqt.qudits.compiler.dit_manager import QuditCompiler
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.simulation import MQTQuditProvider
 

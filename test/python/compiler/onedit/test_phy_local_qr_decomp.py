@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from unittest import TestCase
 
 from mqt.qudits.compiler.compilation_minitools import UnitaryVerifier
@@ -14,13 +16,14 @@ class TestPhyLocQRPass(TestCase):
 class TestPhyQRDecomposition(TestCase):
     def test_execute(self):
         dim = 5
-        test_sample_edges = [(0, 4, {"delta_m": 0, "sensitivity": 1}),
-                             (0, 3, {"delta_m": 1, "sensitivity": 3}),
-                             (0, 2, {"delta_m": 1, "sensitivity": 3}),
-                             (1, 4, {"delta_m": 0, "sensitivity": 1}),
-                             (1, 3, {"delta_m": 1, "sensitivity": 3}),
-                             (1, 2, {"delta_m": 1, "sensitivity": 3})
-                             ]
+        test_sample_edges = [
+            (0, 4, {"delta_m": 0, "sensitivity": 1}),
+            (0, 3, {"delta_m": 1, "sensitivity": 3}),
+            (0, 2, {"delta_m": 1, "sensitivity": 3}),
+            (1, 4, {"delta_m": 0, "sensitivity": 1}),
+            (1, 3, {"delta_m": 1, "sensitivity": 3}),
+            (1, 2, {"delta_m": 1, "sensitivity": 3}),
+        ]
         test_sample_nodes = [0, 1, 2, 3, 4]
         test_sample_nodes_map = [3, 2, 4, 1, 0]
 
@@ -37,8 +40,6 @@ class TestPhyQRDecomposition(TestCase):
 
         # ##############################################
 
-        V = UnitaryVerifier(
-                decomp, Htest, [dim], test_sample_nodes, test_sample_nodes_map, graph_1.log_phy_map
-        )
-        self.assertEqual(len(decomp), 30)
-        self.assertTrue(V.verify())
+        V = UnitaryVerifier(decomp, Htest, [dim], test_sample_nodes, test_sample_nodes_map, graph_1.log_phy_map)
+        assert len(decomp) == 30
+        assert V.verify()

@@ -33,9 +33,7 @@ class TestQrDecomp(TestCase):
 
         decomp, _algorithmic_cost, _total_cost = QR.execute()
 
-        V = UnitaryVerifier(
-                decomp, Htest, [dim], test_sample_nodes, test_sample_nodes_map, graph_1.log_phy_map
-        )
+        V = UnitaryVerifier(decomp, Htest, [dim], test_sample_nodes, test_sample_nodes_map, graph_1.log_phy_map)
         # sequence, target, dimensions, nodes=None, initial_map=None, final_map=None
         assert len(decomp) == 5
         assert V.verify()

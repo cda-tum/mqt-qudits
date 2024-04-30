@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import gc
+
 import numpy as np
 
 from ....quantum_circuit import gates
@@ -62,11 +63,11 @@ class QrDecomp:
                     thetaZ = new_mod(self.graph.nodes[i]["phase_storage"])
                     if abs(thetaZ) > 1.0e-4:
                         phase_gate = gates.VirtRz(
-                                self.gate.parent_circuit,
-                                "VRz",
-                                self.gate._target_qudits,
-                                [self.graph.nodes[i], thetaZ],
-                                self.gate.dimension,
+                            self.gate.parent_circuit,
+                            "VRz",
+                            self.gate._target_qudits,
+                            [self.graph.nodes[i], thetaZ],
+                            self.gate.dimension,
                         )  # (thetaZ, self.graph.nodes[i]['lpmap'], dimension) # [self.graph.nodes[i]["lpmap"], thetaZ],
                         decomp.append(phase_gate)
                     recover_dict[i] = thetaZ
@@ -87,7 +88,7 @@ class QrDecomp:
                     phi = -(np.pi / 2 + np.angle(U_[r - 1, c]) - np.angle(U_[r, c]))
 
                     rotation_involved = gates.R(
-                            self.circuit, "R", self.qudit_index, [r - 1, r, theta, phi], self.dimension
+                        self.circuit, "R", self.qudit_index, [r - 1, r, theta, phi], self.dimension
                     )  # R(theta, phi, r - 1, r, dimension)
 
                     U_ = rotation_involved.to_matrix(identities=0) @ U_  # matmul(rotation_involved.matrix, U_)
@@ -95,7 +96,7 @@ class QrDecomp:
                     non_zeros = np.count_nonzero(abs(U_) > 1.0e-4)
 
                     estimated_cost, _pi_pulses_routing, _temp_placement, cost_of_pi_pulses, gate_cost = cost_calculator(
-                            rotation_involved, self.graph, non_zeros
+                        rotation_involved, self.graph, non_zeros
                     )
                     """
                     decomp += pi_pulses_routing

@@ -1,18 +1,17 @@
 from __future__ import annotations
 
-from .onedit import LogLocAdaPass, LogLocQRPass, PhyLocAdaPass, PhyLocQRPass, ZPropagationPass, ZRemovalPass
-from .twodit import LogEntQRCEXPass
+from .onedit import LogLocQRPass, PhyLocAdaPass, PhyLocQRPass, ZPropagationPass, ZRemovalPass
 
 
 class QuditCompiler:
     passes_enabled = {
-        "PhyLocQRPass":     PhyLocQRPass,
-        "PhyLocAdaPass":    PhyLocAdaPass,
-        "LocQRPass":        PhyLocQRPass,
-        "LocAdaPass":       PhyLocAdaPass,  # "LogLocAdaPass": LogLocAdaPass,
-        "LogLocQRPass":     LogLocQRPass,  # "LogEntQRCEXPass": LogEntQRCEXPass,
+        "PhyLocQRPass": PhyLocQRPass,
+        "PhyLocAdaPass": PhyLocAdaPass,
+        "LocQRPass": PhyLocQRPass,
+        "LocAdaPass": PhyLocAdaPass,  # "LogLocAdaPass": LogLocAdaPass,
+        "LogLocQRPass": LogLocQRPass,  # "LogEntQRCEXPass": LogEntQRCEXPass,
         "ZPropagationPass": ZPropagationPass,
-        "ZRemovalPass":     ZRemovalPass,
+        "ZRemovalPass": ZRemovalPass,
     }
 
     def __init__(self) -> None:

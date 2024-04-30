@@ -11,7 +11,6 @@ from mqt.qudits.simulation import MQTQuditProvider
 
 
 class TestZRemovalPass(TestCase):
-
     def test_remove_z(self):
         provider = MQTQuditProvider()
         compiler = QuditCompiler()
@@ -39,21 +38,17 @@ class TestZRemovalPass(TestCase):
         new_circuit = compiler.compile(backend_ion, circ, passes)
 
         # Rs
-        self.assertTrue(len(new_circuit.instructions) == 6)
-        self.assertEqual(new_circuit.instructions[0].qasm_tag, "rxy")
-        self.assertEqual(new_circuit.instructions[1].qasm_tag, "rxy")
-        self.assertEqual(new_circuit.instructions[2].qasm_tag, "rxy")
-        self.assertEqual(new_circuit.instructions[3].qasm_tag, "rxy")
-        self.assertEqual(new_circuit.instructions[4].qasm_tag, "rxy")
-        self.assertEqual(new_circuit.instructions[5].qasm_tag, "rxy")
+        assert len(new_circuit.instructions) == 6
+        assert new_circuit.instructions[0].qasm_tag == "rxy"
+        assert new_circuit.instructions[1].qasm_tag == "rxy"
+        assert new_circuit.instructions[2].qasm_tag == "rxy"
+        assert new_circuit.instructions[3].qasm_tag == "rxy"
+        assert new_circuit.instructions[4].qasm_tag == "rxy"
+        assert new_circuit.instructions[5].qasm_tag == "rxy"
 
-        self.assertEqual(new_circuit.instructions[0].phi, np.pi)
-        self.assertEqual(new_circuit.instructions[1].phi, np.pi / 2)
-        self.assertEqual(new_circuit.instructions[2].phi, np.pi / 3)
-        self.assertEqual(new_circuit.instructions[3].phi, np.pi / 4)
-        self.assertEqual(new_circuit.instructions[4].phi, np.pi / 5)
-        self.assertEqual(new_circuit.instructions[5].phi, np.pi / 6)
-
-
-
-
+        assert new_circuit.instructions[0].phi == np.pi
+        assert new_circuit.instructions[1].phi == np.pi / 2
+        assert new_circuit.instructions[2].phi == np.pi / 3
+        assert new_circuit.instructions[3].phi == np.pi / 4
+        assert new_circuit.instructions[4].phi == np.pi / 5
+        assert new_circuit.instructions[5].phi == np.pi / 6

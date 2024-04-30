@@ -9,7 +9,6 @@ from ....exceptions import SequenceFoundException
 from ....quantum_circuit import gates
 from ....quantum_circuit.components.extensions.gate_types import GateTypes
 from ... import CompilerPass
-
 from ..mapping_aware_transpilation import PhyQrDecomp
 
 np.seterr(all="ignore")
@@ -33,7 +32,7 @@ class LogLocAdaPass(CompilerPass):
                 _decomp, algorithmic_cost, total_cost = QR.execute()
 
                 Adaptive = LogAdaptiveDecomposition(
-                        gate, energy_graph_i, (algorithmic_cost, total_cost), gate._dimensions
+                    gate, energy_graph_i, (algorithmic_cost, total_cost), gate._dimensions
                 )
 
                 (
@@ -65,17 +64,16 @@ class LogAdaptiveDecomposition:
 
     def execute(self):
         self.TREE.add(
-                0,
-                gates.CustomOne(
-                        self.circuit, "CUo", self.qudit_index, np.identity(self.dimension, dtype="complex"),
-                        self.dimension
-                ),
-                self.U,
-                self.graph,
-                0,
-                0,
-                self.cost_limit,
-                [],
+            0,
+            gates.CustomOne(
+                self.circuit, "CUo", self.qudit_index, np.identity(self.dimension, dtype="complex"), self.dimension
+            ),
+            self.U,
+            self.graph,
+            0,
+            0,
+            self.cost_limit,
+            [],
         )
         try:
             self.DFS(self.TREE.root)
@@ -86,7 +84,7 @@ class LogAdaptiveDecomposition:
 
             if matrices_decomposed != []:
                 matrices_decomposed, final_graph = self.z_extraction(
-                        matrices_decomposed, final_graph, self.phase_propagation
+                    matrices_decomposed, final_graph, self.phase_propagation
                 )
             else:
                 pass
@@ -126,7 +124,7 @@ class LogAdaptiveDecomposition:
         for i in range(dimension):
             if abs(np.angle(diag_U[i])) > 1.0e-4:
                 phase_gate = gates.VirtRz(
-                        self.circuit, "VRz", self.qudit_index, [i, np.angle(diag_U[i])], self.dimension
+                    self.circuit, "VRz", self.qudit_index, [i, np.angle(diag_U[i])], self.dimension
                 )  # old version: VirtRz(np.angle(diag_U[i]), phy_n_i,
                 # dimension)
 
@@ -138,8 +136,6 @@ class LogAdaptiveDecomposition:
     def DFS(self, current_root, level=0) -> None:
         # check if close to diagonal
         Ucopy = current_root.U_of_level.copy()
-
-        current_placement = current_root.graph
 
         # is the diagonal noisy?
         valid_diag = any(abs(np.diag(Ucopy)) > 1.0e-4)
@@ -174,7 +170,7 @@ class LogAdaptiveDecomposition:
                         phi = -(np.pi / 2 + np.angle(U_[r, c]) - np.angle(U_[r2, c]))
 
                         rotation_involved = gates.R(
-                                self.circuit, "R", self.qudit_index, [r, r2, theta, phi], self.dimension
+                            self.circuit, "R", self.qudit_index, [r, r2, theta, phi], self.dimension
                         )  # R(theta, phi, r, r2, dimension)
 
                         U_temp = rotation_involved.to_matrix(identities=0) @ U_  # matmul(rotation_involved.matrix, U_)
@@ -190,14 +186,14 @@ class LogAdaptiveDecomposition:
                             new_key = self.TREE.global_id_counter
 
                             current_root.add(
-                                    new_key,
-                                    rotation_involved,
-                                    U_temp,
-                                    None,  # new_placement,
-                                    0,  # next_step_cost,
-                                    decomp_next_step_cost,
-                                    current_root.max_cost,
-                                    [],
+                                new_key,
+                                rotation_involved,
+                                U_temp,
+                                None,  # new_placement,
+                                0,  # next_step_cost,
+                                decomp_next_step_cost,
+                                current_root.max_cost,
+                                [],
                             )
 
         # ===============CONTINUE SEARCH ON CHILDREN========================================
