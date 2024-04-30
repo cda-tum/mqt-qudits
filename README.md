@@ -79,8 +79,8 @@ The Munich Quantum Toolkit has been supported by the European Research Council (
 
 <p align="center">
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="https://ec.europa.eu/regional_policy/images/information-sources/logo-download-center/eu_funded_en.jpg" width="25%">
-<img src="https://ec.europa.eu/regional_policy/images/information-sources/logo-download-center/eu_funded_en.jpg" width="25%">
+<source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/cda-tum/mqt-qudits/main/docs/_static/eu_funded_dark.svg" width="25%">
+<img src="https://raw.githubusercontent.com/cda-tum/mqt-qudits/main/docs/_static/eu_funded_light.svg" width="25%">
 </picture>
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/cda-tum/mqt/main/docs/_static/tum_dark.svg" width="20%">
