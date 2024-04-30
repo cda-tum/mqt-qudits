@@ -20,13 +20,6 @@ Delve into the realm of mixed-dimensional quantum computing with NeQST—a proje
 Our team is focused on creating design automation methods and software for quantum computing.
 The following tutorial will guide you through the initial tools and contributions we have made to advance Quantum Information Processing for Science and Technology.
 
-```{image} /_static/foot.png
-:alt: MQT Qudits Project Logos
-:width: 80%
-:align: center
-
-```
-
 +++
 
 ## Installation Steps:
