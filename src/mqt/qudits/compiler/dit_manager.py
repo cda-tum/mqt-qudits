@@ -6,15 +6,13 @@ from .twodit import LogEntQRCEXPass
 
 class QuditCompiler:
     passes_enabled = {
-        "PhyLocQRPass": PhyLocQRPass,
-        "PhyLocAdaPass": PhyLocAdaPass,
-        "LocQRPass": PhyLocQRPass,
-        "LocAdaPass": PhyLocAdaPass,
-        "LogLocAdaPass": LogLocAdaPass,
-        "LogLocQRPass": LogLocQRPass,
-        "LogEntQRCEXPass": LogEntQRCEXPass,
+        "PhyLocQRPass":     PhyLocQRPass,
+        "PhyLocAdaPass":    PhyLocAdaPass,
+        "LocQRPass":        PhyLocQRPass,
+        "LocAdaPass":       PhyLocAdaPass,  # "LogLocAdaPass": LogLocAdaPass,
+        "LogLocQRPass":     LogLocQRPass,  # "LogEntQRCEXPass": LogEntQRCEXPass,
         "ZPropagationPass": ZPropagationPass,
-        "ZRemovalPass": ZRemovalPass,
+        "ZRemovalPass":     ZRemovalPass,
     }
 
     def __init__(self) -> None:

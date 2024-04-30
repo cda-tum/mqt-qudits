@@ -1,22 +1,19 @@
-from __future__ import annotations
-
 from unittest import TestCase
 
 from mqt.qudits.compiler.compilation_minitools import UnitaryVerifier
-from mqt.qudits.compiler.onedit.mapping_un_aware_transpilation import LogAdaptiveDecomposition
-from mqt.qudits.compiler.onedit.mapping_un_aware_transpilation.log_local_qr_decomp import QrDecomp
+from mqt.qudits.compiler.onedit.mapping_aware_transpilation import PhyQrDecomp
 from mqt.qudits.core import LevelGraph
 from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
-class TestLogLocAdaPass(TestCase):
+class TestPhyLocQRPass(TestCase):
     def test_transpile(self):
         pass
 
 
-class TestLogAdaptiveDecomposition(TestCase):
-    """def test_execute(self):
-        dim = 3
+class TestPhyQRDecomposition(TestCase):
+    def test_execute(self):
+        dim = 5
         test_sample_edges = [(0, 4, {"delta_m": 0, "sensitivity": 1}),
                              (0, 3, {"delta_m": 1, "sensitivity": 3}),
                              (0, 2, {"delta_m": 1, "sensitivity": 3}),
@@ -33,22 +30,15 @@ class TestLogAdaptiveDecomposition(TestCase):
         Htest = circuit_5.h(0)
         graph_1.phase_storing_setup()
 
-        QR = QrDecomp(Htest, graph_1, Z_prop=False, not_stand_alone=False)
+        QR = PhyQrDecomp(Htest, graph_1, Z_prop=False, not_stand_alone=False)
         # gate, graph_orig, Z_prop=False, not_stand_alone=True
 
         decomp, _algorithmic_cost, _total_cost = QR.execute()
 
-        ADA = LogAdaptiveDecomposition(Htest, graph_1, cost_limit=(1.1 * _algorithmic_cost, 1.1 * _total_cost),
-                                       dimension=5, Z_prop=False)
-        # gate, graph_orig, cost_limit=(0, 0), dimension=-1, Z_prop=False
-        matrices_decomposed, best_cost, final_graph = ADA.execute()
         # ##############################################
 
         V = UnitaryVerifier(
-                matrices_decomposed, Htest, [dim], test_sample_nodes, test_sample_nodes_map, graph_1.log_phy_map
+                decomp, Htest, [dim], test_sample_nodes, test_sample_nodes_map, graph_1.log_phy_map
         )
-        # self.assertEqual(len(matrices_decomposed), 17)
+        self.assertEqual(len(decomp), 30)
         self.assertTrue(V.verify())
-
-    def test_dfs(self):
-        pass"""
