@@ -14,7 +14,7 @@ mystnb:
 # MQT Qudits Tutorial 🌌
 
 _Discover a New Dimension in Quantum Computing._
-Embark on a journey with MQT Qudits, a cutting-edge framework for Mixed-Dimensional Quantum Computing.
+Embark on a journey with MQT Qudits, a framework for Mixed-Dimensional Quantum Computing.
 
 Delve into the realm of mixed-dimensional quantum computing with NeQST—a project funded by the European Union and developed developed as part of the {doc}`Munich Quantum Toolkit (MQT) <mqt:index>` by the [Chair for Design Automation](https://www.cda.cit.tum.de/) at the [Technical University of Munich](https://www.tum.de/).
 Our team is focused on creating design automation methods and software for quantum computing.
@@ -29,7 +29,7 @@ The following tutorial will guide you through the initial tools and contribution
 
 +++
 
-## Installation steps:
+## Installation Steps:
 
 ```bash
 (.venv) $ pip install mqt.qudits
@@ -247,6 +247,7 @@ After crafting your quantum circuit with precision, take it for a spin using two
   - h
   - rxy
   - rz
+  - rh
   - virtrz
   - s
   - x
@@ -402,7 +403,8 @@ Tailor your quantum compilation process to achieve optimal performance and emula
 
 ### Experimental-Inspired Compilation
 
-Emulate the features of the best experimental laboratories in your compilation process. Leverage modern compiler passes to customize optimization, gate decomposition, and noise-aware strategies, creating compiled circuits that closely resemble the challenges and advantages of cutting-edge quantum hardware.
+Emulate the features of the best experimental laboratories in your compilation process. 
+Leverage modern compiler passes to customize optimization, gate decomposition, and noise-aware strategies, creating compiled circuits that closely resemble the challenges and advantages of cutting-edge quantum hardware.
 
 Customize, compile, and push the boundaries of quantum algorithms with a tailored approach to quantum compilation. 🛠️🔧🚀
 
