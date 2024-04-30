@@ -35,7 +35,6 @@ class CustomMulti(Gate):
         )
         if self.validate_parameter(parameters):
             self.__array_storage = parameters
-            self._params = self.__array_storage
 
         self.qasm_tag = "cumulti"
 
