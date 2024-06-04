@@ -53,3 +53,18 @@ def density_operator(state_vector) -> np.ndarray:
 def frobenius_dist(x, y):
     a = x - y
     return np.sqrt(np.trace(np.abs(a.T.conj() @ a)))
+
+
+def naive_state_fidelity(state1, state2):
+    """
+    Calculates fidelity between two state vectors.
+    """
+    # Ensure both states have the same dimension
+    if state1.shape != state2.shape:
+        raise ValueError("State vectors must have the same dimension.")
+
+    # Inner product of the two states
+    inner_product = np.conj(state1).dot(state2)
+
+    # Fidelity calculation
+    return np.abs(inner_product) ** 2
