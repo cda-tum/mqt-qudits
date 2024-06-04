@@ -1,10 +1,17 @@
+from __future__ import annotations
+
 import copy
+
 import numpy as np
 
-from mqt.qudits.core.micro_dd import (create_decision_tree, cut_branches, dd_reduction_aggregation,
-                                      dd_reduction_hashing,
-                                      getNodeContributions, normalize_all)
-from mqt.qudits.quantum_circuit import QuantumCircuit
+from mqt.qudits.core.micro_dd import (
+    create_decision_tree,
+    cut_branches,
+    dd_reduction_aggregation,
+    dd_reduction_hashing,
+    getNodeContributions,
+    normalize_all,
+)
 from mqt.qudits.quantum_circuit.gates import R
 
 
@@ -13,8 +20,8 @@ def find_complex_number(x, c):
     b = x.imag  # Imaginary part of x
 
     # Calculate z
-    real_part = (c.real - b * c.imag) / (a ** 2 + b ** 2)
-    imag_part = (c.imag + b * c.real) / (a ** 2 + b ** 2)
+    real_part = (c.real - b * c.imag) / (a**2 + b**2)
+    imag_part = (c.imag + b * c.real) / (a**2 + b**2)
     return complex(real_part, imag_part)
 
 
@@ -26,7 +33,7 @@ def getAngles(from_, to_):
 
 
 class Operation:
-    def __init__(self, controls, qudit, levels, angles):
+    def __init__(self, controls, qudit, levels, angles) -> None:
         self._controls = controls
         self._qudit = qudit
         self._levels = levels
@@ -40,7 +47,7 @@ class Operation:
         return self._controls
 
     @controls.setter
-    def controls(self, value):
+    def controls(self, value) -> None:
         self._controls = value
 
     def get_control_nodes(self):
@@ -54,7 +61,7 @@ class Operation:
         return self._qudit
 
     @qudit.setter
-    def qudit(self, value):
+    def qudit(self, value) -> None:
         self._qudit = value
 
     @property
@@ -62,7 +69,7 @@ class Operation:
         return self._levels
 
     @levels.setter
-    def levels(self, value):
+    def levels(self, value) -> None:
         self._levels = value
 
     def get_angles(self):
@@ -76,7 +83,7 @@ class Operation:
     def phi(self):
         return self._angles[1]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             f"QuantumOperation(controls={self._controls}, qudit={self._qudit},"
             f" levels={self._levels}, angles={self._angles})"
@@ -84,7 +91,7 @@ class Operation:
 
 
 class StatePrep:
-    def __init__(self, quantum_circuit, state, approx=False):
+    def __init__(self, quantum_circuit, state, approx=False) -> None:
         self.circuit = quantum_circuit
         self.state = state
         self.approximation = approx
@@ -107,7 +114,9 @@ class StatePrep:
 
         return aplog
 
-    def synthesis(self, labels, cardinalities, node, circuit_meta, controls=[], depth=0):
+    def synthesis(self, labels, cardinalities, node, circuit_meta, controls=None, depth=0) -> None:
+        if controls is None:
+            controls = []
         if node.terminal:
             return
 
@@ -123,20 +132,26 @@ class StatePrep:
                 if len(node.children_index) == 0:
                     self.synthesis(labels, cardinalities, node.children[i], circuit_meta, controls_track, depth + 1)
                 else:
-                    self.synthesis(labels, cardinalities, node.children[node.children_index[i]], circuit_meta,
-                                   controls_track,
-                                   depth + 1)
+                    self.synthesis(
+                        labels,
+                        cardinalities,
+                        node.children[node.children_index[i]],
+                        circuit_meta,
+                        controls_track,
+                        depth + 1,
+                    )
         else:
             controls_track = copy.deepcopy(controls)
-            self.synthesis(labels, cardinalities, node.children[node.children_index[0]], circuit_meta, controls_track,
-                           depth + 1)
+            self.synthesis(
+                labels, cardinalities, node.children[node.children_index[0]], circuit_meta, controls_track, depth + 1
+            )
 
     def compile_state(self):
         final_state = self.state
         cardinalities = self.circuit.dimensions
         labels = list(range(len(self.circuit.dimensions)))
         ops = []
-        decision_tree, number_of_nodes = create_decision_tree(labels, cardinalities, final_state)
+        decision_tree, _number_of_nodes = create_decision_tree(labels, cardinalities, final_state)
 
         if self.approximation:
             contributions = getNodeContributions(decision_tree, labels)

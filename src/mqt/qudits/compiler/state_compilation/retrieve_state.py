@@ -1,5 +1,8 @@
+from __future__ import annotations
+
+import operator
 from functools import reduce
-from typing import List
+
 import numpy as np
 
 
@@ -13,7 +16,7 @@ def verify_normalized_state(quantum_state):
 
 
 def generate_random_quantum_state(cardinalities):
-    length = reduce(lambda x, y: x * y, cardinalities)
+    length = reduce(operator.mul, cardinalities)
     # Generate random complex numbers with real and imaginary parts
     real_parts = np.random.randn(length)
     imag_parts = np.random.randn(length)
@@ -23,7 +26,7 @@ def generate_random_quantum_state(cardinalities):
     return complex_nums / np.linalg.norm(complex_nums)
 
 
-def generate_all_combinations(dimensions: List[int]) -> List[List[int]]:
+def generate_all_combinations(dimensions: list[int]) -> list[list[int]]:
     if len(dimensions) == 0:
         return [[]]
 
@@ -37,7 +40,7 @@ def generate_all_combinations(dimensions: List[int]) -> List[List[int]]:
     return all_combinations
 
 
-def generate_ghz_entries(dimensions: List[int]) -> List[List[int]]:
+def generate_ghz_entries(dimensions: list[int]) -> list[list[int]]:
     min_d = min(dimensions)
     entries = []
 
@@ -48,7 +51,7 @@ def generate_ghz_entries(dimensions: List[int]) -> List[List[int]]:
     return entries
 
 
-def generate_qudit_w_entries(dimensions: List[int]) -> List[List[int]]:
+def generate_qudit_w_entries(dimensions: list[int]) -> list[list[int]]:
     num_positions = len(dimensions)
     entries = []
 
@@ -61,11 +64,11 @@ def generate_qudit_w_entries(dimensions: List[int]) -> List[List[int]]:
     return entries
 
 
-def generate_embedded_w_entries(dimensions: List[int]) -> List[List[int]]:
+def generate_embedded_w_entries(dimensions: list[int]) -> list[list[int]]:
     num_positions = len(dimensions)
     entries = []
 
-    for j, _d in enumerate(dimensions):
+    for j in range(len(dimensions)):
         entry = [0] * num_positions
         entry[j] = 1
         entries.append(entry)
@@ -73,7 +76,7 @@ def generate_embedded_w_entries(dimensions: List[int]) -> List[List[int]]:
     return entries
 
 
-def find_entries_indices(input_list: List[List[int]], sublist: List[List[int]]) -> List[int]:
+def find_entries_indices(input_list: list[list[int]], sublist: list[list[int]]) -> list[int]:
     indices = []
 
     for state in sublist:
@@ -91,7 +94,7 @@ def find_entries_indices(input_list: List[List[int]], sublist: List[List[int]]) 
     return indices
 
 
-def generate_uniform_state(dimensions: List[int], state: str) -> np.array:
+def generate_uniform_state(dimensions: list[int], state: str) -> np.array:
     all_entries = generate_all_combinations(dimensions)
 
     if state == "qudit-w-state":

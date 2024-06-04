@@ -61,7 +61,8 @@ def naive_state_fidelity(state1, state2):
     """
     # Ensure both states have the same dimension
     if state1.shape != state2.shape:
-        raise ValueError("State vectors must have the same dimension.")
+        msg = "State vectors must have the same dimension."
+        raise ValueError(msg)
 
     # Inner product of the two states
     inner_product = np.conj(state1).dot(state2)
