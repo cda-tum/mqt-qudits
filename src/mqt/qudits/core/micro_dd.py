@@ -22,12 +22,15 @@ class TreeNode:
         return self.value < int(other.value)
 
     def __gt__(self, other):
+        # based on the inverse of lt
         return other.__lt__(self)
 
     def __le__(self, other):
+        # based on the other two for efficiency
         return self.__lt__(other) or self.__eq__(other)
 
     def __ge__(self, other):
+        # based on the other two for efficiency
         return self.__gt__(other) or self.__eq__(other)
 
 
