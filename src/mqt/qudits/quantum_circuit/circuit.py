@@ -394,6 +394,7 @@ class QuantumCircuit:
 
     def simulate(self):
         from mqt.qudits.simulation import MQTQuditProvider
+
         provider = MQTQuditProvider()
         backend = provider.get_backend("tnsim")
         job = backend.run(self)

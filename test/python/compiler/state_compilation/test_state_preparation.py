@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import operator
 from functools import reduce
 from random import randint
 from unittest import TestCase
@@ -13,7 +14,7 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
 def mini_sim(circuit):
-    size = reduce(lambda x, y: x * y, circuit.dimensions)
+    size = reduce(operator.mul, circuit.dimensions)
     zero = np.array(size * [0])
     zero[0] = 1
     for gate in circuit.instructions:
@@ -31,32 +32,32 @@ class TestStatePrep(TestCase):
             preparation = StatePrep(circuit, w)
             new_circuit = preparation.compile_state()
             state = mini_sim(new_circuit)
-            self.assertTrue(np.allclose(state, w))
+            assert np.allclose(state, w)
 
             ghz = generate_uniform_state(cardinalities, "ghz")
             circuit = QuantumCircuit(length, cardinalities, 0)
             preparation = StatePrep(circuit, ghz)
             new_circuit = preparation.compile_state()
             state = mini_sim(new_circuit)
-            self.assertTrue(np.allclose(state, ghz))
+            assert np.allclose(state, ghz)
 
             wemb = generate_uniform_state(cardinalities, "embedded-w-state")
             circuit = QuantumCircuit(length, cardinalities, 0)
             preparation = StatePrep(circuit, wemb)
             new_circuit = preparation.compile_state()
             state = mini_sim(new_circuit)
-            self.assertTrue(np.allclose(state, wemb))
+            assert np.allclose(state, wemb)
 
             circuit = QuantumCircuit(length, cardinalities, 0)
             final_state = generate_random_quantum_state(cardinalities)
             preparation = StatePrep(circuit, final_state)
             new_circuit = preparation.compile_state()
             state = mini_sim(new_circuit)
-            self.assertTrue(np.allclose(state, final_state))
+            assert np.allclose(state, final_state)
 
             circuit = QuantumCircuit(length, cardinalities, 0)
             final_state = generate_random_quantum_state(cardinalities)
             preparation = StatePrep(circuit, final_state, True)
             new_circuit = preparation.compile_state()
             state = mini_sim(new_circuit)
-            self.assertTrue(naive_state_fidelity(state, final_state) > 0.975)
+            assert naive_state_fidelity(state, final_state) > 0.975

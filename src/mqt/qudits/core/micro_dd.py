@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import math
-from typing import List
+import operator
 
 
 class TreeNode:
-    def __init__(self, label):
+    def __init__(self, label) -> None:
         self.id = None
         self.value = label
         self.children = []
@@ -51,7 +53,7 @@ def getNodeContributions(root, labels):
             if c.weight != 0 + 0j:
                 if c not in probs:
                     probs[c] = 0
-                probs[c] = probs[c] + parentProb * abs(c.weight) ** 2
+                probs[c] += parentProb * abs(c.weight) ** 2
 
                 if not c.terminal:
                     q.append(c)
@@ -59,11 +61,11 @@ def getNodeContributions(root, labels):
     qq = [[] for _ in range(len(labels))]
 
     for node, probability in probs.items():
-        if node.value not in ["r", "zero", "one"]:
+        if node.value not in {"r", "zero", "one"}:
             qq[node.value].append((node, probability))
 
     for i in range(len(qq)):
-        qq[i] = sorted(qq[i], key=lambda x: x[1])
+        qq[i] = sorted(qq[i], key=operator.itemgetter(1))
 
     return qq
 
@@ -85,8 +87,8 @@ def unique_weights(root):
     return set_unique_weights
 
 
-def normalize(in_weight: complex, out_weights: List[complex]):
-    mags_squared = [x.real ** 2 + x.imag ** 2 for x in out_weights]
+def normalize(in_weight: complex, out_weights: list[complex]):
+    mags_squared = [x.real**2 + x.imag**2 for x in out_weights]
     norm_squared = sum(mags_squared)
     norm = math.sqrt(norm_squared)
     if norm == 0:
@@ -108,7 +110,7 @@ def create_decision_tree(labels, cardinalities, data):
     return root, number_of_nodes
 
 
-def build_decision_tree(labels, node, cardinalities, data, number_of_nodes, depth=0):
+def build_decision_tree(labels, node, cardinalities, data, number_of_nodes, depth=0) -> None:
     if depth == len(cardinalities):
         node.weight = data[0]
         if data[0] == 0 + 0j:
@@ -126,7 +128,7 @@ def build_decision_tree(labels, node, cardinalities, data, number_of_nodes, dept
 
     for i in range(cardinalities[depth]):
         # Split the array into two subarrays
-        branch_data = data[i * split_index: (i + 1) * split_index]
+        branch_data = data[i * split_index : (i + 1) * split_index]
 
         child = TreeNode(labels[depth])
         number_of_nodes[0] += 1
@@ -141,7 +143,7 @@ def build_decision_tree(labels, node, cardinalities, data, number_of_nodes, dept
 
     # Managing Probability
     for c in node.children:
-        c.p = c.weight ** 2
+        c.p = c.weight**2
     ####################
 
     node.weight, new_weights = normalize(node.weight, cweights)
@@ -154,7 +156,7 @@ def build_decision_tree(labels, node, cardinalities, data, number_of_nodes, dept
         node.children[i].weight = new_weights[i]
 
 
-def dd_approximation(node, cardinalities, tolerance, depth=0):
+def dd_approximation(node, cardinalities, tolerance, depth=0) -> None:
     if depth == len(cardinalities) or node.terminal:
         return
 
@@ -175,13 +177,13 @@ def dd_approximation(node, cardinalities, tolerance, depth=0):
             node.children[i].weight = new_weights[i]
 
 
-def remove_children(node):
+def remove_children(node) -> None:
     for child in node.children:
         child.available = False
         remove_children(child)
 
 
-def cut_branches(contributions, tolerance):
+def cut_branches(contributions, tolerance) -> None:
     current = 0
     for level in reversed(contributions):
         for node, prob in level:
@@ -193,7 +195,7 @@ def cut_branches(contributions, tolerance):
                 break
 
 
-def normalize_all(node, cardinalities, depth=0):
+def normalize_all(node, cardinalities, depth=0) -> None:
     if depth == len(cardinalities) or node.terminal:
         return
 
@@ -215,12 +217,13 @@ def normalize_all(node, cardinalities, depth=0):
 def dd_reduction_hashing(node, cardinalities, depth=0):
     collect_hash_data = []
     if depth == len(cardinalities) or node.terminal:
-        collect_hash_data.append(node.children[0].dd_hash)
-        collect_hash_data.append(1)
+        collect_hash_data.extend((node.children[0].dd_hash, 1))
     else:
         for i in range(cardinalities[depth]):
-            collect_hash_data.append(dd_reduction_hashing(node.children[i], cardinalities, depth + 1))
-            collect_hash_data.append(node.children[i].weight)
+            collect_hash_data.extend((
+                dd_reduction_hashing(node.children[i], cardinalities, depth + 1),
+                node.children[i].weight,
+            ))
 
     collect_hash_data = tuple(collect_hash_data)
     node.dd_hash = hash(collect_hash_data)
@@ -228,7 +231,7 @@ def dd_reduction_hashing(node, cardinalities, depth=0):
     return node.dd_hash
 
 
-def dd_reduction_aggregation(node, cardinalities, depth=0):
+def dd_reduction_aggregation(node, cardinalities, depth=0) -> None:
     if depth == len(cardinalities):
         return
     previous_objects = {}
@@ -274,7 +277,7 @@ def dd_reduction(root, cardinalities):
     return root
 
 
-def count_nodes_after(node, counter, cardinalities, depth=0):
+def count_nodes_after(node, counter, cardinalities, depth=0) -> None:
     counter[0] += 1
     if node.terminal:
         return
@@ -285,19 +288,19 @@ def count_nodes_after(node, counter, cardinalities, depth=0):
         count_nodes_after(node.children[node.children_index[0]], counter, cardinalities, depth + 1)
 
 
-def print_decision_weights(node, indent=""):
+def print_decision_weights(node, indent="") -> None:
     print(indent + "Q " + str(node.value), node.weight)
     for child in node.children:
         print_decision_weights(child, indent + "  ")
 
 
-def print_decision_obj_id(node, indent=""):
+def print_decision_obj_id(node, indent="") -> None:
     print(indent + "Q " + str(node.value), id(node))
     for child in node.children:
         print_decision_obj_id(child, indent + "  ")
 
 
-def print_decision_hash(node, indent=""):
+def print_decision_hash(node, indent="") -> None:
     print(indent + "Q " + str(node.value), node.dd_hash)
     for child in node.children:
         print_decision_hash(child, indent + "  ")
