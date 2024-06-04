@@ -19,6 +19,15 @@ class TreeNode:
         # Compare based on the 'value' field
         return self.value < int(other.value)
 
+    def __gt__(self, other):
+        return other.__lt__(self)
+
+    def __le__(self, other):
+        return self.__lt__(other) or self.__eq__(other)
+
+    def __ge__(self, other):
+        return self.__gt__(other) or self.__eq__(other)
+
 
 zero = TreeNode("zero")
 zero.terminal = True
