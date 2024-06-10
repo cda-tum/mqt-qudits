@@ -5,6 +5,7 @@
 [![CD](https://img.shields.io/github/actions/workflow/status/cda-tum/mqt-qudits/cd.yml?style=flat-square&logo=github&label=cd)](https://github.com/cda-tum/mqt-qudits/actions/workflows/cd.yml)
 [![Documentation](https://img.shields.io/readthedocs/mqt-qudits?logo=readthedocs&style=flat-square)](https://mqt.readthedocs.io/projects/qudits)
 [![codecov](https://img.shields.io/codecov/c/github/cda-tum/mqt-qudits?style=flat-square&logo=codecov)](https://codecov.io/gh/cda-tum/mqt-qudits)
+[![Unitary Fund](https://img.shields.io/badge/Supported%20By-UNITARY%20FUND-brightgreen.svg?style=for-the-badge)](https://unitary.fund)
 
 <p align="center">
   <a href="https://mqt.readthedocs.io">
@@ -57,7 +58,7 @@ Building (and running) is continuously tested under Linux, macOS, and Windows us
 
 MQT Qudits has been developed based on methods proposed in the following papers:
 
-- K. Mato, S. Hillmich and R. Wille, "[Mixed-Dimensional Qudit State Preparation Using Edge-Weighted Decision Diagrams]()", Design Automation Conference (DAC), 2024.
+- K. Mato, S. Hillmich and R. Wille, "[Mixed-Dimensional Qudit State Preparation Using Edge-Weighted Decision Diagrams](https://arxiv.org/abs/2406.03531)", Design Automation Conference (DAC), 2024.
 
 - K. Mato, S. Hillmich and R. Wille, "[Mixed-Dimensional Quantum Circuit Simulation with Decision Diagrams](https://arxiv.org/pdf/2308.12332)", International Conference on Quantum Computing and Engineering (QCE), 2023.
 
@@ -74,6 +75,8 @@ MQT Qudits has been developed based on methods proposed in the following papers:
 MQT Qudits is the result of the project NeQST funded by the European Union under Horizon Europe Programme - Grant Agreement 101080086.
 Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union
 or the European Commission. Neither the European Union nor the granting authority can be held responsible for them.
+
+MQT is supported by the Unitary Fund.
 
 The Munich Quantum Toolkit has been supported by the European Research Council (ERC) under the European Union's Horizon 2020 research and innovation program (grant agreement No. 101001318), the Bavarian State Ministry for Science and Arts through the Distinguished Professorship Program, as well as the Munich Quantum Valley, which is supported by the Bavarian state government with funds from the Hightech Agenda Bayern Plus.
 
