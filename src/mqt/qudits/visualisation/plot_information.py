@@ -20,7 +20,7 @@ class HistogramWithErrors:
     def generate_histogram(self) -> None:
         plt.bar(self.labels, self.counts, yerr=self.errors, capsize=5, color="b", alpha=0.7, align="center")
         plt.xlabel("States")
-        plt.ylabel("Pr")
+        plt.ylabel("Sqrt(Pr)")
         plt.title(self.title)
         plt.xticks(rotation=45, ha="right")
         plt.tight_layout()
@@ -29,7 +29,7 @@ class HistogramWithErrors:
     def save_to_png(self, filename) -> None:
         plt.bar(self.labels, self.counts, yerr=self.errors, capsize=5, color="b", alpha=0.7, align="center")
         plt.xlabel("States")
-        plt.ylabel("Pr")
+        plt.ylabel("Sqrt(Pr)")
         plt.title(self.title)
         plt.xticks(rotation=45, ha="right")
         plt.tight_layout()
