@@ -83,9 +83,7 @@ def plot_state(state_vector: np.ndarray, circuit: QuantumCircuit, errors=None) -
     state_vector_list = np.squeeze(state_vector).tolist()
     counts = [abs(coeff) for coeff in state_vector_list]
 
-    h_plotter = HistogramWithErrors(
-        labels, counts, errors, title="Simulation", xlabel="States", ylabel="Sqrt(Pr)"
-    )
+    h_plotter = HistogramWithErrors(labels, counts, errors, title="Simulation", xlabel="States", ylabel="Sqrt(Pr)")
     h_plotter.generate_histogram()
 
 
@@ -95,7 +93,5 @@ def plot_counts(measurements, circuit: QuantumCircuit) -> None:
 
     errors = len(labels) * [0]
 
-    h_plotter = HistogramWithErrors(
-        labels, counts, errors, title="Simulation", xlabel="States", ylabel="Counts"
-    )
+    h_plotter = HistogramWithErrors(labels, counts, errors, title="Simulation", xlabel="States", ylabel="Counts")
     h_plotter.generate_histogram()
