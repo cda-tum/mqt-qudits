@@ -5,7 +5,8 @@
 [![CD](https://img.shields.io/github/actions/workflow/status/cda-tum/mqt-qudits/cd.yml?style=flat-square&logo=github&label=cd)](https://github.com/cda-tum/mqt-qudits/actions/workflows/cd.yml)
 [![Documentation](https://img.shields.io/readthedocs/mqt-qudits?logo=readthedocs&style=flat-square)](https://mqt.readthedocs.io/projects/qudits)
 [![codecov](https://img.shields.io/codecov/c/github/cda-tum/mqt-qudits?style=flat-square&logo=codecov)](https://codecov.io/gh/cda-tum/mqt-qudits)
-[![Unitary Fund](https://img.shields.io/badge/Supported%20By-UNITARY%20FUND-brightgreen.svg?style=for-the-badge)](https://unitary.fund)
+[![Unitary Fund](https://img.shields.io/badge/Supported%20By-UNITARY%20FUND-brightgreen.svg?style=flat-square)](https://unitary.fund)
+
 
 <p align="center">
   <a href="https://mqt.readthedocs.io">
@@ -58,9 +59,9 @@ Building (and running) is continuously tested under Linux, macOS, and Windows us
 
 MQT Qudits has been developed based on methods proposed in the following papers:
 
-- K. Mato, S. Hillmich and R. Wille, "[Mixed-Dimensional Qudit State Preparation Using Edge-Weighted Decision Diagrams](https://arxiv.org/abs/2406.03531)", Design Automation Conference (DAC), 2024.
+- K. Mato, S. Hillmich and R. Wille, "[Mixed-Dimensional Qudit State Preparation Using Edge-Weighted Decision Diagrams](https://www.cda.cit.tum.de/files/eda/2024_dac_mixed_dimensional_qudit_state_preparation_using_edge_weighted_decision_diagrams.pdf)", Design Automation Conference (DAC), 2024.
 
-- K. Mato, S. Hillmich and R. Wille, "[Mixed-Dimensional Quantum Circuit Simulation with Decision Diagrams](https://arxiv.org/pdf/2308.12332)", International Conference on Quantum Computing and Engineering (QCE), 2023.
+- K. Mato, S. Hillmich and R. Wille, "[Mixed-Dimensional Quantum Circuit Simulation with Decision Diagrams](https://www.cda.cit.tum.de/files/eda/2023_qce_mixed_dimensional_quantum_circuit_simulation_with_decision_diagrams.pdf)", International Conference on Quantum Computing and Engineering (QCE), 2023.
 
 - K. Mato, S. Hillmich, R. Wille, "[Compression of Qubit Circuits: Mapping to Mixed-Dimensional Quantum Systems](https://www.cda.cit.tum.de/files/eda/2023_qsw_compression_of_qubit_circuits.pdf)", International Conference on Quantum Software (QSW), 2023.
 
@@ -82,21 +83,25 @@ The Munich Quantum Toolkit has been supported by the European Research Council (
 
 <p align="center">
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/cda-tum/mqt-qudits/main/docs/_static/eu_funded_dark.svg" width="25%">
-<img src="https://raw.githubusercontent.com/cda-tum/mqt-qudits/main/docs/_static/eu_funded_light.svg" width="25%" alt="Funded by the European Union">
+<source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/cda-tum/mqt-qudits/main/docs/_static/eu_funded_dark.svg" width="20%">
+<img src="https://raw.githubusercontent.com/cda-tum/mqt-qudits/main/docs/_static/eu_funded_light.svg" width="20%" alt="Funded by the European Union">
 </picture>
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/cda-tum/mqt/main/docs/_static/tum_dark.svg" width="20%">
+<source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/matt-lourens/unitary-fund/master/logos/logov3.svg" width="15%">
+<img src="https://raw.githubusercontent.com/matt-lourens/unitary-fund/master/logos/logov3.svg" width="15%" alt="Supported by Unitary Fund">
+</picture>
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/cda-tum/mqt/main/docs/_static/tum_dark.svg" width="15%">
 <img src="https://raw.githubusercontent.com/cda-tum/mqt/main/docs/_static/tum_light.svg" width="15%" alt="TUM Logo">
 </picture>
 <picture>
-<img src="https://raw.githubusercontent.com/cda-tum/mqt/main/docs/_static/logo-bavaria.svg" width="12%" alt="Coat of Arms of Bavaria">
+<img src="https://raw.githubusercontent.com/cda-tum/mqt/main/docs/_static/logo-bavaria.svg" width="9%" alt="Coat of Arms of Bavaria">
 </picture>
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/cda-tum/mqt/main/docs/_static/erc_dark.svg" width="20%">
-<img src="https://raw.githubusercontent.com/cda-tum/mqt/main/docs/_static/erc_light.svg" width="20%" alt="ERC Logo">
+<source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/cda-tum/mqt/main/docs/_static/erc_dark.svg" width="12%">
+<img src="https://raw.githubusercontent.com/cda-tum/mqt/main/docs/_static/erc_light.svg" width="12%" alt="ERC Logo">
 </picture>
 <picture>
-<img src="https://raw.githubusercontent.com/cda-tum/mqt/main/docs/_static/logo-mqv.svg" width="18%" alt="MQV Logo">
+<img src="https://raw.githubusercontent.com/cda-tum/mqt/main/docs/_static/logo-mqv.svg" width="15%" alt="MQV Logo">
 </picture>
 </p>
