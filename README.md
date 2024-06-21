@@ -7,7 +7,6 @@
 [![codecov](https://img.shields.io/codecov/c/github/cda-tum/mqt-qudits?style=flat-square&logo=codecov)](https://codecov.io/gh/cda-tum/mqt-qudits)
 [![Unitary Fund](https://img.shields.io/badge/Supported%20By-UNITARY%20FUND-brightgreen.svg?style=flat-square)](https://unitary.fund)
 
-
 <p align="center">
   <a href="https://mqt.readthedocs.io">
    <picture>
