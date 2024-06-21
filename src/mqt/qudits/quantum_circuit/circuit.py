@@ -394,9 +394,19 @@ class QuantumCircuit:
 
     def simulate(self):
         from mqt.qudits.simulation import MQTQuditProvider
-
         provider = MQTQuditProvider()
         backend = provider.get_backend("tnsim")
         job = backend.run(self)
         result = job.result()
         return result.get_state_vector()
+
+    def compile(self, backend_name):
+        from mqt.qudits.compiler import QuditCompiler
+        from mqt.qudits.simulation import MQTQuditProvider
+
+        qudit_compiler = QuditCompiler()
+        provider = MQTQuditProvider()
+        backend_ion = provider.get_backend(backend_name, shots=1000)
+
+        passes = ["PhyLocQRPass", "PhyEntQRCEXPass"]
+        return qudit_compiler.compile(backend_ion, self, passes)

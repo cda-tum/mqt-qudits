@@ -18,13 +18,13 @@ class FakeIonTraps2Six(TNSim):
         return 0
 
     def __init__(
-        self,
-        provider: Provider | None = None,
-        name: str | None = None,
-        description: str | None = None,
-        online_date: datetime | None = None,
-        backend_version: str | None = None,
-        **fields,
+            self,
+            provider: Provider | None = None,
+            name: str | None = None,
+            description: str | None = None,
+            online_date: datetime | None = None,
+            backend_version: str | None = None,
+            **fields,
     ) -> None:
         self._options = self._default_options()
         self._provider = provider

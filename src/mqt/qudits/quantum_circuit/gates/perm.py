@@ -17,21 +17,21 @@ if TYPE_CHECKING:
 
 class Perm(Gate):
     def __init__(
-        self,
-        circuit: QuantumCircuit,
-        name: str,
-        target_qudits: list[int] | int,
-        parameters: list,
-        dimensions: list[int] | int,
-        controls: ControlData | None = None,
+            self,
+            circuit: QuantumCircuit,
+            name: str,
+            target_qudits: list[int] | int,
+            parameters: list,
+            dimensions: list[int] | int,
+            controls: ControlData | None = None,
     ) -> None:
         super().__init__(
-            circuit=circuit,
-            name=name,
-            gate_type=GateTypes.MULTI,
-            target_qudits=target_qudits,
-            dimensions=dimensions,
-            control_set=controls,
+                circuit=circuit,
+                name=name,
+                gate_type=GateTypes.SINGLE,
+                target_qudits=target_qudits,
+                dimensions=dimensions,
+                control_set=controls,
         )
         if self.validate_parameter(parameters):
             self.perm_data = parameters
@@ -48,7 +48,7 @@ class Perm(Gate):
 
         num_nums = reduce(operator.mul, self._dimensions)
         assert all(
-            (0 <= num < len(parameter) and num < num_nums) for num in parameter
+                (0 <= num < len(parameter) and num < num_nums) for num in parameter
         ), "Numbers are not within the range of the list length"
         return True
 

@@ -4,6 +4,7 @@ import gc
 
 import numpy as np
 
+from .log_local_qr_decomp import QrDecomp
 from ....core import NAryTree
 from ....exceptions import SequenceFoundException
 from ....quantum_circuit import gates
@@ -18,6 +19,25 @@ class LogLocAdaPass(CompilerPass):
     def __init__(self, backend) -> None:
         super().__init__(backend)
 
+    def traspile_gate(self, gate):
+        energy_graph_i = self.backend.energy_level_graphs[gate._target_qudits]
+
+        QR = QrDecomp(gate, energy_graph_i)
+
+        _decomp, algorithmic_cost, total_cost = QR.execute()
+
+        Adaptive = LogAdaptiveDecomposition(
+                gate, energy_graph_i, (algorithmic_cost, total_cost), gate._dimensions
+        )
+
+        (
+            matrices_decomposed,
+            _best_cost,
+            self.backend.energy_level_graphs[gate._target_qudits],
+        ) = Adaptive.execute()
+
+        return matrices_decomposed
+
     def transpile(self, circuit):
         self.circuit = circuit
         instructions = circuit.instructions
@@ -25,24 +45,7 @@ class LogLocAdaPass(CompilerPass):
 
         for gate in instructions:
             if gate.gate_type == GateTypes.SINGLE:
-                energy_graph_i = self.backend.energy_level_graphs[gate._target_qudits]
-
-                QR = PhyQrDecomp(gate, energy_graph_i)
-
-                _decomp, algorithmic_cost, total_cost = QR.execute()
-
-                Adaptive = LogAdaptiveDecomposition(
-                    gate, energy_graph_i, (algorithmic_cost, total_cost), gate._dimensions
-                )
-
-                (
-                    matrices_decomposed,
-                    _best_cost,
-                    self.backend.energy_level_graphs[gate._target_qudits],
-                ) = Adaptive.execute()
-
-                new_instructions += matrices_decomposed
-
+                new_instructions += self.traspile_gate(gate)
                 gc.collect()
             else:
                 new_instructions.append(gate)

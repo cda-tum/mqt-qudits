@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from .onedit import LogLocQRPass, PhyLocAdaPass, PhyLocQRPass, ZPropagationPass, ZRemovalPass
+from .twodit import LogEntQRCEXPass
+from .twodit.entanglement_qr.phy_ent_qr_cex_decomp import PhyEntQRCEXPass
 
 
 class QuditCompiler:
@@ -12,6 +14,8 @@ class QuditCompiler:
         "LogLocQRPass": LogLocQRPass,
         "ZPropagationPass": ZPropagationPass,
         "ZRemovalPass": ZRemovalPass,
+        "LogEntQRCEXPass": LogEntQRCEXPass,
+        "PhyEntQRCEXPass": PhyEntQRCEXPass
     }
 
     def __init__(self) -> None:
