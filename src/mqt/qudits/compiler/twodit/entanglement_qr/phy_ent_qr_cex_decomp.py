@@ -11,6 +11,24 @@ class PhyEntQRCEXPass(CompilerPass):
         super().__init__(backend)
         self.circuit = None
 
+    def traspile_gate(self, gate):
+        energy_graph_c = self.backend.energy_level_graphs[gate._target_qudits[0]]
+        energy_graph_t = self.backend.energy_level_graphs[gate._target_qudits[1]]
+        lp_map_0 = energy_graph_c.log_phy_map
+        lp_map_1 = energy_graph_t.log_phy_map
+        perm_0 = Perm(gate.parent_circuit, "Pm_ent_0", gate._target_qudits[0], lp_map_0, gate._dimensions[0])
+        perm_1 = Perm(gate.parent_circuit, "Pm_ent_1", gate._target_qudits[1], lp_map_1, gate._dimensions[1])
+        perm_0_dag = Perm(gate.parent_circuit, "Pm_ent_0", gate._target_qudits[0], lp_map_0, gate._dimensions[0]).dag()
+        perm_1_dag = Perm(gate.parent_circuit, "Pm_ent_1", gate._target_qudits[1], lp_map_1, gate._dimensions[1]).dag()
+
+        eqr = EntangledQRCEX(gate)
+        decomp, countcr, countpsw = eqr.execute()
+        decomp.insert(0, perm_0)
+        decomp.insert(0, perm_1)
+        decomp.append(perm_0_dag)
+        decomp.append(perm_1_dag)
+        return decomp
+
     def transpile(self, circuit):
         self.circuit = circuit
         instructions = circuit.instructions
@@ -18,21 +36,7 @@ class PhyEntQRCEXPass(CompilerPass):
 
         for gate in instructions:
             if gate.gate_type == GateTypes.TWO:
-                energy_graph_c = self.backend.energy_level_graphs[gate._target_qudits[0]]
-                energy_graph_t = self.backend.energy_level_graphs[gate._target_qudits[1]]
-                lp_map_0 = energy_graph_c.log_phy_map
-                lp_map_1 = energy_graph_t.log_phy_map
-                perm_0 = Perm(self.circuit, "Pm_ent_0", gate._target_qudits[0], lp_map_0, gate._dimensions[0])
-                perm_1 = Perm(self.circuit, "Pm_ent_1", gate._target_qudits[1], lp_map_1, gate._dimensions[1])
-                perm_0_dag = Perm(self.circuit, "Pm_ent_0", gate._target_qudits[0], lp_map_0, gate._dimensions[0]).dag()
-                perm_1_dag = Perm(self.circuit, "Pm_ent_1", gate._target_qudits[1], lp_map_1, gate._dimensions[1]).dag()
-
-                eqr = EntangledQRCEX(gate)
-                decomp, countcr, countpsw = eqr.execute()
-                decomp.insert(0, perm_0)
-                decomp.insert(0, perm_1)
-                decomp.append(perm_0_dag, perm_1_dag)
-
+                decomp = self.traspile_gate(gate)
                 new_instructions += decomp
                 gc.collect()
             else:

@@ -21,15 +21,18 @@ class LogEntQRCEXPass(CompilerPass):
     def __init__(self, backend) -> None:
         super().__init__(backend)
 
+    def transpile_gate(self, gate):
+        eqr = EntangledQRCEX(gate)
+        decomp, countcr, countpsw = eqr.execute()
+        return decomp
+
     def transpile(self, circuit):
         self.circuit = circuit
         instructions = circuit.instructions
         new_instructions = []
-
         for gate in instructions:
             if gate.gate_type == GateTypes.TWO:
-                eqr = EntangledQRCEX(gate)
-                decomp, countcr, countpsw = eqr.execute()
+                decomp = self.transpile_gate(gate)
                 new_instructions += decomp
                 gc.collect()
             else:

@@ -25,7 +25,7 @@ class PhyLocAdaPass(CompilerPass):
     def __init__(self, backend) -> None:
         super().__init__(backend)
 
-    def traspile_gate(self, gate):
+    def traspile_gate(self, gate, vrz_prop=False):
         energy_graph_i = self.backend.energy_level_graphs[gate._target_qudits]
 
         QR = PhyQrDecomp(gate, energy_graph_i)
@@ -33,7 +33,7 @@ class PhyLocAdaPass(CompilerPass):
         _decomp, algorithmic_cost, total_cost = QR.execute()
 
         Adaptive = PhyAdaptiveDecomposition(
-                gate, energy_graph_i, (algorithmic_cost, total_cost), gate._dimensions
+                gate, energy_graph_i, (algorithmic_cost, total_cost), gate._dimensions, Z_prop = vrz_prop
         )
 
         (
@@ -73,16 +73,16 @@ class PhyAdaptiveDecomposition:
 
     def execute(self):
         self.TREE.add(
-            0,
-            gates.CustomOne(
-                self.circuit, "CUo", self.qudit_index, np.identity(self.dimension, dtype="complex"), self.dimension
-            ),
-            self.U,
-            self.graph,
-            0,
-            0,
-            self.cost_limit,
-            [],
+                0,
+                gates.CustomOne(
+                        self.circuit, "CUo", self.qudit_index, np.identity(self.dimension, dtype="complex"), self.dimension
+                ),
+                self.U,
+                self.graph,
+                0,
+                0,
+                self.cost_limit,
+                [],
         )
         try:
             self.DFS(self.TREE.root)
@@ -93,7 +93,7 @@ class PhyAdaptiveDecomposition:
 
             if matrices_decomposed != []:
                 matrices_decomposed, final_graph = self.Z_extraction(
-                    matrices_decomposed, final_graph, self.phase_propagation
+                        matrices_decomposed, final_graph, self.phase_propagation
                 )
             else:
                 pass

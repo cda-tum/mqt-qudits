@@ -121,4 +121,4 @@ class FakeIonTraps2Six(TNSim):
         return noise_model
 
     def _default_options(self):
-        return {"shots": 1000, "memory": False, "noise_model": self.__noise_model()}
+        return {"shots": 50, "memory": False, "noise_model": self.__noise_model()}

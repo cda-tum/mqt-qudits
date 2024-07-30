@@ -7,6 +7,9 @@ class CompilerPass(ABC):
     def __init__(self, backend, **kwargs) -> None:
         self.backend = backend
 
+    def transpile_gate(self, gate):
+        pass
+
     @abstractmethod
     def transpile(self, circuit):
         pass

@@ -10,11 +10,11 @@ from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegist
 from mqt.qudits.simulation import MQTQuditProvider
 
 
-class TestZRemovalPass(TestCase):
+class TestZRemovalOptPass(TestCase):
     def test_remove_z(self):
         provider = MQTQuditProvider()
         compiler = QuditCompiler()
-        passes = ["ZRemovalPass"]
+        passes = ["ZRemovalOptPass"]
         backend_ion = provider.get_backend("faketraps2trits", shots=1000)
 
         qreg = QuantumRegister("test_reg", 3, [3, 3, 3])

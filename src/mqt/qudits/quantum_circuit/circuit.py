@@ -406,7 +406,6 @@ class QuantumCircuit:
 
         qudit_compiler = QuditCompiler()
         provider = MQTQuditProvider()
-        backend_ion = provider.get_backend(backend_name, shots=1000)
+        backend_ion = provider.get_backend(backend_name, shots=50)
 
-        passes = ["PhyLocQRPass", "PhyEntQRCEXPass"]
-        return qudit_compiler.compile(backend_ion, self, passes)
+        return qudit_compiler.compile_O1(backend_ion, self)

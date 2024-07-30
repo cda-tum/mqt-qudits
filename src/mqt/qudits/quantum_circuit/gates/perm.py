@@ -39,12 +39,18 @@ class Perm(Gate):
         self.qasm_tag = "pm"
 
     def __array__(self) -> np.ndarray:
+        dims = self._dimensions
+        if isinstance(self._dimensions, int):
+            self._dimensions = [dims]
         return np.eye(reduce(operator.mul, self._dimensions))[:, self.perm_data]
 
     def validate_parameter(self, parameter) -> bool:
         """Verify that the input is a list of indices"""
         if not isinstance(parameter, Collection):
             return False
+        dims = self._dimensions
+        if isinstance(self._dimensions, int):
+            self._dimensions = [dims]
 
         num_nums = reduce(operator.mul, self._dimensions)
         assert all(
