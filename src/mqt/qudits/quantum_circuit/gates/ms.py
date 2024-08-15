@@ -63,15 +63,15 @@ class MS(Gate):
         )
         gate_part_2 = (
                 np.kron(np.identity(dimension_0, dtype="complex"),
-                         GellMann(
-                                 self.parent_circuit,
-                                 "Gellman_s",
-                                 self._target_qudits,
-                                 [0, 1, "s"],
-                                 dimension_1,
-                                 None,
-                         ).to_matrix()
-                         )
+                        GellMann(
+                                self.parent_circuit,
+                                "Gellman_s",
+                                self._target_qudits,
+                                [0, 1, "s"],
+                                dimension_1,
+                                None,
+                        ).to_matrix()
+                        )
                 +
                 np.kron(GellMann(
                         self.parent_circuit,

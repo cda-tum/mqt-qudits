@@ -50,12 +50,21 @@ class MatrixFactory:
         qudits_applied = [qudits_applied] if isinstance(qudits_applied, int) else qudits_applied
         qudits_applied = qudits_applied.copy()
         qudits_applied.sort()
+        slide_indices_qudits_a = [q - min(ref_lines) for q in qudits_applied]
+
         dimensions = [dimensions] if isinstance(dimensions, int) else dimensions
         if len(dimensions) == 0:
             msg = "Dimensions cannot be an empty list"
             raise ValueError(msg)
         if len(qudits_applied) == len(ref_lines) and controls is None:
             return matrix
+
+        if controls is not None:
+            slide_controls = [q - min(ref_lines) for q in controls]
+            rest_of_indices = set(ref_lines) - set(qudits_applied) - set(controls)
+        else:
+            rest_of_indices = set(ref_lines) - set(qudits_applied)
+        slide_indices_rest = [q - min(ref_lines) for q in rest_of_indices]
 
         single_site_logics = []
         og_states_space = []
@@ -64,7 +73,7 @@ class MatrixFactory:
         if len(qudits_applied) == 1:
             single_site_logics.append(list(range(dimensions[qudits_applied[0]])))
         else:
-            for d in list(operator.itemgetter(*qudits_applied)(dimensions)):
+            for d in list(operator.itemgetter(*slide_indices_qudits_a)(dimensions)):
                 single_site_logics.append(list(range(d)))
 
         for element in itertools.product(*single_site_logics):
@@ -90,18 +99,16 @@ class MatrixFactory:
         for r in range(result.shape[0]):
             for c in range(result.shape[1]):
                 if controls is not None:
-                    extract_r = operator.itemgetter(*controls)(global_index_to_state[r])
-                    extract_c = operator.itemgetter(*controls)(global_index_to_state[c])
+                    extract_r = operator.itemgetter(*slide_controls)(global_index_to_state[r])
+                    extract_c = operator.itemgetter(*slide_controls)(global_index_to_state[c])
                     if isinstance(extract_r, int):
                         extract_r = [extract_r]
                         extract_c = [extract_c]
                     if list(extract_r) == controls_levels and extract_r == extract_c:
-                        rest_of_indices = set(ref_lines) - set(qudits_applied) - set(controls)
-                        if not rest_of_indices or operator.itemgetter(*rest_of_indices)(
-                                global_index_to_state[r]
-                        ) == operator.itemgetter(*rest_of_indices)(global_index_to_state[c]):
-                            og_row_key = operator.itemgetter(*qudits_applied)(global_index_to_state[r])
-                            og_col_key = operator.itemgetter(*qudits_applied)(global_index_to_state[c])
+                        if (not rest_of_indices
+                                or operator.itemgetter(*slide_indices_rest)(global_index_to_state[r]) == operator.itemgetter(*slide_indices_rest)(global_index_to_state[c])):
+                            og_row_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[r])
+                            og_col_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[c])
                             if isinstance(og_row_key, int):
                                 og_row_key = (og_row_key,)
                             if isinstance(og_col_key, int):
@@ -112,12 +119,10 @@ class MatrixFactory:
                             result[r, c] = value
 
                 else:
-                    rest_of_indices = set(ref_lines) - set(qudits_applied)
-                    if not rest_of_indices or operator.itemgetter(*rest_of_indices)(
-                            global_index_to_state[r]
-                    ) == operator.itemgetter(*rest_of_indices)(global_index_to_state[c]):
-                        og_row_key = operator.itemgetter(*qudits_applied)(global_index_to_state[r])
-                        og_col_key = operator.itemgetter(*qudits_applied)(global_index_to_state[c])
+                    if (not rest_of_indices or
+                            operator.itemgetter(*slide_indices_rest)(global_index_to_state[r]) == operator.itemgetter(*slide_indices_rest)(global_index_to_state[c])):
+                        og_row_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[r])
+                        og_col_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[c])
                         if isinstance(og_row_key, int):
                             og_row_key = (og_row_key,)
                         if isinstance(og_col_key, int):
