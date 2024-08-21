@@ -4,8 +4,8 @@ from math import floor
 
 import numpy as np
 
-from mqt.qudits.quantum_circuit import gates
 from mqt.qudits.compiler.twodit.blocks.crot import CEX_SEQUENCE
+from mqt.qudits.quantum_circuit import gates
 
 
 class PSwapGen:
@@ -14,7 +14,6 @@ class PSwapGen:
         self.indices = indices
 
     def pswap_101_as_list_phases(self, theta, phi):
-
         index_ctrl = self.indices[0]
         dim_ctrl = self.circuit.dimensions[index_ctrl]
         index_target = self.indices[1]
@@ -41,8 +40,7 @@ class PSwapGen:
 
         # Possible solution to improve of decomposition
         single_excitation = gates.VirtRz(self.circuit, "vR", index_target, [0, -np.pi], dim_target)
-        single_excitation_back = gates.VirtRz(self.circuit, "vR", index_target, [0, np.pi],
-                                              dim_target)
+        single_excitation_back = gates.VirtRz(self.circuit, "vR", index_target, [0, np.pi], dim_target)
 
         tminus = gates.Rz(self.circuit, "Rz", index_target, [0, 1, -theta / 2], dim_target)
         # on1(ZditR(-theta / 2, 0, 1, d).matrix, d))
@@ -52,12 +50,12 @@ class PSwapGen:
 
         if CEX_SEQUENCE is None:
             cex = gates.CEx(
-                    self.circuit,
-                    "CEx" + str([self.circuit.dimensions[i] for i in self.indices]),
-                    self.indices,
-                    None,
-                    [self.circuit.dimensions[i] for i in self.indices],
-                    None,
+                self.circuit,
+                "CEx" + str([self.circuit.dimensions[i] for i in self.indices]),
+                self.indices,
+                None,
+                [self.circuit.dimensions[i] for i in self.indices],
+                None,
             )
             # Cex().cex_101(d, 0)
         else:
@@ -139,7 +137,7 @@ class PSwapGen:
 
         if dim_target != 2:
             r_flip_back_1 = gates.R(
-                    self.circuit, "R_flip_back", index_target, [1, dim_target - 1, -np.pi, np.pi / 2], dim_target
+                self.circuit, "R_flip_back", index_target, [1, dim_target - 1, -np.pi, np.pi / 2], dim_target
             )
             compose.append(r_flip_back_1)  # (on1(R(-np.pi, np.pi / 2, 1, d - 1, d).matrix, d))
 
@@ -163,19 +161,19 @@ class PSwapGen:
 
         if control_block != 0:
             permute_there_00 = gates.R(
-                    self.circuit, "R_there_00", index_ctrl, [0, control_block, np.pi, -np.pi / 2], dim_ctrl
+                self.circuit, "R_there_00", index_ctrl, [0, control_block, np.pi, -np.pi / 2], dim_ctrl
             )
             # on0(R(np.pi, -np.pi / 2, 0, j, d).matrix, d)
             permute_there_01 = gates.R(
-                    self.circuit, "R_there_01", index_ctrl, [1, control_block + 1, -np.pi, np.pi / 2], dim_ctrl
+                self.circuit, "R_there_01", index_ctrl, [1, control_block + 1, -np.pi, np.pi / 2], dim_ctrl
             )
             # on0(R(-np.pi, np.pi / 2, 1, j + 1, d).matrix, d))
 
             permute_there_00_dag = gates.R(
-                    self.circuit, "R_there_00", index_ctrl, [0, control_block, np.pi, -np.pi / 2], dim_ctrl
+                self.circuit, "R_there_00", index_ctrl, [0, control_block, np.pi, -np.pi / 2], dim_ctrl
             ).dag()
             permute_there_01_dag = gates.R(
-                    self.circuit, "R_there_01", index_ctrl, [1, control_block + 1, -np.pi, np.pi / 2], dim_ctrl
+                self.circuit, "R_there_01", index_ctrl, [1, control_block + 1, -np.pi, np.pi / 2], dim_ctrl
             ).dag()
 
             perm = [permute_there_00, permute_there_01]

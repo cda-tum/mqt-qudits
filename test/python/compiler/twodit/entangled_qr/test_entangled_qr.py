@@ -17,7 +17,7 @@ def mini_unitary_sim(circuit, list_of_op):
     id_mat = np.identity(size)
     for gate in list_of_op:
         id_mat = gate.to_matrix(identities=2) @ id_mat
-        db_mat = id_mat.round(2)
+        id_mat.round(2)
     return id_mat
 
 
@@ -45,6 +45,6 @@ class TestEntangledQR(TestCase):
 
         for rotation in new_circuit.instructions:
             target = rotation.to_matrix(identities=2) @ target
-        target = target / target[0][0]
-        res = (abs(target - np.identity(15, dtype='complex')) < 10e-5).all()
-        self.assertTrue(res)
+        target /= target[0][0]
+        res = (abs(target - np.identity(15, dtype="complex")) < 10e-5).all()
+        assert res

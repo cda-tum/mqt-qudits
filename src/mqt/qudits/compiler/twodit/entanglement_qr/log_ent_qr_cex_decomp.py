@@ -4,17 +4,16 @@ import gc
 from operator import itemgetter
 
 import numpy as np
-from numpy.linalg import solve
-from numpy.linalg import det
 from numpy import matmul as mml
+from numpy.linalg import det, solve
 
 from mqt.qudits.quantum_circuit.components.extensions.gate_types import GateTypes
-from ..blocks.crot import CRotGen
-from ..blocks.czrot import CZRotGen
-from ..blocks.pswap import PSwapGen
 
 from ...compilation_minitools import on0, on1, pi_mod
 from ...compiler_pass import CompilerPass
+from ..blocks.crot import CRotGen
+from ..blocks.czrot import CZRotGen
+from ..blocks.pswap import PSwapGen
 
 
 class LogEntQRCEXPass(CompilerPass):
@@ -23,7 +22,7 @@ class LogEntQRCEXPass(CompilerPass):
 
     def transpile_gate(self, gate):
         eqr = EntangledQRCEX(gate)
-        decomp, countcr, countpsw = eqr.execute()
+        decomp, _countcr, _countpsw = eqr.execute()
         return decomp
 
     def transpile(self, circuit):
@@ -102,7 +101,7 @@ class EntangledQRCEX:
                             gate_matrix = r___.to_matrix()
 
                         u_ = gate_matrix @ u_
-                    u_db = u_.round(3)
+                    u_.round(3)
 
                     decomp += sequence_rotation_involved
 
@@ -134,14 +133,12 @@ class EntangledQRCEX:
         phases = solve(pseudo_inv, pseudo_diag)
 
         for i, phase in enumerate(phases):
-
             if abs(phase * 2) > 1.0e-4:
-
                 if i != 0 and np.mod(i + 1, dim_target) == 0:
-                    sequence_rotation_involved = czrot_gen.z_pswap_101_as_list(i, phase*2)
+                    sequence_rotation_involved = czrot_gen.z_pswap_101_as_list(i, phase * 2)
                     pswap_counter += 12
                 else:
-                    sequence_rotation_involved = czrot_gen.z_from_crot_101_list(i, phase*2)
+                    sequence_rotation_involved = czrot_gen.z_from_crot_101_list(i, phase * 2)
                     crot_counter += 3
                 ######################
                 for r___ in sequence_rotation_involved:
@@ -154,7 +151,7 @@ class EntangledQRCEX:
                         gate_matrix = r___.to_matrix()
 
                     u_ = gate_matrix @ u_
-                u_db = u_.round(3)
+                u_.round(3)
                 #######################
 
                 decomp += sequence_rotation_involved

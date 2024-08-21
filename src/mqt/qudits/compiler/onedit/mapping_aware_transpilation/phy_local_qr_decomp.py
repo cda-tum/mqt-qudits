@@ -19,8 +19,7 @@ class PhyLocQRPass(CompilerPass):
         energy_graph_i = self.backend.energy_level_graphs[gate._target_qudits]
         QR = PhyQrDecomp(gate, energy_graph_i, not_stand_alone=False)
         decomp, _algorithmic_cost, _total_cost = QR.execute()
-        decomp = [op.dag() for op in reversed(decomp)]
-        return decomp
+        return [op.dag() for op in reversed(decomp)]
 
     def transpile(self, circuit):
         self.circuit = circuit
@@ -67,11 +66,11 @@ class PhyQrDecomp:
                     thetaZ = new_mod(self.graph.nodes[i]["phase_storage"])
                     if abs(thetaZ) > 1.0e-4:
                         phase_gate = gates.VirtRz(
-                                self.gate.parent_circuit,
-                                "VRz",
-                                self.gate._target_qudits,
-                                [self.graph.nodes[i]["lpmap"], thetaZ],
-                                self.gate._dimensions,
+                            self.gate.parent_circuit,
+                            "VRz",
+                            self.gate._target_qudits,
+                            [self.graph.nodes[i]["lpmap"], thetaZ],
+                            self.gate._dimensions,
                         )  # (thetaZ, self.graph.nodes[i]['lpmap'], dimension)
                         decomp.append(phase_gate)
                     recover_dict[i] = thetaZ
@@ -92,7 +91,7 @@ class PhyQrDecomp:
                     phi = -(np.pi / 2 + np.angle(U_[r - 1, c]) - np.angle(U_[r, c]))
 
                     rotation_involved = gates.R(
-                            self.circuit, "R", self.qudit_index, [r - 1, r, theta, phi], self.dimension
+                        self.circuit, "R", self.qudit_index, [r - 1, r, theta, phi], self.dimension
                     )  # R(theta, phi, r - 1, r, dimension)
 
                     U_ = rotation_involved.to_matrix(identities=0) @ U_  # matmul(rotation_involved.matrix, U_)
@@ -100,7 +99,7 @@ class PhyQrDecomp:
                     non_zeros = np.count_nonzero(abs(U_) > 1.0e-4)
 
                     estimated_cost, pi_pulses_routing, temp_placement, cost_of_pi_pulses, gate_cost = cost_calculator(
-                            rotation_involved, self.graph, non_zeros
+                        rotation_involved, self.graph, non_zeros
                     )
 
                     decomp += pi_pulses_routing
@@ -109,11 +108,11 @@ class PhyQrDecomp:
                         phi *= -1
 
                     physical_rotation = gates.R(
-                            self.circuit,
-                            "R",
-                            self.qudit_index,
-                            [temp_placement.nodes[r - 1]["lpmap"], temp_placement.nodes[r]["lpmap"], theta, phi],
-                            self.dimension,
+                        self.circuit,
+                        "R",
+                        self.qudit_index,
+                        [temp_placement.nodes[r - 1]["lpmap"], temp_placement.nodes[r]["lpmap"], theta, phi],
+                        self.dimension,
                     )
                     # R(theta, phi, temp_placement.nodes[r - 1]['lpmap'], temp_placement.nodes[r]['lpmap'], dimension)
                     physical_rotation = gate_chain_condition(pi_pulses_routing, physical_rotation)
@@ -122,13 +121,13 @@ class PhyQrDecomp:
 
                     for pi_g in reversed(pi_pulses_routing):
                         decomp.append(
-                                gates.R(
-                                        self.circuit,
-                                        "R",
-                                        self.qudit_index,
-                                        [pi_g.lev_a, pi_g.lev_b, pi_g.theta, -pi_g.phi],
-                                        self.dimension,
-                                )
+                            gates.R(
+                                self.circuit,
+                                "R",
+                                self.qudit_index,
+                                [pi_g.lev_a, pi_g.lev_b, pi_g.theta, -pi_g.phi],
+                                self.dimension,
+                            )
                         )  # R(pi_g.theta, -pi_g.phi, pi_g.lev_a, pi_g.lev_b, dimension))
                     pi_g = None
 
@@ -142,11 +141,11 @@ class PhyQrDecomp:
                 phy_n_i = self.graph.nodes[i]["lpmap"]
 
                 phase_gate = gates.VirtRz(
-                        self.gate.parent_circuit,
-                        "VRz",
-                        self.gate._target_qudits,
-                        [phy_n_i, np.angle(diag_U[i])],
-                        self.gate._dimensions,
+                    self.gate.parent_circuit,
+                    "VRz",
+                    self.gate._target_qudits,
+                    [phy_n_i, np.angle(diag_U[i])],
+                    self.gate._dimensions,
                 )  # Rz(np.angle(diag_U[i]), phy_n_i, dimension)
 
                 decomp.append(phase_gate)

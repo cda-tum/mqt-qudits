@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import NoReturn
+
 import numpy as np
 
 from mqt.qudits.compiler import CompilerPass
@@ -10,8 +14,8 @@ class NaiveLocResynthOptPass(CompilerPass):
     def __init__(self, backend) -> None:
         super().__init__(backend)
 
-    def transpile_gate(self, gate):
-        raise NotImplemented
+    def transpile_gate(self, gate) -> NoReturn:
+        raise NotImplementedError
 
     def transpile(self, circuit):
         self.circuit = circuit
@@ -27,8 +31,10 @@ class NaiveLocResynthOptPass(CompilerPass):
                         gate = gate_tuple[1]
                         gm = gate.to_matrix()
                         matrix = gm @ matrix
-                    new_line.append((group[0][0], CustomOne(self.circuit, "CUm", line, matrix,
-                                                            self.circuit.dimensions[line])))
+                    new_line.append((
+                        group[0][0],
+                        CustomOne(self.circuit, "CUm", line, matrix, self.circuit.dimensions[line]),
+                    ))
                 else:
                     new_line.append(group[0])
 
@@ -38,4 +44,3 @@ class NaiveLocResynthOptPass(CompilerPass):
 
         transpiled_circuit = self.circuit.copy()
         return transpiled_circuit.set_instructions(new_instructions)
-

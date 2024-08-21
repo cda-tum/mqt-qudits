@@ -339,11 +339,11 @@ class TestMISim(TestCase):
         circuit = QuantumCircuit(qreg_example)
         circuit.h(0)
         circuit.x(1).control([0, 2], [1, 0])
-        test_state = np.array([(0.7071067 + 0j), 0j, 0j, 0j, 0j, 0j, 0j, 0j, 0j, (0.7071067 + 0j), 0j, 0j])
+        np.array([(0.7071067 + 0j), 0j, 0j, 0j, 0j, 0j, 0j, 0j, 0j, (0.7071067 + 0j), 0j, 0j])
 
         job = backend.run(circuit)
         result = job.result()
-        state_vector = result.get_state_vector()
+        result.get_state_vector()
 
         # assert np.allclose(state_vector, test_state)
 
@@ -351,11 +351,11 @@ class TestMISim(TestCase):
         circuit = QuantumCircuit(qreg_example)
         circuit.h(1)
         circuit.x(0).control([1, 2], [1, 0])
-        test_state = np.array([(0.7071067 + 0j), 0j, 0j, 0j, 0j, 0j, 0j, 0j, 0j, (0.7071067 + 0j), 0j, 0j])
+        np.array([(0.7071067 + 0j), 0j, 0j, 0j, 0j, 0j, 0j, 0j, 0j, (0.7071067 + 0j), 0j, 0j])
 
         job = backend.run(circuit)
         result = job.result()
-        state_vector = result.get_state_vector()
+        result.get_state_vector()
 
         # assert np.allclose(state_vector, test_state)
 

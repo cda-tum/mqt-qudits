@@ -33,17 +33,12 @@ class PhyLocAdaPass(CompilerPass):
         _decomp, algorithmic_cost, total_cost = QR.execute()
 
         Adaptive = PhyAdaptiveDecomposition(
-                gate, energy_graph_i, (algorithmic_cost, total_cost), gate._dimensions, Z_prop = vrz_prop
+            gate, energy_graph_i, (algorithmic_cost, total_cost), gate._dimensions, Z_prop=vrz_prop
         )
-        (
-            matrices_decomposed,
-            _best_cost,
-            new_energy_level_graph
-        ) = Adaptive.execute()
+        (matrices_decomposed, _best_cost, new_energy_level_graph) = Adaptive.execute()
 
         self.backend.energy_level_graphs[gate._target_qudits] = new_energy_level_graph
-        matrices_decomposed = [op.dag() for op in reversed(matrices_decomposed)]
-        return matrices_decomposed
+        return [op.dag() for op in reversed(matrices_decomposed)]
 
     def transpile(self, circuit):
         self.circuit = circuit
@@ -75,16 +70,16 @@ class PhyAdaptiveDecomposition:
 
     def execute(self):
         self.TREE.add(
-                0,
-                gates.CustomOne(
-                        self.circuit, "CUo", self.qudit_index, np.identity(self.dimension, dtype="complex"), self.dimension
-                ),
-                self.U,
-                self.graph,
-                0,
-                0,
-                self.cost_limit,
-                [],
+            0,
+            gates.CustomOne(
+                self.circuit, "CUo", self.qudit_index, np.identity(self.dimension, dtype="complex"), self.dimension
+            ),
+            self.U,
+            self.graph,
+            0,
+            0,
+            self.cost_limit,
+            [],
         )
         try:
             self.DFS(self.TREE.root)
@@ -95,7 +90,7 @@ class PhyAdaptiveDecomposition:
 
             if matrices_decomposed != []:
                 matrices_decomposed, final_graph = self.Z_extraction(
-                        matrices_decomposed, final_graph, self.phase_propagation
+                    matrices_decomposed, final_graph, self.phase_propagation
                 )
             else:
                 pass

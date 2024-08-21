@@ -81,8 +81,7 @@ class FakeIonTraps2Trits(TNSim):
 
             self._energy_level_graphs = e_graphs
             return e_graphs
-        else:
-            return self._energy_level_graphs
+        return self._energy_level_graphs
 
     @staticmethod
     def __noise_model() -> NoiseModel:

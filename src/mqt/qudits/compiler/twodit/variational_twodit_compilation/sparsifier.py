@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import copy
+from itertools import starmap
 from random import uniform
 
 import numpy as np
 from scipy.optimize import minimize
-from scipy.optimize import dual_annealing
 
 from mqt.qudits.compiler.compilation_minitools import gate_expand_to_circuit
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.opt import Optimizer
@@ -29,11 +31,13 @@ def instantiate_rotations(circuit, gate, params):
 
     decomposition = []
 
-    decomposition.append(CustomOne(circuit, "CUo_SUD", 0, generic_sud(params[0], dims[0]), dims[0]))
-    decomposition.append(CustomOne(circuit, "CUo_SUD", 1, generic_sud(params[1], dims[1]), dims[1]))
-    decomposition.append(gate)
-    decomposition.append(CustomOne(circuit, "CUo_SUD", 0, generic_sud(params[2], dims[0]), dims[0]))
-    decomposition.append(CustomOne(circuit, "CUo_SUD", 1, generic_sud(params[3], dims[1]), dims[1]))
+    decomposition.extend((
+        CustomOne(circuit, "CUo_SUD", 0, generic_sud(params[0], dims[0]), dims[0]),
+        CustomOne(circuit, "CUo_SUD", 1, generic_sud(params[1], dims[1]), dims[1]),
+        gate,
+        CustomOne(circuit, "CUo_SUD", 0, generic_sud(params[2], dims[0]), dims[0]),
+        CustomOne(circuit, "CUo_SUD", 1, generic_sud(params[3], dims[1]), dims[1]),
+    ))
 
     return decomposition
 
@@ -73,12 +77,12 @@ def compute_F(X):
 
     # Handle the potential division by zero
     if denominator == 0:
-        raise ValueError("Denominator is zero, which will cause division by zero.")
+        msg = "Denominator is zero, which will cause division by zero."
+        raise ValueError(msg)
 
     # Compute F(X)
     F_X = numerator / denominator
-    SPARSITY = 1 - F_X
-    return SPARSITY
+    return 1 - F_X
 
 
 def objective_function(thetas, M, dims):
@@ -103,7 +107,7 @@ def objective_function(thetas, M, dims):
     M_ghost = np.abs(real_part) + np.abs(imag_part)
 
     # L1 norm (sum of absolute values) for the real part
-    b = np.abs(real_part)
+    np.abs(real_part)
     l1_norm_real = np.sum(np.abs(real_part)) / M_prime.size
 
     # L1 norm (sum of absolute values) for the imaginary part
@@ -124,8 +128,12 @@ def objective_function(thetas, M, dims):
     alpha2_imag = 1.0
 
     # Calculate the objective value incorporating both real and imaginary parts
-    objective_value = (alpha1_real * l1_norm_real + alpha2_real * l2_norm_real +
-                       alpha1_imag * l1_norm_imag + alpha2_imag * l2_norm_imag) + den
+    (
+        alpha1_real * l1_norm_real
+        + alpha2_real * l2_norm_real
+        + alpha1_imag * l1_norm_imag
+        + alpha2_imag * l2_norm_imag
+    ) + den
 
     return compute_F(M_ghost) * den
 
@@ -137,7 +145,7 @@ def sparsify(gate):
     Optimizer.set_class_variables(M, 0.001, dims[0], dims[1])
     bounds = Optimizer.return_bounds()
 
-    initial_thetas = np.array([uniform(lower, upper) for lower, upper in bounds])
+    initial_thetas = np.array(list(starmap(uniform, bounds)))
 
     # Optimize the rotation angles
     result = minimize(objective_function, initial_thetas, args=(M, dims), bounds=bounds)

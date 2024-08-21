@@ -72,7 +72,7 @@ def graph_rule_ongate(gate, graph) -> gates.R:
         new_g_phi += graph.nodes[logic_nodes[1]]["phase_storage"]
 
     return gates.R(
-            gate.parent_circuit, "R", gate._target_qudits, [g_lev_a, g_lev_b, gate.theta, new_g_phi], gate._dimensions
+        gate.parent_circuit, "R", gate._target_qudits, [g_lev_a, g_lev_b, gate.theta, new_g_phi], gate._dimensions
     )
     # R(gate_matrix.theta, new_g_phi, g_lev_a, g_lev_b, gate_matrix.dimension)
 
@@ -106,11 +106,11 @@ def gate_chain_condition(previous_gates, current):
         pass
 
     return gates.R(
-            current.parent_circuit,
-            "R",
-            current._target_qudits,
-            [current.lev_a, current.lev_b, theta, phi],
-            current._dimensions,
+        current.parent_circuit,
+        "R",
+        current._target_qudits,
+        [current.lev_a, current.lev_b, theta, phi],
+        current._dimensions,
     )  # R(theta, phi, current.lev_a, current.lev_b, current.dimension)
 
 
@@ -133,7 +133,7 @@ def route_states2rotate_basic(gate, orig_placement):
         phy_n_ip1 = placement.nodes[path[i + 1]]["lpmap"]
 
         pi_gate_phy = gates.R(
-                gate.parent_circuit, "R", gate._target_qudits, [phy_n_i, phy_n_ip1, np.pi, -np.pi / 2], dimension
+            gate.parent_circuit, "R", gate._target_qudits, [phy_n_i, phy_n_ip1, np.pi, -np.pi / 2], dimension
         )  # R(np.pi, -np.pi / 2, phy_n_i, phy_n_ip1, dimension)
 
         pi_gate_phy = gate_chain_condition(pi_pulses_routing, pi_gate_phy)
@@ -141,11 +141,11 @@ def route_states2rotate_basic(gate, orig_placement):
 
         # -- COSTING based only on the position of the pi pulse and angle phase is neglected ----------------
         pi_gate_logic = gates.R(
-                gate.parent_circuit,
-                "R",
-                gate._target_qudits,
-                [path[i], path[i + 1], pi_gate_phy.theta, pi_gate_phy.phi / 2],
-                dimension,
+            gate.parent_circuit,
+            "R",
+            gate._target_qudits,
+            [path[i], path[i + 1], pi_gate_phy.theta, pi_gate_phy.phi / 2],
+            dimension,
         )  # R(pi_gate_phy.theta, pi_gate_phy.phi, path[i], path[i + 1], dimension)
         cost_of_pi_pulses += rotation_cost_calc(pi_gate_logic, placement)
         # -----------------------------------------------------------------------------------------------------

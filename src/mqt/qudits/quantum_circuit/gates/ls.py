@@ -48,8 +48,8 @@ class LS(Gate):
         d_min = min(dimension_0, dimension_1)
         for i in range(d_min):
             exp_matrix += np.outer(
-                    np.array(from_dirac_to_basis([i, i], self._dimensions)),
-                    np.array(from_dirac_to_basis([i, i], self._dimensions)),
+                np.array(from_dirac_to_basis([i, i], self._dimensions)),
+                np.array(from_dirac_to_basis([i, i], self._dimensions)),
             )
 
         return expm(-1j * self.theta * exp_matrix)

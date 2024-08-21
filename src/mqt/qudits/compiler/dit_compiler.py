@@ -1,27 +1,25 @@
 from __future__ import annotations
 
-import numpy as np
-
+from ..core.lanes import Lanes
+from ..quantum_circuit.components.extensions.gate_types import GateTypes
 from .naive_local_resynth import NaiveLocResynthOptPass
 from .onedit import LogLocQRPass, PhyLocAdaPass, PhyLocQRPass, ZPropagationOptPass, ZRemovalOptPass
 from .twodit import LogEntQRCEXPass
 from .twodit.entanglement_qr.phy_ent_qr_cex_decomp import PhyEntQRCEXPass
-from ..core.lanes import Lanes
-from ..quantum_circuit.components.extensions.gate_types import GateTypes
 
 
 class QuditCompiler:
     passes_enabled = {
-        "PhyLocQRPass":           PhyLocQRPass,
-        "PhyLocAdaPass":          PhyLocAdaPass,
-        "LocQRPass":              PhyLocQRPass,
-        "LocAdaPass":             PhyLocAdaPass,
-        "LogLocQRPass":           LogLocQRPass,
-        "ZPropagationOptPass":    ZPropagationOptPass,
-        "ZRemovalOptPass":        ZRemovalOptPass,
-        "LogEntQRCEXPass":        LogEntQRCEXPass,
-        "PhyEntQRCEXPass":        PhyEntQRCEXPass,
-        "NaiveLocResynthOptPass": NaiveLocResynthOptPass
+        "PhyLocQRPass": PhyLocQRPass,
+        "PhyLocAdaPass": PhyLocAdaPass,
+        "LocQRPass": PhyLocQRPass,
+        "LocAdaPass": PhyLocAdaPass,
+        "LogLocQRPass": LogLocQRPass,
+        "ZPropagationOptPass": ZPropagationOptPass,
+        "ZRemovalOptPass": ZRemovalOptPass,
+        "LogEntQRCEXPass": LogEntQRCEXPass,
+        "PhyEntQRCEXPass": PhyEntQRCEXPass,
+        "NaiveLocResynthOptPass": NaiveLocResynthOptPass,
     }
 
     def __init__(self) -> None:

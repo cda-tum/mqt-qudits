@@ -15,9 +15,9 @@ def params_splitter(params, dims):
     # Iterate over the list with the step size
     for i in range(0, len(params), step_size):
         # Append the first sublist of n elements
-        ret.append(params[i:i + n])
+        ret.append(params[i : i + n])
         # Append the second sublist of m elements
-        ret.append(params[i + n:i + step_size])
+        ret.append(params[i + n : i + step_size])
     return ret
 
 
@@ -37,11 +37,11 @@ def generic_sud(params, dimension) -> np.ndarray:  # required well-structured d2
             n_vec = from_dirac_to_basis([n], dimension)
 
             zmn = np.outer(np.array(m_vec), np.array(m_vec).T.conj()) - np.outer(
-                    np.array(n_vec), np.array(n_vec).T.conj()
+                np.array(n_vec), np.array(n_vec).T.conj()
             )
 
             ymn = -1j * np.outer(np.array(m_vec), np.array(n_vec).T.conj()) + 1j * np.outer(
-                    np.array(n_vec), np.array(m_vec).T.conj()
+                np.array(n_vec), np.array(m_vec).T.conj()
             )
 
             c_unitary @= expm(1j * params[reindex(n, m, dimension)] * zmn)

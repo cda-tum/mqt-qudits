@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import queue
 import threading
+
 import numpy as np
 
-from mqt.qudits.compiler.twodit.variational_twodit_compilation.ansatz.ansatz_gen_utils import bound_1, bound_2, bound_3
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.opt import Optimizer
 
 
