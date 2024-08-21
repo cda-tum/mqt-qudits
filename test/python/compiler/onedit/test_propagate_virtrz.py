@@ -30,7 +30,8 @@ class TestZPropagationOptPass(TestCase):
 
         # R(np.pi, np.pi / 3, 0, 1, 3), Rz(np.pi / 3, 0, 3),
         # R(np.pi, np.pi / 3, 0, 1, 3), R(np.pi, np.pi / 3, 0, 1, 3), Rz(np.pi / 3, 0, 3)]
-        new_circuit = self.compiler.compile(self.backend_ion, circ, self.passes)
+        pass_z = ZPropagationOptPass(backend=self.backend_ion, back=True)
+        new_circuit = pass_z.transpile(circ)
 
         # VirtZs
         assert new_circuit.instructions[0].phi == 2 * np.pi / 3

@@ -25,7 +25,7 @@ class PhyLocAdaPass(CompilerPass):
     def __init__(self, backend) -> None:
         super().__init__(backend)
 
-    def traspile_gate(self, gate, vrz_prop=False):
+    def transpile_gate(self, gate, vrz_prop=False):
         energy_graph_i = self.backend.energy_level_graphs[gate._target_qudits]
 
         QR = PhyQrDecomp(gate, energy_graph_i)
@@ -35,13 +35,14 @@ class PhyLocAdaPass(CompilerPass):
         Adaptive = PhyAdaptiveDecomposition(
                 gate, energy_graph_i, (algorithmic_cost, total_cost), gate._dimensions, Z_prop = vrz_prop
         )
-
         (
             matrices_decomposed,
             _best_cost,
-            self.backend.energy_level_graphs[gate._target_qudits],
+            new_energy_level_graph
         ) = Adaptive.execute()
 
+        self.backend.energy_level_graphs[gate._target_qudits] = new_energy_level_graph
+        matrices_decomposed = [op.dag() for op in reversed(matrices_decomposed)]
         return matrices_decomposed
 
     def transpile(self, circuit):
@@ -51,7 +52,8 @@ class PhyLocAdaPass(CompilerPass):
 
         for gate in instructions:
             if gate.gate_type == GateTypes.SINGLE:
-                new_instructions += self.traspile_gate(gate)
+                gate_trans = self.transpile_gate(gate)
+                new_instructions.extend(gate_trans)
                 gc.collect()
             else:
                 new_instructions.append(gate)

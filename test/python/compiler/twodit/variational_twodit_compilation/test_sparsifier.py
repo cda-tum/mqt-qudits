@@ -25,10 +25,11 @@ class TestAnsatzSearch(TestCase):
         self.circuit = QuantumCircuit(2, [3, 3], 0)
         x = self.circuit.x(0).to_matrix()
         check = np.exp(1j*np.pi/15*(np.kron(np.eye(3), x) + np.kron(x, np.eye(3))))
-        basis = compute_F(check)
+        sparsity_initial = compute_F(check)
+
         u = self.circuit.cu_two([0, 1], check)
         circuit = sparsify(u)
         op = mini_unitary_sim(self.circuit, circuit.instructions)
-        basis2 = compute_F(op)
+        sparsity_final = compute_F(op)
         op = op.round(3)
-        print("done")
+        assert sparsity_final < sparsity_initial

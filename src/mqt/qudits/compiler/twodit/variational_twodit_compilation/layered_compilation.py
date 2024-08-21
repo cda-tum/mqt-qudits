@@ -15,7 +15,6 @@ def variational_compile(target, tolerance, ansatz_type, layers, custom_primitive
     best_layer, best_error, parameters = binary_search_compile(layers, ansatz_type)
 
     circuit = copy.deepcopy(target.parent_circuit)
-    circuit.reset()
     if ansatz_type == "MS":  # MS is 0
         gates = create_ms_instance(circuit, parameters, [dim_0, dim_1])
     elif ansatz_type == "LS":  # LS is 1

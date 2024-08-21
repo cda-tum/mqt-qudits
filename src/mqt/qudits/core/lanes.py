@@ -17,7 +17,7 @@ class Lanes:
             if gate.gate_type != GateTypes.SINGLE:
                 entanglement_counter += 1
                 gates.append((entanglement_counter, gate))
-                entanglement_counter += 1
+                # entanglement_counter += 1
             else:
                 gates.append((entanglement_counter, gate))
         self.instructions = gates

@@ -77,8 +77,10 @@ class TestLanes(TestCase):
         self.lanes = Lanes(self.circuit)
         result = self.lanes.find_consecutive_singles()
         expected_result = {
-            0: [[(0, gates[0]), (0, gates[2])], [(2, gates[7]), (2, gates[8])]],
-            1: [[(0, gates[1]), (0, gates[3])], [(2, gates[5]), (2, gates[6])]],
-            2: [[(3, gates[10]), (5, gates[12])]]
+            0: [[(0, gates[0]), (0, gates[2])], [(1, gates[4])], [(1, gates[7]), (1, gates[8])],
+                [(2, gates[9])], [(3, gates[11])]],
+            1: [[(0, gates[1]), (0, gates[3])], [(1, gates[4])],
+                [(1, gates[5]), (1, gates[6])], [(2, gates[9])], [(3, gates[11])]],
+            2: [[(2, gates[9])], [(2, gates[10]), (3, gates[12])]]
         }
         self.assertEqual(result, expected_result)

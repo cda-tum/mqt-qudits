@@ -15,10 +15,11 @@ class PhyLocQRPass(CompilerPass):
     def __init__(self, backend) -> None:
         super().__init__(backend)
 
-    def traspile_gate(self, gate):
+    def transpile_gate(self, gate):
         energy_graph_i = self.backend.energy_level_graphs[gate._target_qudits]
         QR = PhyQrDecomp(gate, energy_graph_i, not_stand_alone=False)
         decomp, _algorithmic_cost, _total_cost = QR.execute()
+        decomp = [op.dag() for op in reversed(decomp)]
         return decomp
 
     def transpile(self, circuit):
@@ -28,7 +29,9 @@ class PhyLocQRPass(CompilerPass):
 
         for gate in instructions:
             if gate.gate_type == GateTypes.SINGLE:
-                new_instructions += self.traspile_gate(gate)
+                gate_trans = self.transpile_gate(gate)
+                gate_trans = [op.dag() for op in reversed(gate_trans)]
+                new_instructions.extend(gate_trans)
                 gc.collect()
             else:
                 new_instructions.append(gate)
@@ -68,7 +71,7 @@ class PhyQrDecomp:
                                 "VRz",
                                 self.gate._target_qudits,
                                 [self.graph.nodes[i]["lpmap"], thetaZ],
-                                self.gate.dimension,
+                                self.gate._dimensions,
                         )  # (thetaZ, self.graph.nodes[i]['lpmap'], dimension)
                         decomp.append(phase_gate)
                     recover_dict[i] = thetaZ

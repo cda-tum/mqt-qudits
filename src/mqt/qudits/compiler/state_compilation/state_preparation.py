@@ -143,7 +143,7 @@ class StatePrep:
         else:
             controls_track = copy.deepcopy(controls)
             self.synthesis(
-                labels, cardinalities, node.children[node.children_index[0]], circuit_meta, controls_track, depth + 1
+                    labels, cardinalities, node.children[node.children_index[0]], circuit_meta, controls_track, depth + 1
             )
 
     def compile_state(self):

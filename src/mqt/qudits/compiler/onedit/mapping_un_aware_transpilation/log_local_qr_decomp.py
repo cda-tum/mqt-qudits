@@ -17,7 +17,7 @@ class LogLocQRPass(CompilerPass):
     def __init__(self, backend) -> None:
         super().__init__(backend)
 
-    def traspile_gate(self, gate):
+    def transpile_gate(self, gate):
         energy_graph_i = self.backend.energy_level_graphs[gate._target_qudits]
         QR = QrDecomp(gate, energy_graph_i, not_stand_alone=False)
         decomp, _algorithmic_cost, _total_cost = QR.execute()
@@ -30,7 +30,7 @@ class LogLocQRPass(CompilerPass):
 
         for gate in instructions:
             if gate.gate_type == GateTypes.SINGLE:
-                new_instructions += self.traspile_gate(gate)
+                new_instructions += self.transpile_gate(gate)
                 gc.collect()
             else:
                 new_instructions.append(gate)

@@ -54,6 +54,9 @@ def frobenius_norm(matrix):
 
 
 def compute_F(X):
+    # Hoyer's sparsity measure on matrices
+    # 0<=H<=1 , 0 is non sparse, 1 is very sparse
+    # sparsity is then 1 when non sparse , 0 when sparse
     # Create an all-ones matrix J with the same shape as X
     J = np.ones_like(X)
 

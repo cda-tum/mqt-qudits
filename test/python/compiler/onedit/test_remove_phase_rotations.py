@@ -5,6 +5,7 @@ from unittest import TestCase
 import numpy as np
 
 from mqt.qudits.compiler import QuditCompiler
+from mqt.qudits.compiler.onedit import ZRemovalOptPass
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
 from mqt.qudits.simulation import MQTQuditProvider
@@ -14,7 +15,6 @@ class TestZRemovalOptPass(TestCase):
     def test_remove_z(self):
         provider = MQTQuditProvider()
         compiler = QuditCompiler()
-        passes = ["ZRemovalOptPass"]
         backend_ion = provider.get_backend("faketraps2trits", shots=1000)
 
         qreg = QuantumRegister("test_reg", 3, [3, 3, 3])
@@ -35,7 +35,8 @@ class TestZRemovalOptPass(TestCase):
         circ.rz(qreg[1], [0, 1, np.pi / 3])
         circ.rz(qreg[1], [0, 1, np.pi / 3])
 
-        new_circuit = compiler.compile(backend_ion, circ, passes)
+        pass_z = ZRemovalOptPass(backend=backend_ion)
+        new_circuit = pass_z.transpile(circ)
 
         # Rs
         assert len(new_circuit.instructions) == 6

@@ -13,7 +13,7 @@ class ZPropagationOptPass(CompilerPass):
         self.back = back
 
     def transpile_gate(self, gate):
-        raise NotImplemented
+        return gate
 
     def transpile(self, circuit):
         return self.remove_z(circuit, self.back)

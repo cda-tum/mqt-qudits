@@ -44,71 +44,74 @@ class FakeIonTraps3Six(TNSim):
 
     @property
     def energy_level_graphs(self) -> list[(LevelGraph, LevelGraph)]:
-        e_graphs = []
+        if self._energy_level_graphs is None:
+            e_graphs = []
+            # declare the edges on the energy level graph between logic states .
+            edges = [
+                (2, 0, {"delta_m": 0, "sensitivity": 3}),
+                (3, 0, {"delta_m": 0, "sensitivity": 3}),
+                (4, 0, {"delta_m": 0, "sensitivity": 4}),
+                (5, 0, {"delta_m": 0, "sensitivity": 4}),
+                (1, 2, {"delta_m": 0, "sensitivity": 4}),
+                (1, 3, {"delta_m": 0, "sensitivity": 3}),
+                (1, 4, {"delta_m": 0, "sensitivity": 3}),
+                (1, 5, {"delta_m": 0, "sensitivity": 3}),
+            ]
+            # name explicitly the logic states .
+            nodes = [0, 1, 2, 3, 4, 5]
+            # declare physical levels in order of mapping of the logic states just declared .
+            # i.e. here we will have Logic 0 -> Phys. 0, have Logic 1 -> Phys. 1, have Logic 2 -> Phys. 2 .
+            nmap = [0, 1, 2, 3, 4, 5]
+            # Construct the qudit energy level graph, the last field is the list of logic state that are used for the
+            # calibrations of the operations. note: only the first is one counts in our current cost function.
+            graph_0 = LevelGraph(edges, nodes, nmap, [1])
+            # declare the edges on the energy level graph between logic states .
+            edges_1 = [
+                (2, 0, {"delta_m": 0, "sensitivity": 3}),
+                (3, 0, {"delta_m": 0, "sensitivity": 3}),
+                (4, 0, {"delta_m": 0, "sensitivity": 4}),
+                (5, 0, {"delta_m": 0, "sensitivity": 4}),
+                (1, 2, {"delta_m": 0, "sensitivity": 4}),
+                (1, 3, {"delta_m": 0, "sensitivity": 3}),
+                (1, 4, {"delta_m": 0, "sensitivity": 3}),
+                (1, 5, {"delta_m": 0, "sensitivity": 3}),
+            ]
+            # name explicitly the logic states .
+            nodes_1 = [0, 1, 2, 3, 4, 5]
+            # declare physical levels in order of mapping of the logic states just declared .
+            # i.e. here we will have Logic 0 -> Phys. 0, have Logic 1 -> Phys. 1, have Logic 2 -> Phys. 2 .
+            nmap_1 = [0, 1, 2, 3, 4, 5]
+            # Construct the qudit energy level graph, the last field is the list of logic state that are used for the
+            # calibrations of the operations. note: only the first is one counts in our current cost function.
+            graph_1 = LevelGraph(edges_1, nodes_1, nmap_1, [1])
 
-        # declare the edges on the energy level graph between logic states .
-        edges = [
-            (2, 0, {"delta_m": 0, "sensitivity": 3}),
-            (3, 0, {"delta_m": 0, "sensitivity": 3}),
-            (4, 0, {"delta_m": 0, "sensitivity": 4}),
-            (5, 0, {"delta_m": 0, "sensitivity": 4}),
-            (1, 2, {"delta_m": 0, "sensitivity": 4}),
-            (1, 3, {"delta_m": 0, "sensitivity": 3}),
-            (1, 4, {"delta_m": 0, "sensitivity": 3}),
-            (1, 5, {"delta_m": 0, "sensitivity": 3}),
-        ]
-        # name explicitly the logic states .
-        nodes = [0, 1, 2, 3, 4, 5]
-        # declare physical levels in order of mapping of the logic states just declared .
-        # i.e. here we will have Logic 0 -> Phys. 0, have Logic 1 -> Phys. 1, have Logic 2 -> Phys. 2 .
-        nmap = [0, 1, 2, 3, 4, 5]
-        # Construct the qudit energy level graph, the last field is the list of logic state that are used for the
-        # calibrations of the operations. note: only the first is one counts in our current cost function.
-        graph_0 = LevelGraph(edges, nodes, nmap, [1])
+            # declare the edges on the energy level graph between logic states .
+            edges_2 = [
+                (2, 0, {"delta_m": 0, "sensitivity": 3}),
+                (3, 0, {"delta_m": 0, "sensitivity": 3}),
+                (4, 0, {"delta_m": 0, "sensitivity": 4}),
+                (5, 0, {"delta_m": 0, "sensitivity": 4}),
+                (1, 2, {"delta_m": 0, "sensitivity": 4}),
+                (1, 3, {"delta_m": 0, "sensitivity": 3}),
+                (1, 4, {"delta_m": 0, "sensitivity": 3}),
+                (1, 5, {"delta_m": 0, "sensitivity": 3}),
+            ]
+            # name explicitly the logic states .
+            nodes_2 = [0, 1, 2, 3, 4, 5]
+            # declare physical levels in order of mapping of the logic states just declared .
+            # i.e. here we will have Logic 0 -> Phys. 0, have Logic 1 -> Phys. 1, have Logic 2 -> Phys. 2 .
+            nmap_2 = [0, 1, 2, 3, 4, 5]
+            # Construct the qudit energy level graph, the last field is the list of logic state that are used for the
+            # calibrations of the operations. note: only the first is one counts in our current cost function.
+            graph_2 = LevelGraph(edges_2, nodes_2, nmap_2, [1])
 
-        # declare the edges on the energy level graph between logic states .
-        edges_1 = [
-            (2, 0, {"delta_m": 0, "sensitivity": 3}),
-            (3, 0, {"delta_m": 0, "sensitivity": 3}),
-            (4, 0, {"delta_m": 0, "sensitivity": 4}),
-            (5, 0, {"delta_m": 0, "sensitivity": 4}),
-            (1, 2, {"delta_m": 0, "sensitivity": 4}),
-            (1, 3, {"delta_m": 0, "sensitivity": 3}),
-            (1, 4, {"delta_m": 0, "sensitivity": 3}),
-            (1, 5, {"delta_m": 0, "sensitivity": 3}),
-        ]
-        # name explicitly the logic states .
-        nodes_1 = [0, 1, 2, 3, 4, 5]
-        # declare physical levels in order of mapping of the logic states just declared .
-        # i.e. here we will have Logic 0 -> Phys. 0, have Logic 1 -> Phys. 1, have Logic 2 -> Phys. 2 .
-        nmap_1 = [0, 1, 2, 3, 4, 5]
-        # Construct the qudit energy level graph, the last field is the list of logic state that are used for the
-        # calibrations of the operations. note: only the first is one counts in our current cost function.
-        graph_1 = LevelGraph(edges_1, nodes_1, nmap_1, [1])
+            e_graphs.extend((graph_0, graph_1, graph_2))
 
-        # declare the edges on the energy level graph between logic states .
-        edges_2 = [
-            (2, 0, {"delta_m": 0, "sensitivity": 3}),
-            (3, 0, {"delta_m": 0, "sensitivity": 3}),
-            (4, 0, {"delta_m": 0, "sensitivity": 4}),
-            (5, 0, {"delta_m": 0, "sensitivity": 4}),
-            (1, 2, {"delta_m": 0, "sensitivity": 4}),
-            (1, 3, {"delta_m": 0, "sensitivity": 3}),
-            (1, 4, {"delta_m": 0, "sensitivity": 3}),
-            (1, 5, {"delta_m": 0, "sensitivity": 3}),
-        ]
-        # name explicitly the logic states .
-        nodes_2 = [0, 1, 2, 3, 4, 5]
-        # declare physical levels in order of mapping of the logic states just declared .
-        # i.e. here we will have Logic 0 -> Phys. 0, have Logic 1 -> Phys. 1, have Logic 2 -> Phys. 2 .
-        nmap_2 = [0, 1, 2, 3, 4, 5]
-        # Construct the qudit energy level graph, the last field is the list of logic state that are used for the
-        # calibrations of the operations. note: only the first is one counts in our current cost function.
-        graph_2 = LevelGraph(edges_2, nodes_2, nmap_2, [1])
+            self._energy_level_graphs = e_graphs
+            return e_graphs
 
-        e_graphs.extend((graph_0, graph_1, graph_2))
-
-        return e_graphs
+        else:
+            return self._energy_level_graphs
 
     @staticmethod
     def __noise_model() -> NoiseModel:

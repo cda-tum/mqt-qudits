@@ -11,7 +11,7 @@ class ZRemovalOptPass(CompilerPass):
         super().__init__(backend)
 
     def transpile_gate(self, gate):
-        raise NotImplemented
+        return gate
 
     def transpile(self, circuit):
         circuit = self.remove_initial_rz(circuit)

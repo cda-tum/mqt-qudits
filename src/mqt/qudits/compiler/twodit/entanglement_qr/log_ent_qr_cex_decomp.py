@@ -32,8 +32,9 @@ class LogEntQRCEXPass(CompilerPass):
         new_instructions = []
         for gate in instructions:
             if gate.gate_type == GateTypes.TWO:
-                decomp = self.transpile_gate(gate)
-                new_instructions += decomp
+                gate_trans = self.transpile_gate(gate)
+                gate_trans.reverse()
+                new_instructions.extend(gate_trans)
                 gc.collect()
             else:
                 new_instructions.append(gate)

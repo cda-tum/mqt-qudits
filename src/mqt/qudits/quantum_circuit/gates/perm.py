@@ -41,21 +41,24 @@ class Perm(Gate):
     def __array__(self) -> np.ndarray:
         dims = self._dimensions
         if isinstance(self._dimensions, int):
-            self._dimensions = [dims]
-        return np.eye(reduce(operator.mul, self._dimensions))[:, self.perm_data]
+            dims = [dims]
+        return np.eye(reduce(operator.mul, dims))[:, self.perm_data]
 
     def validate_parameter(self, parameter) -> bool:
         """Verify that the input is a list of indices"""
         if not isinstance(parameter, Collection):
             return False
         dims = self._dimensions
-        if isinstance(self._dimensions, int):
-            self._dimensions = [dims]
+        if isinstance(self._dimensions, list):
+            num_nums = reduce(operator.mul, self._dimensions)
+            assert all(
+                    (0 <= num < len(parameter) and num < num_nums) for num in parameter
+            ), "Numbers are not within the range of the list length"
+        else:
+            assert all(
+                    (0 <= num < len(parameter) and num < dims) for num in parameter
+            ), "Numbers are not within the range of the list length"
 
-        num_nums = reduce(operator.mul, self._dimensions)
-        assert all(
-                (0 <= num < len(parameter) and num < num_nums) for num in parameter
-        ), "Numbers are not within the range of the list length"
         return True
 
     def __str__(self) -> str:
