@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import numpy as np
 
 
@@ -5,7 +7,7 @@ class Primitive:
     CUSTOM_PRIMITIVE = None
 
     @classmethod
-    def set_class_variables(cls, primitive):
+    def set_class_variables(cls, primitive) -> None:
         cls.CUSTOM_PRIMITIVE = primitive
 
 

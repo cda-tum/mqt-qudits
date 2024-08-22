@@ -21,7 +21,7 @@ class MatrixFactory:
         lines = self.gate.reference_lines.copy()
         circuit = self.gate.parent_circuit
         ref_slice = list(range(min(lines), max(lines) + 1))
-        dimensions_slice = circuit.dimensions[min(lines): max(lines) + 1]
+        dimensions_slice = circuit.dimensions[min(lines) : max(lines) + 1]
 
         if control_info:
             controls = control_info.indices
@@ -29,11 +29,11 @@ class MatrixFactory:
             # preferably only CONTROLLED-One qudit gates to be made as multi-controlled, it is still a low level
             # control library
             matrix = MatrixFactory.apply_identites_and_controls(
-                    matrix, self.gate._target_qudits, dimensions_slice, ref_slice, controls, ctrl_levs
+                matrix, self.gate._target_qudits, dimensions_slice, ref_slice, controls, ctrl_levs
             )
         elif self.ids > 0:
             matrix = MatrixFactory.apply_identites_and_controls(
-                    matrix, self.gate._target_qudits, dimensions_slice, ref_slice
+                matrix, self.gate._target_qudits, dimensions_slice, ref_slice
             )
 
         if self.ids >= 2:
@@ -43,7 +43,7 @@ class MatrixFactory:
 
     @classmethod
     def apply_identites_and_controls(
-            cls, matrix, qudits_applied, dimensions, ref_lines, controls=None, controls_levels=None
+        cls, matrix, qudits_applied, dimensions, ref_lines, controls=None, controls_levels=None
     ):
         # dimensions = list(reversed(dimensions))
         # Convert qudits_applied and dimensions to lists if they are not already
@@ -105,8 +105,9 @@ class MatrixFactory:
                         extract_r = [extract_r]
                         extract_c = [extract_c]
                     if list(extract_r) == controls_levels and extract_r == extract_c:
-                        if (not rest_of_indices
-                                or operator.itemgetter(*slide_indices_rest)(global_index_to_state[r]) == operator.itemgetter(*slide_indices_rest)(global_index_to_state[c])):
+                        if not rest_of_indices or operator.itemgetter(*slide_indices_rest)(
+                            global_index_to_state[r]
+                        ) == operator.itemgetter(*slide_indices_rest)(global_index_to_state[c]):
                             og_row_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[r])
                             og_col_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[c])
                             if isinstance(og_row_key, int):
@@ -118,19 +119,19 @@ class MatrixFactory:
                             value = matrix[matrix_row, matrix_col]
                             result[r, c] = value
 
-                else:
-                    if (not rest_of_indices or
-                            operator.itemgetter(*slide_indices_rest)(global_index_to_state[r]) == operator.itemgetter(*slide_indices_rest)(global_index_to_state[c])):
-                        og_row_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[r])
-                        og_col_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[c])
-                        if isinstance(og_row_key, int):
-                            og_row_key = (og_row_key,)
-                        if isinstance(og_col_key, int):
-                            og_col_key = (og_col_key,)
-                        matrix_row = og_state_to_index[tuple(og_row_key)]
-                        matrix_col = og_state_to_index[tuple(og_col_key)]
-                        value = matrix[matrix_row, matrix_col]
-                        result[r, c] = value
+                elif not rest_of_indices or operator.itemgetter(*slide_indices_rest)(
+                    global_index_to_state[r]
+                ) == operator.itemgetter(*slide_indices_rest)(global_index_to_state[c]):
+                    og_row_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[r])
+                    og_col_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[c])
+                    if isinstance(og_row_key, int):
+                        og_row_key = (og_row_key,)
+                    if isinstance(og_col_key, int):
+                        og_col_key = (og_col_key,)
+                    matrix_row = og_state_to_index[tuple(og_row_key)]
+                    matrix_col = og_state_to_index[tuple(og_col_key)]
+                    value = matrix[matrix_row, matrix_col]
+                    result[r, c] = value
 
         return result
 

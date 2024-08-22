@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import gc
 
 from mqt.qudits.compiler import CompilerPass
-from mqt.qudits.compiler.onedit import PhyLocAdaPass, PhyLocQRPass
+from mqt.qudits.compiler.onedit import PhyLocAdaPass
 from mqt.qudits.compiler.twodit.entanglement_qr import EntangledQRCEX
 from mqt.qudits.quantum_circuit.components.extensions.gate_types import GateTypes
 from mqt.qudits.quantum_circuit.gates import Perm
@@ -30,14 +32,13 @@ class PhyEntQRCEXPass(CompilerPass):
         perm_1_d_seq = phyloc.transpile_gate(perm_1_dag)
 
         eqr = EntangledQRCEX(gate)
-        decomp, countcr, countpsw = eqr.execute()
+        decomp, _countcr, _countpsw = eqr.execute()
         perm_0_d_seq.extend(perm_1_d_seq)
         perm_0_d_seq.extend(decomp)
         perm_0_d_seq.extend(perm_0_seq)
         perm_0_d_seq.extend(perm_1_seq)
 
-        decomp = [op.dag() for op in reversed(decomp)]
-        return decomp
+        return [op.dag() for op in reversed(decomp)]
 
     def transpile(self, circuit):
         self.circuit = circuit

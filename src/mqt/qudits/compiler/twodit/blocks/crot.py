@@ -20,8 +20,7 @@ class CRotGen:
 
         # Possible solution to improve of decomposition
         single_excitation = gates.VirtRz(self.circuit, "vR", index_target, [0, -np.pi], dim_target)
-        single_excitation_back = gates.VirtRz(self.circuit, "vR", index_target, [0, np.pi],
-                                              dim_target)
+        single_excitation_back = gates.VirtRz(self.circuit, "vR", index_target, [0, np.pi], dim_target)
         #######################
 
         frame_back = gates.R(self.circuit, "R", index_target, [0, 1, -np.pi / 2, -phi - np.pi / 2], dim_target)
@@ -38,12 +37,12 @@ class CRotGen:
 
         if CEX_SEQUENCE is None:
             cex = gates.CEx(
-                    self.circuit,
-                    "CEx" + str([self.circuit.dimensions[i] for i in self.indices]),
-                    self.indices,
-                    None,
-                    [self.circuit.dimensions[i] for i in self.indices],
-                    None,
+                self.circuit,
+                "CEx" + str([self.circuit.dimensions[i] for i in self.indices]),
+                self.indices,
+                None,
+                [self.circuit.dimensions[i] for i in self.indices],
+                None,
             )
             # Cex().cex_101(d, 0)
         else:
@@ -97,10 +96,10 @@ class CRotGen:
             # on1(R(-np.pi, np.pi / 2, 1, q1_i + 1, d).matrix, d)
 
             permute_there_10_dag = gates.R(
-                    self.circuit, "R", index_target, [0, q1_i, np.pi, -np.pi / 2], dim_target
+                self.circuit, "R", index_target, [0, q1_i, np.pi, -np.pi / 2], dim_target
             ).dag()
             permute_there_11_dag = gates.R(
-                    self.circuit, "R", index_target, [1, q1_i + 1, -np.pi, np.pi / 2], dim_target
+                self.circuit, "R", index_target, [1, q1_i + 1, -np.pi, np.pi / 2], dim_target
             ).dag()
 
             perm = [permute_there_10, permute_there_11]  # matmul(permute_there_10, permute_there_11)
@@ -119,6 +118,3 @@ class CRotGen:
             rot_back.insert(0, permute_back_00)
 
         return rot_there + rotation + rot_back
-
-
-

@@ -3,8 +3,8 @@ from __future__ import annotations
 import numpy as np
 
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.ansatz.ansatz_gen_utils import Primitive
-from mqt.qudits.quantum_circuit import gates
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.parametrize import generic_sud, params_splitter
+from mqt.qudits.quantum_circuit import gates
 from mqt.qudits.quantum_circuit.gates import CustomOne
 
 
@@ -17,7 +17,8 @@ def ansatz_decompose(circuit, u, params, dims):
             decomposition.append(u)
 
         decomposition.append(
-                CustomOne(circuit, "CUo_SUD", counter, generic_sud(params[i], dims[counter]), dims[counter]))
+            CustomOne(circuit, "CUo_SUD", counter, generic_sud(params[i], dims[counter]), dims[counter])
+        )
 
         counter += 1
 
@@ -32,16 +33,9 @@ def create_cu_instance(circuit, P, dims):
 
 def create_ms_instance(circuit, P, dims):
     params = params_splitter(P, dims)
-    ms = gates.MS(
-            circuit,
-            "MS",
-            [0, 1],
-            [np.pi / 2],
-            dims
-    )  # ms_gate(np.pi / 2, dim)
+    ms = gates.MS(circuit, "MS", [0, 1], [np.pi / 2], dims)  # ms_gate(np.pi / 2, dim)
 
-    sequence = ansatz_decompose(circuit, ms, params, dims)
-    return sequence
+    return ansatz_decompose(circuit, ms, params, dims)
 
 
 def create_ls_instance(circuit, P, dims):
@@ -54,11 +48,6 @@ def create_ls_instance(circuit, P, dims):
     else:
         theta = np.pi
 
-    ls = gates.LS(
-            circuit,
-            "LS",
-            [0, 1],
-            [theta],
-            dims)  # ls_gate(theta, dim)
+    ls = gates.LS(circuit, "LS", [0, 1], [theta], dims)  # ls_gate(theta, dim)
 
     return ansatz_decompose(circuit, ls, params, dims)

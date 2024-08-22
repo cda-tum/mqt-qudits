@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import itertools
-import operator
-from functools import reduce
 from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
@@ -34,13 +32,13 @@ class HistogramWithErrors:
 
     def generate_histogram(self) -> None:
         plt.bar(
-                self.labels,
-                self.counts,
-                yerr=self.errors,
-                capsize=5,
-                color="b",
-                alpha=0.7,
-                align="center",
+            self.labels,
+            self.counts,
+            yerr=self.errors,
+            capsize=5,
+            color="b",
+            alpha=0.7,
+            align="center",
         )
         plt.xlabel(self.xlabel)
         plt.ylabel(self.ylabel)
@@ -51,13 +49,13 @@ class HistogramWithErrors:
 
     def save_to_png(self, filename) -> None:
         plt.bar(
-                self.labels,
-                self.counts,
-                yerr=self.errors,
-                capsize=5,
-                color="b",
-                alpha=0.7,
-                align="center",
+            self.labels,
+            self.counts,
+            yerr=self.errors,
+            capsize=5,
+            color="b",
+            alpha=0.7,
+            align="center",
         )
         plt.xlabel(self.xlabel)
         plt.ylabel(self.ylabel)

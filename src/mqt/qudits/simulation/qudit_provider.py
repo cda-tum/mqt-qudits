@@ -20,7 +20,7 @@ class MQTQuditProvider:
         "misim": MISim,
         "faketraps2trits": FakeIonTraps2Trits,
         "faketraps2six": FakeIonTraps2Six,
-        "faketraps3six": FakeIonTraps3Six
+        "faketraps3six": FakeIonTraps3Six,
     }
 
     def get_backend(self, name: str | None = None, **kwargs) -> Backend:

@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 class LevelGraph(nx.Graph):
     def __init__(
-            self, edges, nodes, nodes_physical_mapping=None, initialization_nodes=None, qudit_index=None, og_circuit=None
+        self, edges, nodes, nodes_physical_mapping=None, initialization_nodes=None, qudit_index=None, og_circuit=None
     ) -> None:
         super().__init__()
         self.og_circuit = og_circuit

@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import copy
+from itertools import starmap
 from random import uniform
 
 import numpy as np
@@ -73,12 +76,12 @@ def compute_F(X):
 
     # Handle the potential division by zero
     if denominator == 0:
-        raise ValueError("Denominator is zero, which will cause division by zero.")
+        msg = "Denominator is zero, which will cause division by zero."
+        raise ValueError(msg)
 
     # Compute F(X)
     F_X = numerator / denominator
-    SPARSITY = 1 - F_X
-    return SPARSITY
+    return 1 - F_X
 
 
 def objective_function(thetas, M, dims):
@@ -112,7 +115,7 @@ def sparsify(gate, tol=0.1):
     Optimizer.set_class_variables(M, tol, dims[0], dims[1])
     bounds = Optimizer.return_bounds()
 
-    initial_thetas = np.array([uniform(lower, upper) for lower, upper in bounds])
+    initial_thetas = np.array(list(starmap(uniform, bounds)))
 
     # Optimize the rotation angles
     result = minimize(objective_function, initial_thetas, args=(M, dims), bounds=bounds)

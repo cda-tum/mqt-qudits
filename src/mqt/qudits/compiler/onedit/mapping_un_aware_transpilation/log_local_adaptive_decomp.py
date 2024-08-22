@@ -4,13 +4,12 @@ import gc
 
 import numpy as np
 
-from .log_local_qr_decomp import QrDecomp
 from ....core import NAryTree
 from ....exceptions import SequenceFoundException
 from ....quantum_circuit import gates
 from ....quantum_circuit.components.extensions.gate_types import GateTypes
 from ... import CompilerPass
-from ..mapping_aware_transpilation import PhyQrDecomp
+from .log_local_qr_decomp import QrDecomp
 
 np.seterr(all="ignore")
 
@@ -26,9 +25,7 @@ class LogLocAdaPass(CompilerPass):
 
         _decomp, algorithmic_cost, total_cost = QR.execute()
 
-        Adaptive = LogAdaptiveDecomposition(
-                gate, energy_graph_i, (algorithmic_cost, total_cost), gate._dimensions
-        )
+        Adaptive = LogAdaptiveDecomposition(gate, energy_graph_i, (algorithmic_cost, total_cost), gate._dimensions)
 
         (
             matrices_decomposed,

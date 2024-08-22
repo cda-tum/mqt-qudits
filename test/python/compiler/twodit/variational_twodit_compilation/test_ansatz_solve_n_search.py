@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from unittest import TestCase
 
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.layered_compilation import variational_compile
