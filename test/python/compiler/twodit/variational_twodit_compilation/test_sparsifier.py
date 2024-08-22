@@ -31,5 +31,4 @@ class TestAnsatzSearch(TestCase):
         circuit = sparsify(u)
         op = mini_unitary_sim(self.circuit, circuit.instructions)
         sparsity_final = compute_F(op)
-        op = op.round(3)
         assert sparsity_final < sparsity_initial

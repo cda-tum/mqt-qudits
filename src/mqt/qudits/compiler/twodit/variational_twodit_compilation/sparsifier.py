@@ -88,9 +88,6 @@ def objective_function(thetas, M, dims):
     Args:
         thetas (list of float): List of rotation angles.
         M (numpy.ndarray): Input matrix (NxN).
-        alpha1 (float): L1 regularization strength.
-        alpha2 (float): L2 regularization strength.
-        alpha3 (float): Variance regularization strength.
 
     Returns:
         float: The value of the objective function.
@@ -102,30 +99,8 @@ def objective_function(thetas, M, dims):
     imag_part = np.imag(M_prime)
     M_ghost = np.abs(real_part) + np.abs(imag_part)
 
-    # L1 norm (sum of absolute values) for the real part
-    b = np.abs(real_part)
-    l1_norm_real = np.sum(np.abs(real_part)) / M_prime.size
-
-    # L1 norm (sum of absolute values) for the imaginary part
-    l1_norm_imag = np.sum(np.abs(imag_part)) / M_prime.size
-
-    # L2 norm (sum of squared values) for the real part
-    l2_norm_real = np.sum(np.abs(real_part) ** 2) / M_prime.size
-
-    # L2 norm (sum of squared values) for the imaginary part
-    l2_norm_imag = np.sum(np.abs(imag_part) ** 2) / M_prime.size
-
     # Variance of non-zero elements
     den = density(M_ghost)
-
-    alpha1_real = 1.0
-    alpha2_real = 1.0
-    alpha1_imag = 1.0
-    alpha2_imag = 1.0
-
-    # Calculate the objective value incorporating both real and imaginary parts
-    objective_value = (alpha1_real * l1_norm_real + alpha2_real * l2_norm_real +
-                       alpha1_imag * l1_norm_imag + alpha2_imag * l2_norm_imag) + den
 
     return compute_F(M_ghost) * den
 
