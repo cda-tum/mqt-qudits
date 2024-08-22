@@ -7,7 +7,7 @@ import numpy as np
 from mqt.qudits.compiler import QuditCompiler
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.simulation import MQTQuditProvider
-from mqt.qudits.visualisation import plot_state
+from mqt.qudits.visualisation.plot_information import remap_result
 
 
 class TestQuditCompiler(TestCase):
@@ -22,11 +22,11 @@ class TestQuditCompiler(TestCase):
         circuit_33.x(0).dag().to_matrix(2).round(2)
 
         og_state = circuit_33.simulate().round(5)
-        ogp = plot_state(og_state, circuit_33)
+        ogp = remap_result(og_state, circuit_33)
 
         circuit = qudit_compiler.compile_O0(backend_ion, circuit_33)
         state = circuit.simulate().round(5)
-        new_s = plot_state(state, circuit)
+        new_s = remap_result(state, circuit)
 
         assert np.allclose(new_s, ogp)
 
