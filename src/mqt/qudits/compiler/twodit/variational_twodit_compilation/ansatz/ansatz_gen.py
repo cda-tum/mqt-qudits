@@ -20,7 +20,7 @@ def prepare_ansatz(u, params, dims):
             unitary @= u
 
         unitary @= gate_expand_to_circuit(
-                generic_sud(params[i], dims[counter]), circuits_size=2, target=counter, dims=dims
+            generic_sud(params[i], dims[counter]), circuits_size=2, target=counter, dims=dims
         )
 
         counter += 1
@@ -37,7 +37,7 @@ def cu_ansatz(P, dims):
 def ms_ansatz(P, dims):
     params = params_splitter(P, dims)
     ms = gates.MS(QuantumCircuit(2, dims, 0), "MS", [0, 1], [np.pi / 2], dims).to_matrix(
-            identities=0
+        identities=0
     )  # ms_gate(np.pi / 2, dim)
 
     return prepare_ansatz(ms, params, dims)
@@ -54,12 +54,12 @@ def ls_ansatz(P, dims):
         theta = np.pi
 
     ls = gates.LS(
-            QuantumCircuit(2, dims, 0),
-            "LS",
-            [0, 1],
-            [theta],
-            dims,
-            None,
+        QuantumCircuit(2, dims, 0),
+        "LS",
+        [0, 1],
+        [theta],
+        dims,
+        None,
     ).to_matrix()  # ls_gate(theta, dim)
 
     return prepare_ansatz(ls, params, dims)
