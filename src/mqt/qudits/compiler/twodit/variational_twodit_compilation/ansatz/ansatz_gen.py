@@ -16,11 +16,14 @@ def prepare_ansatz(u, params, dims):
     for i in range(len(params)):
         if counter == 2:
             counter = 0
+            # fmt: off
             unitary = unitary @ u
-
+            # fmt: on
+        # fmt: off
         unitary = unitary @ gate_expand_to_circuit(
             generic_sud(params[i], dims[counter]), circuits_size=2, target=counter, dims=dims
         )
+        # fmt: on
         counter += 1
 
     return unitary
