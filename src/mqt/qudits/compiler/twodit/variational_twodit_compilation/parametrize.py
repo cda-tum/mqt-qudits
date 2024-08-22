@@ -30,7 +30,7 @@ def generic_sud(params, dimension) -> np.ndarray:  # required well-structured d2
 
         zld = np.outer(np.array(l_vec), np.array(l_vec).T.conj()) - np.outer(np.array(d_vec), np.array(d_vec).T.conj())
 
-        c_unitary = c_unitary @ expm(1j * params[reindex(diag_index, diag_index, dimension)] * zld) #noqa
+        c_unitary = c_unitary @ expm(1j * params[reindex(diag_index, diag_index, dimension)] * zld)  # noqa
 
     for m in range(dimension - 1):
         for n in range(m + 1, dimension):
@@ -45,8 +45,8 @@ def generic_sud(params, dimension) -> np.ndarray:  # required well-structured d2
                 np.array(n_vec), np.array(m_vec).T.conj()
             )
 
-            c_unitary = c_unitary @ expm(1j * params[reindex(n, m, dimension)] * zmn) #noqa
+            c_unitary = c_unitary @ expm(1j * params[reindex(n, m, dimension)] * zmn)  # noqa
 
-            c_unitary = c_unitary @ expm(1j * params[reindex(m, n, dimension)] * ymn) #noqa
+            c_unitary = c_unitary @ expm(1j * params[reindex(m, n, dimension)] * ymn)  # noqa
 
     return c_unitary
