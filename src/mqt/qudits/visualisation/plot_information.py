@@ -16,7 +16,7 @@ def remap_result(result: np.ndarray, circuit: QuantumCircuit) -> np.ndarray:
         permutation = np.eye(circuit.dimensions[0])[:, circuit.mappings[0]]
         for i in range(1, len(circuit.mappings)):
             permutation = np.kron(permutation, np.eye(circuit.dimensions[i])[:, circuit.mappings[i]])
-        return  new_result @ np.linalg.inv(permutation)
+        return new_result @ np.linalg.inv(permutation)
     return new_result
 
 
