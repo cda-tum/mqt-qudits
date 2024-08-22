@@ -6,7 +6,6 @@ from random import uniform
 
 import numpy as np
 from scipy.optimize import minimize
-from scipy.optimize import dual_annealing
 
 from mqt.qudits.compiler.compilation_minitools import gate_expand_to_circuit
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.opt import Optimizer
@@ -32,11 +31,13 @@ def instantiate_rotations(circuit, gate, params):
 
     decomposition = []
 
-    decomposition.append(CustomOne(circuit, "CUo_SUD", 0, generic_sud(params[0], dims[0]), dims[0]))
-    decomposition.append(CustomOne(circuit, "CUo_SUD", 1, generic_sud(params[1], dims[1]), dims[1]))
-    decomposition.append(gate)
-    decomposition.append(CustomOne(circuit, "CUo_SUD", 0, generic_sud(params[2], dims[0]), dims[0]))
-    decomposition.append(CustomOne(circuit, "CUo_SUD", 1, generic_sud(params[3], dims[1]), dims[1]))
+    decomposition.extend((
+        CustomOne(circuit, "CUo_SUD", 0, generic_sud(params[0], dims[0]), dims[0]),
+        CustomOne(circuit, "CUo_SUD", 1, generic_sud(params[1], dims[1]), dims[1]),
+        gate,
+        CustomOne(circuit, "CUo_SUD", 0, generic_sud(params[2], dims[0]), dims[0]),
+        CustomOne(circuit, "CUo_SUD", 1, generic_sud(params[3], dims[1]), dims[1]),
+    ))
 
     return decomposition
 
