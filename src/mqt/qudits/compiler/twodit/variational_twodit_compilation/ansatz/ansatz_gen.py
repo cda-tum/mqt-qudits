@@ -19,9 +19,9 @@ def prepare_ansatz(u, params, dims):
 
             unitary = unitary @ u  # noqa
 
-        unitary = unitary @ gate_expand_to_circuit(
+        unitary @= gate_expand_to_circuit(
             generic_sud(params[i], dims[counter]), circuits_size=2, target=counter, dims=dims
-        )  # noqa
+        )
 
         counter += 1
 
