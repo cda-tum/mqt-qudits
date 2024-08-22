@@ -44,7 +44,7 @@ def generic_sud(params, dimension) -> np.ndarray:  # required well-structured d2
             ymn = -1j * np.outer(np.array(m_vec), np.array(n_vec).T.conj()) + 1j * np.outer(
                 np.array(n_vec), np.array(m_vec).T.conj()
             )
-
+            # fmt: off
 
             c_unitary @= expm(1j * params[reindex(n, m, dimension)] * zmn)
 
