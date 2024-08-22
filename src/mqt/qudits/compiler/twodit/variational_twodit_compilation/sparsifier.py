@@ -105,11 +105,11 @@ def objective_function(thetas, M, dims):
     return compute_F(M_ghost) * den
 
 
-def sparsify(gate):
+def sparsify(gate, tol=0.1):
     M = gate.to_matrix()
     dims = gate._dimensions
 
-    Optimizer.set_class_variables(M, 0.001, dims[0], dims[1])
+    Optimizer.set_class_variables(M, tol, dims[0], dims[1])
     bounds = Optimizer.return_bounds()
 
     initial_thetas = np.array([uniform(lower, upper) for lower, upper in bounds])
