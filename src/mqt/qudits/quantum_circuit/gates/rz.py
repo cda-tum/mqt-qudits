@@ -39,7 +39,7 @@ class Rz(Gate):
             self._params = parameters
         self.qasm_tag = "rz"
 
-    def __array__(self) -> np.ndarray: # noqa: PLW3201
+    def __array__(self) -> np.ndarray:  # noqa: PLW3201
         dimension = self._dimensions
         phi = self.phi
 

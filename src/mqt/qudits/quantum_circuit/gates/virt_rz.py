@@ -37,7 +37,7 @@ class VirtRz(Gate):
             self._params = parameters
         self.qasm_tag = "virtrz"
 
-    def __array__(self) -> np.ndarray: # ruff: noqa: PLW3201
+    def __array__(self) -> np.ndarray:  # ruff: noqa: PLW3201
         dimension = self._dimensions
         theta = self.phi
         matrix = np.identity(dimension, dtype="complex")

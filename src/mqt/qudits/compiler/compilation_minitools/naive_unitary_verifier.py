@@ -21,8 +21,15 @@ class UnitaryVerifier:
     final_map is a list representing the mapping of the logic states to the physical ones at the end of the computation
     """
 
-    def __init__(self, sequence: list[Gate], target: Gate, dimensions: list[int], nodes: list[int] | None = None,
-                 initial_map: list[int] | None = None, final_map: list[int] | None = None) -> None:
+    def __init__(
+        self,
+        sequence: list[Gate],
+        target: Gate,
+        dimensions: list[int],
+        nodes: list[int] | None = None,
+        initial_map: list[int] | None = None,
+        final_map: list[int] | None = None,
+    ) -> None:
         self.decomposition = sequence
         self.target = target.to_matrix().copy()
         self.dimension = reduce(operator.mul, dimensions)

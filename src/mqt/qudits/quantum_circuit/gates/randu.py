@@ -36,7 +36,7 @@ class RandU(Gate):
         )
         self.qasm_tag = "rdu"
 
-    def __array__(self) -> np.ndarray: # noqa: PLW3201
+    def __array__(self) -> np.ndarray:  # noqa: PLW3201
         dim = reduce(operator.mul, self._dimensions)
         return unitary_group.rvs(dim)
 

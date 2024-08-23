@@ -37,7 +37,7 @@ class MS(Gate):
             self._params = parameters
         self.qasm_tag = "ms"
 
-    def __array__(self) -> np.ndarray: # noqa: PLW3201
+    def __array__(self) -> np.ndarray:  # noqa: PLW3201
         theta = self.theta
         dimension_0 = self._dimensions[0]
         dimension_1 = self._dimensions[1]

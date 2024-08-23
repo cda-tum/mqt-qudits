@@ -31,7 +31,7 @@ class X(Gate):
         )
         self.qasm_tag = "x"
 
-    def __array__(self) -> np.ndarray: # ruff: noqa: PLW3201
+    def __array__(self) -> np.ndarray:  # ruff: noqa: PLW3201
         matrix = np.zeros((self._dimensions, self._dimensions), dtype="complex")
         for i in range(self._dimensions):
             i_plus_1 = np.mod(i + 1, self._dimensions)

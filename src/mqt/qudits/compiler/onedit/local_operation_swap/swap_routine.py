@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from ....core import LevelGraph
 
 
-def find_logic_from_phys(lev_a: int, lev_b:int, graph: LevelGraph) -> list[int]:
+def find_logic_from_phys(lev_a: int, lev_b: int, graph: LevelGraph) -> list[int]:
     # find node by physical level associated
     logic_nodes = [None, None]
     for node, node_data in graph.nodes(data=True):
@@ -76,7 +76,7 @@ def graph_rule_ongate(gate: gates.R, graph: LevelGraph) -> gates.R:
         new_g_phi += graph.nodes[logic_nodes[1]]["phase_storage"]
 
     return gates.R(
-            gate.parent_circuit, "R", gate.target_qudits, [g_lev_a, g_lev_b, gate.theta, new_g_phi], gate._dimensions
+        gate.parent_circuit, "R", gate.target_qudits, [g_lev_a, g_lev_b, gate.theta, new_g_phi], gate._dimensions
     )
     # R(gate_matrix.theta, new_g_phi, g_lev_a, g_lev_b, gate_matrix.dimension)
 

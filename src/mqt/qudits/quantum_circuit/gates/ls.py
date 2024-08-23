@@ -40,7 +40,7 @@ class LS(Gate):
             self._params = parameters
         self.qasm_tag = "ls"
 
-    def __array__(self) -> np.ndarray: # noqa: PLW3201
+    def __array__(self) -> np.ndarray:  # noqa: PLW3201
         dimension_0 = self._dimensions[0]
         dimension_1 = self._dimensions[1]
 

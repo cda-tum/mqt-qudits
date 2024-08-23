@@ -37,7 +37,7 @@ class CustomTwo(Gate):
             self.__array_storage = parameters
         self.qasm_tag = "cutwo"
 
-    def __array__(self) -> np.ndarray: # noqa: PLW3201
+    def __array__(self) -> np.ndarray:  # noqa: PLW3201
         return self.__array_storage
 
     def validate_parameter(self, parameter=None) -> bool:

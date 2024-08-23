@@ -32,7 +32,7 @@ class S(Gate):
         )
         self.qasm_tag = "s"
 
-    def __array__(self) -> np.ndarray: # noqa: PLW3201
+    def __array__(self) -> np.ndarray:  # noqa: PLW3201
         if self._dimensions == 2:
             return np.array([[1, 0], [0, 1j]])
         matrix = np.zeros((self._dimensions, self._dimensions), dtype="complex")

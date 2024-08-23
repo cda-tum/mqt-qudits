@@ -38,7 +38,7 @@ class CustomMulti(Gate):
 
         self.qasm_tag = "cumulti"
 
-    def __array__(self) -> np.ndarray: # noqa: PLW3201
+    def __array__(self) -> np.ndarray:  # noqa: PLW3201
         return self.__array_storage
 
     def validate_parameter(self, parameter=None) -> bool:

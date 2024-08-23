@@ -51,8 +51,7 @@ def fidelity_on_density_operator(a: np.ndarray, b: np.ndarray) -> float:
     return typing.cast(float, (numerator / denominator))
 
 
-def density_operator(state_vector: list[complex] | np.ndarray[np.complex128]) \
-        -> np.ndarray[np.complex128]:
+def density_operator(state_vector: list[complex] | np.ndarray[np.complex128]) -> np.ndarray[np.complex128]:
     if isinstance(state_vector, list):
         state_vector = np.array(state_vector)
 

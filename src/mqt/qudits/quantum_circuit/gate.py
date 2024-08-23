@@ -152,7 +152,9 @@ class Gate(Instruction):
         Raises:
             ValueError: If the input is not a list of integers or numpy array of integers.
         """
-        if (isinstance(value, list) and all(isinstance(x, int) for x in value)) or (isinstance(value, np.ndarray) and np.issubdtype(value.dtype, np.integer)):
+        if (isinstance(value, list) and all(isinstance(x, int) for x in value)) or (
+            isinstance(value, np.ndarray) and np.issubdtype(value.dtype, np.integer)
+        ):
             self._target_qudits = value
         else:
             msg = "target_qudits must be a list of integers or a numpy array of integers"

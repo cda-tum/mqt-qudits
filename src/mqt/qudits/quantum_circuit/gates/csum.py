@@ -34,7 +34,7 @@ class CSum(Gate):
         )
         self.qasm_tag = "csum"
 
-    def __array__(self) -> np.ndarray: # noqa: PLW3201
+    def __array__(self) -> np.ndarray:  # noqa: PLW3201
         ctrl_size = self.parent_circuit.dimensions[self.target_qudits[0]]
         target_size = self.parent_circuit.dimensions[self.target_qudits[1]]
 

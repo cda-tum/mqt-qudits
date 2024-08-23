@@ -8,10 +8,7 @@ from mqt.qudits.compiler.twodit.variational_twodit_compilation.ansatz.ansatz_gen
 from mqt.qudits.quantum_circuit.components.extensions.matrix_factory import from_dirac_to_basis
 
 
-def params_splitter(
-        params: list[float] | np.ndarray,
-        dims: tuple[int, int]
-) -> list[list[float] | np.ndarray]:
+def params_splitter(params: list[float] | np.ndarray, dims: tuple[int, int]) -> list[list[float] | np.ndarray]:
     """
     Split a list of parameters into sublists based on given dimensions.
 
@@ -29,7 +26,7 @@ def params_splitter(
         msg = "dims must be a tuple of two integers"
         raise ValueError(msg)
 
-    n, m = dims[0]**2 - 1, dims[1]**2 - 1
+    n, m = dims[0] ** 2 - 1, dims[1] ** 2 - 1
     step_size = n + m
 
     if len(params) % step_size != 0:
@@ -38,7 +35,7 @@ def params_splitter(
 
     split_params = []
     for i in range(0, len(params), step_size):
-        split_params.extend([params[i:i+n], params[i+n:i+step_size]])
+        split_params.extend([params[i : i + n], params[i + n : i + step_size]])
 
     return split_params
 

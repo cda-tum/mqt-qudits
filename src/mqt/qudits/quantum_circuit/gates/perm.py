@@ -38,7 +38,7 @@ class Perm(Gate):
             self._params = parameters
         self.qasm_tag = "pm"
 
-    def __array__(self) -> np.ndarray: # noqa: PLW3201
+    def __array__(self) -> np.ndarray:  # noqa: PLW3201
         dims = self._dimensions
         if isinstance(self._dimensions, int):
             dims = [dims]

@@ -41,7 +41,7 @@ class Rh(Gate):
             self._params = parameters
         self.qasm_tag = "rh"
 
-    def __array__(self) -> np.ndarray: # noqa: PLW3201
+    def __array__(self) -> np.ndarray:  # noqa: PLW3201
         # (R(-np.pi, 0, l1, l2, dim) * R(np.pi / 2, np.pi / 2, l1, l2, dim))
         dimension = self._dimensions
 

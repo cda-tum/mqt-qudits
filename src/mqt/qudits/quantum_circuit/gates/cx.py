@@ -42,7 +42,7 @@ class CEx(Gate):
             self._params = [0, 1, 1, 0.0]
         self.qasm_tag = "cx"
 
-    def __array__(self) -> np.ndarray: # noqa: PLW3201
+    def __array__(self) -> np.ndarray:  # noqa: PLW3201
         if self._params is None:
             ang = 0
             ctrl_level = 1

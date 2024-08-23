@@ -41,7 +41,7 @@ class PhyLocAdaPass(CompilerPass):
         _decomp, algorithmic_cost, total_cost = QR.execute()
 
         Adaptive = PhyAdaptiveDecomposition(
-                gate, energy_graph_i, (algorithmic_cost, total_cost), gate._dimensions, Z_prop=vrz_prop
+            gate, energy_graph_i, (algorithmic_cost, total_cost), gate._dimensions, Z_prop=vrz_prop
         )
         (matrices_decomposed, _best_cost, new_energy_level_graph) = Adaptive.execute()
 
@@ -65,8 +65,14 @@ class PhyLocAdaPass(CompilerPass):
 
 
 class PhyAdaptiveDecomposition:
-    def __init__(self, gate: Gate, graph_orig: LevelGraph, cost_limit: tuple[float, float] | None = (0, 0),
-                 dimension: int | None = -1, Z_prop: bool | None = False) -> None:
+    def __init__(
+        self,
+        gate: Gate,
+        graph_orig: LevelGraph,
+        cost_limit: tuple[float, float] | None = (0, 0),
+        dimension: int | None = -1,
+        Z_prop: bool | None = False,
+    ) -> None:
         self.circuit: QuantumCircuit = gate.parent_circuit
         self.U: np.ndarray = gate.to_matrix(identities=0)
         self.qudit_index: int = gate.target_qudits
@@ -79,17 +85,16 @@ class PhyAdaptiveDecomposition:
 
     def execute(self) -> tuple[list[gates.R | gates.VirtRz], tuple[int, int], LevelGraph]:
         self.TREE.add(
-                0,
-                gates.CustomOne(
-                        self.circuit, "CUo", self.qudit_index, np.identity(self.dimension, dtype="complex"),
-                        self.dimension
-                ),
-                self.U,
-                self.graph,
-                0,
-                0,
-                self.cost_limit,
-                [],
+            0,
+            gates.CustomOne(
+                self.circuit, "CUo", self.qudit_index, np.identity(self.dimension, dtype="complex"), self.dimension
+            ),
+            self.U,
+            self.graph,
+            0,
+            0,
+            self.cost_limit,
+            [],
         )
         try:
             self.DFS(self.TREE.root)
@@ -100,7 +105,7 @@ class PhyAdaptiveDecomposition:
 
             if matrices_decomposed != []:
                 matrices_decomposed, final_graph = self.Z_extraction(
-                        matrices_decomposed, final_graph, self.phase_propagation
+                    matrices_decomposed, final_graph, self.phase_propagation
                 )
             else:
                 pass
@@ -109,8 +114,9 @@ class PhyAdaptiveDecomposition:
 
             return matrices_decomposed, best_cost, final_graph
 
-    def Z_extraction(self, decomposition: list[TreeNode],
-                     placement: LevelGraph, phase_propagation: bool) -> tuple[list[Gate], LevelGraph]:
+    def Z_extraction(
+        self, decomposition: list[TreeNode], placement: LevelGraph, phase_propagation: bool
+    ) -> tuple[list[Gate], LevelGraph]:
         matrices = []
 
         for d in decomposition[1:]:
@@ -149,7 +155,7 @@ class PhyAdaptiveDecomposition:
                     phy_n_i = placement.nodes[i]["lpmap"]
 
                     phase_gate = gates.VirtRz(
-                            self.circuit, "VRz", self.qudit_index, [phy_n_i, np.angle(diag_U[i])], self.dimension
+                        self.circuit, "VRz", self.qudit_index, [phy_n_i, np.angle(diag_U[i])], self.dimension
                     )  # old version: VirtRz(np.angle(diag_U[i]), phy_n_i,
                     # dimension)
 
@@ -164,11 +170,11 @@ class PhyAdaptiveDecomposition:
                     thetaZ = new_mod(placement.nodes[i]["phase_storage"])
                     if abs(thetaZ) > 1.0e-4:
                         phase_gate = gates.VirtRz(
-                                self.circuit,
-                                "VRz",
-                                self.qudit_index,
-                                [placement.nodes[i]["lpmap"], thetaZ],
-                                self.dimension,
+                            self.circuit,
+                            "VRz",
+                            self.qudit_index,
+                            [placement.nodes[i]["lpmap"], thetaZ],
+                            self.dimension,
                         )  # VirtRz(thetaZ, placement.nodes[i]['lpmap'],
                         # dimension)
                         matrices.append(phase_gate)
@@ -217,7 +223,7 @@ class PhyAdaptiveDecomposition:
                         phi = -(np.pi / 2 + np.angle(U_[r, c]) - np.angle(U_[r2, c]))
 
                         rotation_involved = gates.R(
-                                self.circuit, "R", self.qudit_index, [r, r2, theta, phi], self.dimension
+                            self.circuit, "R", self.qudit_index, [r, r2, theta, phi], self.dimension
                         )  # R(theta, phi, r, r2, dimension)
 
                         U_temp = rotation_involved.to_matrix(identities=0) @ U_  # matmul(rotation_involved.matrix, U_)
@@ -236,7 +242,7 @@ class PhyAdaptiveDecomposition:
                         decomp_next_step_cost = cost_of_pi_pulses + gate_cost + current_root.current_decomp_cost
 
                         branch_condition = (
-                                current_root.max_cost[1] - decomp_next_step_cost
+                            current_root.max_cost[1] - decomp_next_step_cost
                         )  # SECOND POSITION IS PHYSICAL COST
                         # branch_condition_2 = current_root.max_cost[0] - next_step_cost
                         # deprecated: FIRST IS ALGORITHMIC COST
@@ -250,11 +256,11 @@ class PhyAdaptiveDecomposition:
                             if new_placement.nodes[r]["lpmap"] > new_placement.nodes[r2]["lpmap"]:
                                 phi *= -1
                             physical_rotation = gates.R(
-                                    self.circuit,
-                                    "R",
-                                    self.qudit_index,
-                                    [new_placement.nodes[r]["lpmap"], new_placement.nodes[r2]["lpmap"], theta, phi],
-                                    self.dimension,
+                                self.circuit,
+                                "R",
+                                self.qudit_index,
+                                [new_placement.nodes[r]["lpmap"], new_placement.nodes[r2]["lpmap"], theta, phi],
+                                self.dimension,
                             )
                             # R(theta, phi, new_placement.nodes[r]['lpmap'],
                             # new_placement.nodes[r2]['lpmap'], dimension)
@@ -266,13 +272,13 @@ class PhyAdaptiveDecomposition:
                             p_backs = []
                             for ppulse in pi_pulses_routing:
                                 p_backs.append(
-                                        gates.R(
-                                                self.circuit,
-                                                "R",
-                                                self.qudit_index,
-                                                [ppulse.lev_a, ppulse.lev_b, ppulse.theta, -ppulse.phi],
-                                                self.dimension,
-                                        )
+                                    gates.R(
+                                        self.circuit,
+                                        "R",
+                                        self.qudit_index,
+                                        [ppulse.lev_a, ppulse.lev_b, ppulse.theta, -ppulse.phi],
+                                        self.dimension,
+                                    )
                                 )
                                 # p_backs.append(R(ppulse.theta, -ppulse.phi, ppulse.lev_a, ppulse.lev_b, dimension))
 
@@ -280,14 +286,14 @@ class PhyAdaptiveDecomposition:
                                 graph_rule_update(p_back, new_placement)
 
                             current_root.add(
-                                    new_key,
-                                    physical_rotation,
-                                    U_temp,
-                                    new_placement,
-                                    next_step_cost,
-                                    decomp_next_step_cost,
-                                    current_root.max_cost,
-                                    pi_pulses_routing,
+                                new_key,
+                                physical_rotation,
+                                U_temp,
+                                new_placement,
+                                next_step_cost,
+                                decomp_next_step_cost,
+                                current_root.max_cost,
+                                pi_pulses_routing,
                             )
 
         # ===============CONTINUE SEARCH ON CHILDREN========================================

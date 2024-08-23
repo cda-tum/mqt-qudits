@@ -27,10 +27,7 @@ def get_density_matrix_from_counts(results, circuit: QuantumCircuit):
     return density_matrix
 
 
-def partial_trace(rho: np.ndarray,
-                  qudits2keep: list[int] | np.ndarray,
-                  dims: list[int],
-                  optimize: bool = False):
+def partial_trace(rho: np.ndarray, qudits2keep: list[int] | np.ndarray, dims: list[int], optimize: bool = False):
     """Calculate the partial trace
 
     p_a = Tr_b(p)

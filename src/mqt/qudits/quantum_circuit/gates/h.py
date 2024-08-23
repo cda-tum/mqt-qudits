@@ -32,7 +32,7 @@ class H(Gate):
         )
         self.qasm_tag = "h"
 
-    def __array__(self) -> np.ndarray: # noqa: PLW3201
+    def __array__(self) -> np.ndarray:  # noqa: PLW3201
         matrix = np.zeros((self._dimensions, self._dimensions), dtype="complex")
         for e0, e1 in itertools.product(range(self._dimensions), repeat=2):
             omega = np.mod(2 / self._dimensions * (e0 * e1), 2)

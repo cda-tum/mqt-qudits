@@ -18,8 +18,7 @@ class QASM:
         self._program = None
 
     @staticmethod
-    def parse_nonspecial_lines(line: str, rgxs: dict[str, re.Pattern],
-                               in_comment_flag: bool) -> tuple[bool, bool]:
+    def parse_nonspecial_lines(line: str, rgxs: dict[str, re.Pattern], in_comment_flag: bool) -> tuple[bool, bool]:
         in_comment = in_comment_flag
 
         if not line:
@@ -41,8 +40,7 @@ class QASM:
         return False, in_comment
 
     @staticmethod
-    def parse_qreg(line: str, rgxs: dict[str, re.Pattern],
-                   sitemap: dict[tuple[str, int], tuple[int, int]]) -> bool:
+    def parse_qreg(line: str, rgxs: dict[str, re.Pattern], sitemap: dict[tuple[str, int], tuple[int, int]]) -> bool:
         match = rgxs["qreg"].match(line)
         if match:
             name, nq, qdims = match.groups()
@@ -61,8 +59,7 @@ class QASM:
         return False
 
     @staticmethod
-    def parse_creg(line: str, rgxs: dict[str, re.Pattern],
-                   sitemap_classic: dict[tuple[str, int], int]) -> bool:
+    def parse_creg(line: str, rgxs: dict[str, re.Pattern], sitemap_classic: dict[tuple[str, int], int]) -> bool:
         match = rgxs["creg"].match(line)
         if match:
             name, nclassics = match.groups()
@@ -78,13 +75,17 @@ class QASM:
             # Define a dictionary of allowed names
             allowed_names = {"__builtins__": None, "pi": np.pi}
             # Use eval with restricted names
-            return eval(expression, allowed_names)  #noqa: S307
+            return eval(expression, allowed_names)  # noqa: S307
         except (ValueError, SyntaxError):
             return None
 
     @staticmethod
-    def parse_gate(line: str, rgxs: dict[str, re.Pattern],
-                   sitemap: dict[tuple[str, int], tuple[int, int]], gates: list[dict[str, Any]]) -> bool:
+    def parse_gate(
+        line: str,
+        rgxs: dict[str, re.Pattern],
+        sitemap: dict[tuple[str, int], tuple[int, int]],
+        gates: list[dict[str, Any]],
+    ) -> bool:
         match = rgxs["gate_matrix"].search(line)
         if match:
             label = match.group(1)
@@ -155,23 +156,23 @@ class QASM:
         """
         # define regular expressions for parsing
         rgxs = {
-            "header":        re.compile(r"(DITQASM\s+2.0;)|(include\s+\"qelib1.inc\";)"),
-            "comment":       re.compile(r"^//"),
+            "header": re.compile(r"(DITQASM\s+2.0;)|(include\s+\"qelib1.inc\";)"),
+            "comment": re.compile(r"^//"),
             "comment_start": re.compile(r"/\*"),
-            "comment_end":   re.compile(r"\*/"),
-            "qreg":          re.compile(r"qreg\s+(\w+)\s+(\[\s*\d+\s*\])(?:\s*\[(\d+(?:,\s*\d+)*)\])?;"),
-            "creg":          re.compile(r"creg\s+(\w+)\s*\[\s*(\d+)\s*\]\s*;"),
+            "comment_end": re.compile(r"\*/"),
+            "qreg": re.compile(r"qreg\s+(\w+)\s+(\[\s*\d+\s*\])(?:\s*\[(\d+(?:,\s*\d+)*)\])?;"),
+            "creg": re.compile(r"creg\s+(\w+)\s*\[\s*(\d+)\s*\]\s*;"),
             # "ctrl_id":       re.compile(r"\s+(\w+)\s*(\[\s*\other_size+\s*\])\s*(\s*\w+\s*\[\other_size+\])*\s*"),
             "qreg_indexing": re.compile(r"\s*(\w+)\s*(\[\s*\d+\s*\])"),
             # "gate_matrix":
             # re.compile(r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\other_size+\]\s*(,\s*\w+\[\other_size+\])*)\s*;"),
-            "gate_matrix":   re.compile(
-                    r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\d+\]\s*(,\s*\w+\[\d+\])*)\s*"
-                    r"(ctl(\s+\w+\[\d+\]\s*(\s*\w+\s*\[\d+\])*)\s*(\[(\d+(,\s*\d+)*)\]))?"
-                    r"\s*;"
+            "gate_matrix": re.compile(
+                r"(\w+)\s*(?:\(([^)]*)\))?\s*(\w+\[\d+\]\s*(,\s*\w+\[\d+\])*)\s*"
+                r"(ctl(\s+\w+\[\d+\]\s*(\s*\w+\s*\[\d+\])*)\s*(\[(\d+(,\s*\d+)*)\]))?"
+                r"\s*;"
             ),
-            "error":         re.compile(r"^(gate_matrix|if)"),
-            "ignore":        re.compile(r"^(measure|barrier)"),
+            "error": re.compile(r"^(gate_matrix|if)"),
+            "ignore": re.compile(r"^(measure|barrier)"),
         }
 
         # initialise number of qubits to zero and an empty list for instructions
@@ -212,11 +213,11 @@ class QASM:
             msg = f"{line}"
             raise SyntaxError(msg)
         self._program = {
-            "circuits_size":   len(sitemap),
-            "sitemap":         sitemap,
+            "circuits_size": len(sitemap),
+            "sitemap": sitemap,
             "sitemap_classic": sitemap_classic,
-            "instructions":    gates,
-            "n_gates":         len(gates),
+            "instructions": gates,
+            "n_gates": len(gates),
         }
         return self._program
 

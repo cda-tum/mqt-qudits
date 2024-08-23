@@ -16,15 +16,15 @@ if TYPE_CHECKING:
 
 class QuditCompiler:
     passes_enabled = {
-        "PhyLocQRPass":           PhyLocQRPass,
-        "PhyLocAdaPass":          PhyLocAdaPass,
-        "LocQRPass":              PhyLocQRPass,
-        "LocAdaPass":             PhyLocAdaPass,
-        "LogLocQRPass":           LogLocQRPass,
-        "ZPropagationOptPass":    ZPropagationOptPass,
-        "ZRemovalOptPass":        ZRemovalOptPass,
-        "LogEntQRCEXPass":        LogEntQRCEXPass,
-        "PhyEntQRCEXPass":        PhyEntQRCEXPass,
+        "PhyLocQRPass": PhyLocQRPass,
+        "PhyLocAdaPass": PhyLocAdaPass,
+        "LocQRPass": PhyLocQRPass,
+        "LocAdaPass": PhyLocAdaPass,
+        "LogLocQRPass": LogLocQRPass,
+        "ZPropagationOptPass": ZPropagationOptPass,
+        "ZRemovalOptPass": ZRemovalOptPass,
+        "LogEntQRCEXPass": LogEntQRCEXPass,
+        "PhyEntQRCEXPass": PhyEntQRCEXPass,
         "NaiveLocResynthOptPass": NaiveLocResynthOptPass,
     }
 

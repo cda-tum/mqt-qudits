@@ -37,7 +37,7 @@ class CustomOne(Gate):
             self.__array_storage = parameters
         self.qasm_tag = "cuone"
 
-    def __array__(self) -> np.ndarray: # noqa: PLW3201
+    def __array__(self) -> np.ndarray:  # noqa: PLW3201
         return self.__array_storage
 
     def validate_parameter(self, parameter=None) -> bool:

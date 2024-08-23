@@ -15,10 +15,7 @@ def on0(gate: ComplexArray, other_size: int) -> ComplexArray:
 
 
 def gate_expand_to_circuit(
-        gate: ComplexArray,
-        circuits_size: int,
-        target: int,
-        dims: list[int] | None = None
+    gate: ComplexArray, circuits_size: int, target: int, dims: list[int] | None = None
 ) -> ComplexArray:
     if dims is None:
         dims = [2, 2]
@@ -42,10 +39,10 @@ def gate_expand_to_circuit(
 
 
 def apply_gate_to_tlines(
-        gate_matrix: ComplexArray,
-        circuits_size: int = 2,
-        targets: int | list[int] | None = None,
-        dims: list[int] | None = None
+    gate_matrix: ComplexArray,
+    circuits_size: int = 2,
+    targets: int | list[int] | None = None,
+    dims: list[int] | None = None,
 ) -> ComplexArray:
     if dims is None:
         dims = [2, 2]
