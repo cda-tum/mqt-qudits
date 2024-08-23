@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import operator
 from functools import reduce
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import tensornetwork as tn
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 class TNSim(Backend):
-    def run(self, circuit: QuantumCircuit, **options):
+    def run(self, circuit: QuantumCircuit, **options: Any) -> Job:
         job = Job(self)
 
         self._options.update(options)
@@ -36,7 +36,7 @@ class TNSim(Backend):
 
         return job
 
-    def execute(self, circuit: QuantumCircuit):
+    def execute(self, circuit: QuantumCircuit) -> np.ndarray:
         self.system_sizes = circuit.dimensions
         self.circ_operations = circuit.instructions
 
@@ -47,18 +47,19 @@ class TNSim(Backend):
         state_size = reduce(operator.mul, self.system_sizes, 1)
         return result.reshape(1, state_size)
 
-    def __init__(self, **fields) -> None:
+    def __init__(self, **fields: Any) -> None:
         self.system_sizes = None
         self.circ_operations = None
         super().__init__(**fields)
 
-    def __apply_gate(self, qudit_edges, gate, operating_qudits) -> None:
+    @staticmethod
+    def __apply_gate(qudit_edges, gate, operating_qudits) -> None:
         op = tn.Node(gate)
         for i, bit in enumerate(operating_qudits):
             tn.connect(qudit_edges[bit], op[i])
             qudit_edges[bit] = op[i + len(operating_qudits)]
 
-    def __contract_circuit(self, system_sizes, operations: list[Gate]):
+    def __contract_circuit(self, system_sizes: list[int], operations: list[Gate]):
         all_nodes = []
 
         with tn.NodeCollection(all_nodes):
@@ -96,14 +97,9 @@ class TNSim(Backend):
 
                 elif op.is_long_range or op.gate_type == GateTypes.MULTI:
                     op_matrix = op_matrix.T
-
                     minimum_line, maximum_line = min(lines), max(lines)
                     interested_lines = list(range(minimum_line, maximum_line + 1))
-                    inputs_outputs_legs = []
-                    for i in interested_lines:
-                        inputs_outputs_legs.append(system_sizes[i])
-                    inputs_outputs_legs += inputs_outputs_legs
-
+                    inputs_outputs_legs = [system_sizes[i] for i in interested_lines] * 2
                     op_matrix = op_matrix.reshape(tuple(inputs_outputs_legs))
                     lines = interested_lines
 

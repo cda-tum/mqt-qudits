@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import operator
 from functools import reduce
-from random import randint
 from unittest import TestCase
 
 import numpy as np
@@ -23,10 +22,11 @@ def mini_sim(circuit):
 
 
 class TestStatePrep(TestCase):
-    def test_compile_state(self):
+    @staticmethod
+    def test_compile_state():
         for length in range(2, 4):
-            cardinalities = [randint(2, 7) for _ in range(length)]
-
+            rng = np.random.default_rng()
+            cardinalities = [int(rng.integers(2, 7)) for _ in range(length)]
             w = generate_uniform_state(cardinalities, "qudit-w-state")
             circuit = QuantumCircuit(length, cardinalities, 0)
             preparation = StatePrep(circuit, w)

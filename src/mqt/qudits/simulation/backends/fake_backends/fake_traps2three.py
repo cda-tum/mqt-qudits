@@ -21,7 +21,6 @@ class FakeIonTraps2Trits(TNSim):
         self,
         provider: Provider | None = None,
         name: str | None = None,
-        description: str | None = None,
         online_date: datetime | None = None,
         backend_version: str | None = None,
         **fields,
@@ -114,5 +113,5 @@ class FakeIonTraps2Trits(TNSim):
 
         return noise_model
 
-    def _default_options(self):
+    def _default_options(self) -> dict[int, bool, NoiseModel]:
         return {"shots": 50, "memory": False, "noise_model": self.__noise_model()}

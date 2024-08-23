@@ -3,6 +3,7 @@ from __future__ import annotations
 import operator
 from collections import Counter
 from functools import reduce
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -10,8 +11,11 @@ from mqt.qudits.quantum_circuit.components.extensions.matrix_factory import from
 
 from .plot_information import state_labels
 
+if TYPE_CHECKING:
+    from ..quantum_circuit import QuantumCircuit
 
-def get_density_matrix_from_counts(results, circuit):
+
+def get_density_matrix_from_counts(results, circuit: QuantumCircuit):
     num_kets = reduce(operator.mul, circuit.dimensions)
     number_counts = Counter(results)
     probabilities = [(number_counts[num] / len(results)) for num in range(num_kets)]
@@ -23,7 +27,10 @@ def get_density_matrix_from_counts(results, circuit):
     return density_matrix
 
 
-def partial_trace(rho, qudits2keep, dims, optimize=False):
+def partial_trace(rho: np.ndarray,
+                  qudits2keep: list[int] | np.ndarray,
+                  dims: list[int],
+                  optimize: bool = False):
     """Calculate the partial trace
 
     p_a = Tr_b(p)
@@ -49,11 +56,11 @@ def partial_trace(rho, qudits2keep, dims, optimize=False):
     """
     qudits2keep = np.asarray(qudits2keep)
     dims = np.asarray(dims)
-    Ndim = dims.size
-    Nkeep = np.prod(dims[qudits2keep])
+    ndim = dims.size
+    nkeep = np.prod(dims[qudits2keep])
 
-    idx1 = list(range(Ndim))
-    idx2 = [Ndim + i if i in qudits2keep else i for i in range(Ndim)]
+    idx1 = list(range(ndim))
+    idx2 = [ndim + i if i in qudits2keep else i for i in range(ndim)]
     rho_a = rho.reshape(np.tile(dims, 2))
     rho_a = np.einsum(rho_a, idx1 + idx2, optimize=optimize)
-    return rho_a.reshape(Nkeep, Nkeep)
+    return rho_a.reshape(nkeep, nkeep)

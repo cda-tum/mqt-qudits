@@ -41,17 +41,17 @@ class Rh(Gate):
             self._params = parameters
         self.qasm_tag = "rh"
 
-    def __array__(self) -> np.ndarray:
+    def __array__(self) -> np.ndarray: # noqa: PLW3201
         # (R(-np.pi, 0, l1, l2, dim) * R(np.pi / 2, np.pi / 2, l1, l2, dim))
         dimension = self._dimensions
 
         pi_x = R(
-            self.parent_circuit, "R", self._target_qudits, [self.lev_a, self.lev_b, -np.pi, 0.0], dimension
+            self.parent_circuit, "R", self.target_qudits, [self.lev_a, self.lev_b, -np.pi, 0.0], dimension
         ).to_matrix()
         rotate = R(
             self.parent_circuit,
             "R",
-            self._target_qudits,
+            self.target_qudits,
             [self.lev_a, self.lev_b, np.pi / 2, np.pi / 2],
             dimension,
         ).to_matrix()

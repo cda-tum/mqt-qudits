@@ -2,8 +2,12 @@ from __future__ import annotations
 
 import operator
 from functools import reduce
+from typing import TYPE_CHECKING
 
 import numpy as np
+
+if TYPE_CHECKING:
+    from mqt.qudits.quantum_circuit.gate import Gate
 
 
 class UnitaryVerifier:
@@ -17,7 +21,8 @@ class UnitaryVerifier:
     final_map is a list representing the mapping of the logic states to the physical ones at the end of the computation
     """
 
-    def __init__(self, sequence, target, dimensions, nodes=None, initial_map=None, final_map=None) -> None:
+    def __init__(self, sequence: list[Gate], target: Gate, dimensions: list[int], nodes: list[int] | None = None,
+                 initial_map: list[int] | None = None, final_map: list[int] | None = None) -> None:
         self.decomposition = sequence
         self.target = target.to_matrix().copy()
         self.dimension = reduce(operator.mul, dimensions)

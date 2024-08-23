@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
+from ...exceptions.circuiterror import InvalidQuditDimensionError
 from ..components.extensions.gate_types import GateTypes
 from ..gate import Gate
 
@@ -31,7 +32,7 @@ class S(Gate):
         )
         self.qasm_tag = "s"
 
-    def __array__(self) -> np.ndarray:
+    def __array__(self) -> np.ndarray: # noqa: PLW3201
         if self._dimensions == 2:
             return np.array([[1, 0], [0, 1j]])
         matrix = np.zeros((self._dimensions, self._dimensions), dtype="complex")
@@ -44,10 +45,10 @@ class S(Gate):
             matrix += result
         return matrix
 
-    def validate_parameter(self, parameter=None) -> bool:
+    def validate_parameter(self, parameter: int | None = None) -> bool:
         if np.mod(self._dimensions, 2) == 0 and self._dimensions > 2:
             msg = "S can be applied to prime dimensional qudits"
-            raise Exception(msg)
+            raise InvalidQuditDimensionError(msg)
         return True
 
     def __str__(self) -> str:

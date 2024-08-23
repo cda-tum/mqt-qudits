@@ -42,7 +42,7 @@ class CEx(Gate):
             self._params = [0, 1, 1, 0.0]
         self.qasm_tag = "cx"
 
-    def __array__(self) -> np.ndarray:
+    def __array__(self) -> np.ndarray: # noqa: PLW3201
         if self._params is None:
             ang = 0
             ctrl_level = 1
@@ -71,7 +71,7 @@ class CEx(Gate):
                 # embedded_op = insert_at(embedded_op, (0, 0), opmat)
             else:
                 embedded_op = np.identity(dimension_target, dtype="complex")
-            if self._target_qudits[0] < self._target_qudits[1]:
+            if self.target_qudits[0] < self.target_qudits[1]:
                 result += np.kron(mapmat, embedded_op)
             else:
                 result += np.kron(embedded_op, mapmat)

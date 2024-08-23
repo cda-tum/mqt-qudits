@@ -12,6 +12,7 @@ from ..save_info import save_full_states, save_shots
 
 if TYPE_CHECKING:
     from ...quantum_circuit import QuantumCircuit
+    from ..noise_tools import NoiseModel
     from .backendv2 import Backend
 
 
@@ -37,7 +38,7 @@ def stochastic_simulation(backend: Backend, circuit: QuantumCircuit):
     return results
 
 
-def stochastic_execution(args):
+def stochastic_execution(args: tuple[Backend, NoisyCircuitFactory]):
     backend, factory = args
     circuit = factory.generate_circuit()
     vector_data = backend.execute(circuit)
@@ -53,7 +54,7 @@ def stochastic_execution(args):
     return vector_data
 
 
-def stochastic_simulation_misim(backend: Backend, circuit: QuantumCircuit):
+def stochastic_simulation_misim(backend: Backend, circuit: QuantumCircuit) -> np.ndarray:
     noise_model = backend.noise_model
     shots = backend.shots
     num_processes = mp.cpu_count()
@@ -75,7 +76,7 @@ def stochastic_simulation_misim(backend: Backend, circuit: QuantumCircuit):
     return results
 
 
-def stochastic_execution_misim(args):
+def stochastic_execution_misim(args: tuple[Backend, tuple[QuantumCircuit, NoiseModel]]) -> np.ndarray:
     backend, execution_pack = args
     circuit, noise_model = execution_pack
     vector_data = backend.execute(circuit, noise_model)

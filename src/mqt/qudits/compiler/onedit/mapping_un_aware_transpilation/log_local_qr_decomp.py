@@ -18,7 +18,7 @@ class LogLocQRPass(CompilerPass):
         super().__init__(backend)
 
     def transpile_gate(self, gate):
-        energy_graph_i = self.backend.energy_level_graphs[gate._target_qudits]
+        energy_graph_i = self.backend.energy_level_graphs[gate.target_qudits]
         QR = QrDecomp(gate, energy_graph_i, not_stand_alone=False)
         decomp, _algorithmic_cost, _total_cost = QR.execute()
         return decomp
@@ -43,7 +43,7 @@ class QrDecomp:
         self.gate = gate
         self.circuit = gate.parent_circuit
         self.dimension = gate._dimensions
-        self.qudit_index = gate._target_qudits
+        self.qudit_index = gate.target_qudits
         self.U = gate.to_matrix(identities=0)
         self.graph = graph_orig
         self.phase_propagation = Z_prop
@@ -60,7 +60,7 @@ class QrDecomp:
         # GRAPH PHASES - REMOVE ANY REMAINING AND SAVE FOR RESTORING AT THE END OF ALGORITHM
         if not self.phase_propagation:
             recover_dict = {}
-            inode = self.graph._1stInode
+            inode = self.graph.fst_inode
             if "phase_storage" in self.graph.nodes[inode]:
                 for i in range(len(list(self.graph.nodes))):
                     thetaZ = new_mod(self.graph.nodes[i]["phase_storage"])
@@ -68,7 +68,7 @@ class QrDecomp:
                         phase_gate = gates.VirtRz(
                             self.gate.parent_circuit,
                             "VRz",
-                            self.gate._target_qudits,
+                            self.gate.target_qudits,
                             [self.graph.nodes[i], thetaZ],
                             self.gate.dimension,
                         )  # (thetaZ, self.graph.nodes[i]['lpmap'], dimension) # [self.graph.nodes[i]["lpmap"], thetaZ],
@@ -143,17 +143,17 @@ class QrDecomp:
                 self.graph.nodes[i]  # self.graph.nodes[i]["lpmap"]
 
                 phase_gate = gates.VirtRz(
-                    self.gate.parent_circuit,
-                    "VRz",
-                    self.gate._target_qudits,
-                    [i, np.angle(diag_U[i])],
-                    self.gate._dimensions,
+                        self.gate.parent_circuit,
+                        "VRz",
+                        self.gate.target_qudits,
+                        [i, np.angle(diag_U[i])],
+                        self.gate._dimensions,
                 )  # Rz(np.angle(diag_U[i]), phy_n_i, dimension)
 
                 decomp.append(phase_gate)
 
         if self.not_stand_alone and not self.phase_propagation:
-            inode = self.graph._1stInode
+            inode = self.graph.fst_inode
             if "phase_storage" in self.graph.nodes[inode]:
                 for i in range(len(list(self.graph.nodes))):
                     self.graph.nodes[i]["phase_storage"] = recover_dict[i]

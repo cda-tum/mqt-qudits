@@ -1,17 +1,25 @@
 from __future__ import annotations
 
 import numpy as np
+from numpy.typing import NDArray
+
+ComplexArray = NDArray[np.complex128]
 
 
-def on1(gate, other_size):
-    return np.kron(np.identity(other_size, dtype="complex"), gate)
+def on1(gate: ComplexArray, other_size: int) -> ComplexArray:
+    return np.kron(np.identity(other_size, dtype=np.complex128), gate)
 
 
-def on0(gate, other_size):
-    return np.kron(gate, np.identity(other_size, dtype="complex"))
+def on0(gate: ComplexArray, other_size: int) -> ComplexArray:
+    return np.kron(gate, np.identity(other_size, dtype=np.complex128))
 
 
-def gate_expand_to_circuit(gate, circuits_size, target, dims=None):
+def gate_expand_to_circuit(
+        gate: ComplexArray,
+        circuits_size: int,
+        target: int,
+        dims: list[int] | None = None
+) -> ComplexArray:
     if dims is None:
         dims = [2, 2]
     if circuits_size < 1:
@@ -33,7 +41,12 @@ def gate_expand_to_circuit(gate, circuits_size, target, dims=None):
     return res
 
 
-def apply_gate_to_tlines(gate_matrix, circuits_size=2, targets=None, dims=None):
+def apply_gate_to_tlines(
+        gate_matrix: ComplexArray,
+        circuits_size: int = 2,
+        targets: int | list[int] | None = None,
+        dims: list[int] | None = None
+) -> ComplexArray:
     if dims is None:
         dims = [2, 2]
     if targets is None:

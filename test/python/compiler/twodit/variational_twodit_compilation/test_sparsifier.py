@@ -9,16 +9,6 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 from python.compiler.twodit.entangled_qr.test_entangled_qr import mini_unitary_sim
 
 
-def generate_unitary_matrix(n):
-    random_matrix = np.random.randn(n, n) + 1j * np.random.randn(n, n)
-
-    # Perform QR decomposition
-    q, r = np.linalg.qr(random_matrix)
-
-    # Ensure q is unitary
-    return q @ np.diag(np.sign(np.diag(r)))
-
-
 class TestAnsatzSearch(TestCase):
     def test_sparsify(self) -> None:
         self.circuit = QuantumCircuit(2, [3, 3], 0)

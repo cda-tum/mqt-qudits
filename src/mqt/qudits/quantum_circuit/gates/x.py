@@ -31,7 +31,7 @@ class X(Gate):
         )
         self.qasm_tag = "x"
 
-    def __array__(self) -> np.ndarray:
+    def __array__(self) -> np.ndarray: # ruff: noqa: PLW3201
         matrix = np.zeros((self._dimensions, self._dimensions), dtype="complex")
         for i in range(self._dimensions):
             i_plus_1 = np.mod(i + 1, self._dimensions)
@@ -42,7 +42,7 @@ class X(Gate):
             matrix += np.outer(array1, array2)
         return matrix
 
-    def validate_parameter(self, parameter=None) -> bool:
+    def validate_parameter(self, parameter: int | None = None) -> bool:
         return True
 
     def __str__(self) -> str:

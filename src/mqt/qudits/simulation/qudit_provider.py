@@ -32,14 +32,10 @@ class MQTQuditProvider:
                 keys_with_pattern = key
         return self.__backends[keys_with_pattern](**kwargs)
 
-    def backends(self, name: str | None = None, **kwargs) -> list[Backend]:
+    def backends(self, name: str | None = None) -> list[Backend]:
         """Return a list of backends matching the specified filtering."""
-        keys_with_pattern = []
         regex = re.compile(name)
-        for key in self.__backends:
-            if regex.search(key):
-                keys_with_pattern.append(key)
-        return keys_with_pattern
+        return [key for key in self.__backends if regex.search(key)]
 
     def __eq__(self, other: object) -> bool:
         return type(self).__name__ == type(other).__name__

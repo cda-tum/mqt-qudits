@@ -37,7 +37,7 @@ class VirtRz(Gate):
             self._params = parameters
         self.qasm_tag = "virtrz"
 
-    def __array__(self) -> np.ndarray:
+    def __array__(self) -> np.ndarray: # ruff: noqa: PLW3201
         dimension = self._dimensions
         theta = self.phi
         matrix = np.identity(dimension, dtype="complex")
@@ -45,7 +45,7 @@ class VirtRz(Gate):
 
         return matrix
 
-    def validate_parameter(self, parameter) -> bool:
+    def validate_parameter(self, parameter: list[int, float]) -> bool:
         assert isinstance(parameter[0], int)
         assert isinstance(parameter[1], float)
         assert 0 <= parameter[0] < self._dimensions
@@ -56,5 +56,5 @@ class VirtRz(Gate):
         pass
 
     @property
-    def cost(self):
+    def cost(self) -> float:
         return phi_cost(self.phi)

@@ -15,15 +15,15 @@ class PhyEntQRCEXPass(CompilerPass):
         self.circuit = None
 
     def transpile_gate(self, gate):
-        energy_graph_c = self.backend.energy_level_graphs[gate._target_qudits[0]]
-        energy_graph_t = self.backend.energy_level_graphs[gate._target_qudits[1]]
-        lp_map_0 = [lev for lev in energy_graph_c.log_phy_map if lev < gate._dimensions[gate._target_qudits[0]]]
-        lp_map_1 = [lev for lev in energy_graph_t.log_phy_map if lev < gate._dimensions[gate._target_qudits[1]]]
+        energy_graph_c = self.backend.energy_level_graphs[gate.target_qudits[0]]
+        energy_graph_t = self.backend.energy_level_graphs[gate.target_qudits[1]]
+        lp_map_0 = [lev for lev in energy_graph_c.log_phy_map if lev < gate._dimensions[gate.target_qudits[0]]]
+        lp_map_1 = [lev for lev in energy_graph_t.log_phy_map if lev < gate._dimensions[gate.target_qudits[1]]]
 
-        perm_0 = Perm(gate.parent_circuit, "Pm_ent_0", gate._target_qudits[0], lp_map_0, gate._dimensions[0])
-        perm_1 = Perm(gate.parent_circuit, "Pm_ent_1", gate._target_qudits[1], lp_map_1, gate._dimensions[1])
-        perm_0_dag = Perm(gate.parent_circuit, "Pm_ent_0", gate._target_qudits[0], lp_map_0, gate._dimensions[0]).dag()
-        perm_1_dag = Perm(gate.parent_circuit, "Pm_ent_1", gate._target_qudits[1], lp_map_1, gate._dimensions[1]).dag()
+        perm_0 = Perm(gate.parent_circuit, "Pm_ent_0", gate.target_qudits[0], lp_map_0, gate._dimensions[0])
+        perm_1 = Perm(gate.parent_circuit, "Pm_ent_1", gate.target_qudits[1], lp_map_1, gate._dimensions[1])
+        perm_0_dag = Perm(gate.parent_circuit, "Pm_ent_0", gate.target_qudits[0], lp_map_0, gate._dimensions[0]).dag()
+        perm_1_dag = Perm(gate.parent_circuit, "Pm_ent_1", gate.target_qudits[1], lp_map_1, gate._dimensions[1]).dag()
 
         phyloc = PhyLocAdaPass(self.backend)
         perm_0_seq = phyloc.transpile_gate(perm_0)

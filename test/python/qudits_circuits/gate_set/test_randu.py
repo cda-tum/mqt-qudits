@@ -8,7 +8,8 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
 class TestRandU(TestCase):
-    def is_unitary(self, matrix):
+    @staticmethod
+    def is_unitary(matrix):
         conjugate_transpose = np.conjugate(matrix.T)
         product = np.dot(matrix, conjugate_transpose)
         identity_matrix = np.eye(matrix.shape[0])
@@ -22,7 +23,8 @@ class TestRandU(TestCase):
         assert self.is_unitary(ru2.to_matrix())
         assert not np.allclose(ru1.to_matrix(), ru2.to_matrix())
 
-    def test_validate_parameter(self):
+    @staticmethod
+    def test_validate_parameter():
         circuit = QuantumCircuit(1, [3], 0)
         ru = circuit.randu([0])
         assert ru.validate_parameter()

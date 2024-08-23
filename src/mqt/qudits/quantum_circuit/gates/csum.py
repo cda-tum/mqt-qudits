@@ -34,18 +34,18 @@ class CSum(Gate):
         )
         self.qasm_tag = "csum"
 
-    def __array__(self) -> np.ndarray:
-        ctrl_size = self.parent_circuit.dimensions[self._target_qudits[0]]
-        target_size = self.parent_circuit.dimensions[self._target_qudits[1]]
+    def __array__(self) -> np.ndarray: # noqa: PLW3201
+        ctrl_size = self.parent_circuit.dimensions[self.target_qudits[0]]
+        target_size = self.parent_circuit.dimensions[self.target_qudits[1]]
 
-        x_gate = X(self.parent_circuit, "x", self._target_qudits[1], target_size, None)
+        x_gate = X(self.parent_circuit, "x", self.target_qudits[1], target_size, None)
         x_mat = x_gate.to_matrix(identities=0)
         matrix = np.zeros((ctrl_size * target_size, ctrl_size * target_size), dtype="complex")
         for i in range(ctrl_size):
             basis = np.array(from_dirac_to_basis([i], ctrl_size), dtype="complex")
             mapmat = np.outer(basis, basis)
             x_mat_i = np.linalg.matrix_power(x_mat, i)
-            if self._target_qudits[0] < self._target_qudits[1]:
+            if self.target_qudits[0] < self.target_qudits[1]:
                 matrix += np.kron(mapmat, x_mat_i)
             else:
                 matrix += np.kron(x_mat_i, mapmat)

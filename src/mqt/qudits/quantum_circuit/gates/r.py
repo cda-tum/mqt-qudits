@@ -41,7 +41,7 @@ class R(Gate):
             self._params = parameters
         self.qasm_tag = "rxy"
 
-    def __array__(self) -> np.ndarray:
+    def __array__(self) -> np.ndarray: # noqa: PLW3201
         dimension = self._dimensions
         theta = self.theta
         phi = self.phi
@@ -57,7 +57,7 @@ class R(Gate):
             * GellMann(
                 self.parent_circuit,
                 "Gellman_a",
-                self._target_qudits,
+                self.target_qudits,
                 [self.lev_a, self.lev_b, "a"],
                 self._dimensions,
                 None,
@@ -66,7 +66,7 @@ class R(Gate):
             * GellMann(
                 self.parent_circuit,
                 "Gellman_s",
-                self._target_qudits,
+                self.target_qudits,
                 [self.lev_a, self.lev_b, "s"],
                 self._dimensions,
                 None,

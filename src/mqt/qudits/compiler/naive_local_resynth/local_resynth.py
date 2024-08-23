@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import NoReturn
+from typing import TYPE_CHECKING, NoReturn
 
 import numpy as np
 
@@ -9,15 +9,22 @@ from mqt.qudits.core.lanes import Lanes
 from mqt.qudits.quantum_circuit.components.extensions.gate_types import GateTypes
 from mqt.qudits.quantum_circuit.gates import CustomOne
 
+if TYPE_CHECKING:
+    from mqt.qudits.quantum_circuit import QuantumCircuit
+    from mqt.qudits.quantum_circuit.gate import Gate
+    from mqt.qudits.simulation.backends.backendv2 import Backend
+
 
 class NaiveLocResynthOptPass(CompilerPass):
-    def __init__(self, backend) -> None:
+    def __init__(self, backend: Backend) -> None:
         super().__init__(backend)
+        self.circuit: QuantumCircuit | None = None  # Replace 'Any' with the actual circuit type
+        self.lanes: Lanes | None = None
 
-    def transpile_gate(self, gate) -> NoReturn:
+    def transpile_gate(self, gate: Gate) -> NoReturn:
         raise NotImplementedError
 
-    def transpile(self, circuit):
+    def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:
         self.circuit = circuit
         self.lanes = Lanes(self.circuit)
 

@@ -134,7 +134,7 @@ class LevelGraph(nx.Graph):
         node_a = res_list.index(node_a)
         node_b = res_list.index(node_b)
 
-        inode = self._1stInode
+        inode = self.fst_inode
         if "phase_storage" in self.nodes[inode]:
             phi_a = self.nodes[node_a]["phase_storage"]
             phi_b = self.nodes[node_b]["phase_storage"]
@@ -195,20 +195,20 @@ class LevelGraph(nx.Graph):
         return self[node_a][node_b]["sensitivity"]
 
     @property
-    def _1stRnode(self):
+    def fst_rnode(self):
         r_node = [x for x, y in self.nodes(data=True) if y["level"] == "r"]
         return r_node[0]
 
     @property
-    def _1stInode(self):
-        Inode = [x for x, y in self.nodes(data=True) if y["level"] == "i"]
-        return Inode[0]
+    def fst_inode(self):
+        inode = [x for x, y in self.nodes(data=True) if y["level"] == "i"]
+        return inode[0]
 
     def is_irnode(self, node):
         irnodes = [x for x, y in self.nodes(data=True) if y["level"] == "r"]
         return node in irnodes
 
-    def is_Inode(self, node):
+    def is_inode(self, node):
         Inodes = [x for x, y in self.nodes(data=True) if y["level"] == "i"]
         return node in Inodes
 

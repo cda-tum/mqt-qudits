@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from random import randint
 from unittest import TestCase
 
 import numpy as np
@@ -12,7 +11,8 @@ from mqt.qudits.simulation.noise_tools import Noise, NoiseModel, NoisyCircuitFac
 
 
 def rand_0_5():
-    return randint(0, 5)
+    rng = np.random.default_rng()
+    return int(rng.integers(0, 6))
 
 
 class TestNoisyCircuitFactory(TestCase):

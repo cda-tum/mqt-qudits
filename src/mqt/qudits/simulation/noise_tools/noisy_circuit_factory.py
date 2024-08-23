@@ -19,13 +19,13 @@ class NoisyCircuitFactory:
         self.noise_model = noise_model
         self.circuit = circuit
 
-    def generate_circuit(self):
+    def generate_circuit(self) -> QuantumCircuit:
         current_time = int(time.time() * 1000)
         seed = hash((os.getpid(), current_time)) % 2**32
         gen = np.random.Generator(np.random.PCG64(seed=seed))
 
         # num_qudits, dimensions_slice, numcl
-        noisy_circuit = QuantumCircuit(self.circuit.num_qudits, self.circuit._dimensions, self.circuit._num_cl)
+        noisy_circuit = QuantumCircuit(self.circuit.num_qudits, self.circuit.dimensions, self.circuit.num_cl)
         noisy_circuit.number_gates = 0
         for instruction in self.circuit.instructions:
             # Deep copy the instruction
@@ -55,10 +55,10 @@ class NoisyCircuitFactory:
                                 qudits = instruction.reference_lines
                             elif mode == "control":
                                 assert instruction.gate_type == GateTypes.TWO
-                                qudits = instruction._target_qudits[:1]
+                                qudits = instruction.target_qudits[:1]
                             elif mode == "target":
                                 assert instruction.gate_type == GateTypes.TWO
-                                qudits = instruction._target_qudits[1:]
+                                qudits = instruction.target_qudits[1:]
                         else:
                             pass
 

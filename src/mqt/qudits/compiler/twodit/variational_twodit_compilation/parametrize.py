@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import numpy as np
@@ -7,18 +8,39 @@ from mqt.qudits.compiler.twodit.variational_twodit_compilation.ansatz.ansatz_gen
 from mqt.qudits.quantum_circuit.components.extensions.matrix_factory import from_dirac_to_basis
 
 
-def params_splitter(params, dims):
-    ret = []
-    n = -1 + dims[0] ** 2
-    m = -1 + dims[1] ** 2
+def params_splitter(
+        params: list[float] | np.ndarray,
+        dims: tuple[int, int]
+) -> list[list[float] | np.ndarray]:
+    """
+    Split a list of parameters into sublists based on given dimensions.
+
+    Args:
+    params (Union[List[float], np.ndarray]): The input parameters to be split.
+    dims (Tuple[int, int]): A tuple of two integers representing the dimensions.
+
+    Returns:
+    List[Union[List[float], np.ndarray]]: A list of sublists of split parameters.
+
+    Raises:
+    ValueError: If the length of params is not compatible with the given dimensions.
+    """
+    if len(dims) != 2:
+        msg = "dims must be a tuple of two integers"
+        raise ValueError(msg)
+
+    n, m = dims[0]**2 - 1, dims[1]**2 - 1
     step_size = n + m
-    # Iterate over the list with the step size
+
+    if len(params) % step_size != 0:
+        msg = f"Length of params ({len(params)}) is not compatible with the given dimensions"
+        raise ValueError(msg)
+
+    split_params = []
     for i in range(0, len(params), step_size):
-        # Append the first sublist of n elements
-        ret.append(params[i : i + n])
-        # Append the second sublist of m elements
-        ret.append(params[i + n : i + step_size])
-    return ret
+        split_params.extend([params[i:i+n], params[i+n:i+step_size]])
+
+    return split_params
 
 
 def generic_sud(params, dimension) -> np.ndarray:  # required well-structured d2 -1 params

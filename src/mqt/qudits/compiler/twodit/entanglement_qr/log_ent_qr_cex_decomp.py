@@ -93,7 +93,7 @@ class EntangledQRCEX:
 
                     for r___ in sequence_rotation_involved:
                         if r___.gate_type == GateTypes.SINGLE:
-                            if r___._target_qudits == self.qudit_indices[0]:
+                            if r___.target_qudits == self.qudit_indices[0]:
                                 gate_matrix = on0(r___.to_matrix(), self.dimensions[1])
                             else:
                                 gate_matrix = on1(r___.to_matrix(), self.dimensions[0])
@@ -143,7 +143,7 @@ class EntangledQRCEX:
                 ######################
                 for r___ in sequence_rotation_involved:
                     if r___.gate_type == GateTypes.SINGLE:
-                        if r___._target_qudits == self.qudit_indices[0]:
+                        if r___.target_qudits == self.qudit_indices[0]:
                             gate_matrix = on0(r___.to_matrix(), self.dimensions[1])
                         else:
                             gate_matrix = on1(r___.to_matrix(), self.dimensions[0])

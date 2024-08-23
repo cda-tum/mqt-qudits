@@ -7,6 +7,7 @@ if TYPE_CHECKING:
     from datetime import datetime
 
     from ...core import LevelGraph
+    from ...quantum_circuit import QuantumCircuit
     from ...quantum_circuit.gate import Gate
     from ..jobs import Job
     from ..qudit_provider import QuditProvider as Provider
@@ -18,13 +19,13 @@ class Backend(ABC):
         return 2
 
     def __init__(
-        self,
-        provider: Provider | None = None,
-        name: str | None = None,
-        description: str | None = None,
-        online_date: datetime | None = None,
-        backend_version: str | None = None,
-        **fields: Any,
+            self,
+            provider: Provider | None = None,
+            name: str | None = None,
+            description: str | None = None,
+            online_date: datetime | None = None,
+            backend_version: str | None = None,
+            **fields: Any,
     ) -> None:
         self._options = self._default_options()
         self._provider = provider
@@ -66,7 +67,7 @@ class Backend(ABC):
     def energy_level_graphs(self) -> list[LevelGraph, LevelGraph]:
         raise NotImplementedError
 
-    def _default_options(self):
+    def _default_options(self) -> dict[int, bool]:
         return {"shots": 50, "memory": False}
 
     def set_options(self, **fields) -> None:
@@ -77,13 +78,13 @@ class Backend(ABC):
         self._options.update_options(**fields)
 
     @property
-    def options(self):
+    def options(self) -> dict[str, Any]:
         return self._options
 
     @property
-    def provider(self):
+    def provider(self) -> Provider:
         return self._provider
 
     @abstractmethod
-    def run(self, run_input, **options) -> Job:
+    def run(self, circuit: QuantumCircuit, **options) -> Job:
         pass

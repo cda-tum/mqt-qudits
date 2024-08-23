@@ -11,7 +11,8 @@ from mqt.qudits.visualisation.plot_information import remap_result
 
 
 class TestQuditCompiler(TestCase):
-    def test_compile_00(self):
+    @staticmethod
+    def test_compile_00():
         provider = MQTQuditProvider()
         backend_ion = provider.get_backend("faketraps2six", shots=50)
         qudit_compiler = QuditCompiler()

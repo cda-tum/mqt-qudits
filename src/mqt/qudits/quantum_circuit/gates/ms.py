@@ -37,7 +37,7 @@ class MS(Gate):
             self._params = parameters
         self.qasm_tag = "ms"
 
-    def __array__(self) -> np.ndarray:
+    def __array__(self) -> np.ndarray: # noqa: PLW3201
         theta = self.theta
         dimension_0 = self._dimensions[0]
         dimension_1 = self._dimensions[1]
@@ -46,7 +46,7 @@ class MS(Gate):
             GellMann(
                 self.parent_circuit,
                 "Gellman_s",
-                self._target_qudits,
+                self.target_qudits,
                 [0, 1, "s"],
                 dimension_1,
                 None,
@@ -55,7 +55,7 @@ class MS(Gate):
             GellMann(
                 self.parent_circuit,
                 "Gellman_s",
-                self._target_qudits,
+                self.target_qudits,
                 [0, 1, "s"],
                 dimension_0,
                 None,
@@ -67,7 +67,7 @@ class MS(Gate):
             GellMann(
                 self.parent_circuit,
                 "Gellman_s",
-                self._target_qudits,
+                self.target_qudits,
                 [0, 1, "s"],
                 dimension_1,
                 None,
@@ -76,7 +76,7 @@ class MS(Gate):
             GellMann(
                 self.parent_circuit,
                 "Gellman_s",
-                self._target_qudits,
+                self.target_qudits,
                 [0, 1, "s"],
                 dimension_0,
                 None,

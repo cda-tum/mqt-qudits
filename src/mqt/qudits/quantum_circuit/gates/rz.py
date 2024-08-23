@@ -39,18 +39,18 @@ class Rz(Gate):
             self._params = parameters
         self.qasm_tag = "rz"
 
-    def __array__(self) -> np.ndarray:
+    def __array__(self) -> np.ndarray: # noqa: PLW3201
         dimension = self._dimensions
         phi = self.phi
 
         pi_there = R(
-            self.parent_circuit, "R", self._target_qudits, [self.lev_a, self.lev_b, -np.pi / 2, 0.0], dimension
+            self.parent_circuit, "R", self.target_qudits, [self.lev_a, self.lev_b, -np.pi / 2, 0.0], dimension
         ).to_matrix()
         rotate = R(
-            self.parent_circuit, "R", self._target_qudits, [self.lev_a, self.lev_b, phi, np.pi / 2], dimension
+            self.parent_circuit, "R", self.target_qudits, [self.lev_a, self.lev_b, phi, np.pi / 2], dimension
         ).to_matrix()
         pi_back = R(
-            self.parent_circuit, "R", self._target_qudits, [self.lev_a, self.lev_b, np.pi / 2, 0.0], dimension
+            self.parent_circuit, "R", self.target_qudits, [self.lev_a, self.lev_b, np.pi / 2, 0.0], dimension
         ).to_matrix()
 
         return pi_back @ rotate @ pi_there

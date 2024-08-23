@@ -8,7 +8,8 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
 class TestPerm(TestCase):
-    def test___array__(self):
+    @staticmethod
+    def test___array__():
         circuit = QuantumCircuit(2, [3, 2], 0)
         ru1 = circuit.pm([0, 1], [0, 2, 1, 5, 3, 4]).to_matrix()
         matrix = np.array([
@@ -21,7 +22,8 @@ class TestPerm(TestCase):
         ])
         assert np.allclose(ru1, matrix)
 
-    def test_validate_parameter(self):
+    @staticmethod
+    def test_validate_parameter():
         circuit = QuantumCircuit(1, [3, 3], 0)
         p = circuit.pm([0], [0, 1, 2])
         assert p.validate_parameter([0, 1, 2])

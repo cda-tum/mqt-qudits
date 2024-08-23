@@ -61,11 +61,11 @@ class Gate(Instruction):
     @property
     def reference_lines(self):
         lines = []
-        if isinstance(self._target_qudits, int):
+        if isinstance(self.target_qudits, int):
             lines = self.get_control_lines.copy()
-            lines.append(self._target_qudits)
-        elif isinstance(self._target_qudits, list):
-            lines = self.get_control_lines.copy() + self._target_qudits.copy()
+            lines.append(self.target_qudits)
+        elif isinstance(self.target_qudits, list):
+            lines = self.get_control_lines.copy() + self.target_qudits.copy()
         if len(lines) == 0:
             msg = "Gate has no target or control lines"
             raise CircuitError(msg)
@@ -106,16 +106,16 @@ class Gate(Instruction):
         ):
             msg = "Indices or Number of Controls is beyond the Quantum Circuit Size"
             raise IndexError(msg)
-        if isinstance(self._target_qudits, int):
-            if self._target_qudits in indices:
+        if isinstance(self.target_qudits, int):
+            if self.target_qudits in indices:
                 msg = "Controls overlap with targets"
                 raise IndexError(msg)
-        elif any(idx in list(self._target_qudits) for idx in indices):
+        elif any(idx in list(self.target_qudits) for idx in indices):
             msg = "Controls overlap with targets"
             raise IndexError(msg)
         # if isinstance(self._dimensions, int):
         #    dimensions = [self._dimensions]
-        if any(ctrl >= self.parent_circuit._dimensions[i] for i, ctrl in enumerate(ctrl_states)):
+        if any(ctrl >= self.parent_circuit.dimensions[i] for i, ctrl in enumerate(ctrl_states)):
             msg = "Controls States beyond qudit size "
             raise IndexError(msg)
         self._controls_data = ControlData(indices, ctrl_states)
@@ -131,6 +131,33 @@ class Gate(Instruction):
     def validate_parameter(self, parameter):
         pass
 
+    @property
+    def target_qudits(self) -> list[int] | np.ndarray:
+        """
+        Get the target qudits.
+
+        Returns:
+            Union[List[int], np.ndarray]: The current target qudits.
+        """
+        return self._target_qudits
+
+    @target_qudits.setter
+    def target_qudits(self, value: list[int] | np.ndarray) -> None:
+        """
+        Set the target qudits.
+
+        Args:
+            value (Union[List[int], np.ndarray]): The new target qudits.
+
+        Raises:
+            ValueError: If the input is not a list of integers or numpy array of integers.
+        """
+        if (isinstance(value, list) and all(isinstance(x, int) for x in value)) or (isinstance(value, np.ndarray) and np.issubdtype(value.dtype, np.integer)):
+            self._target_qudits = value
+        else:
+            msg = "target_qudits must be a list of integers or a numpy array of integers"
+            raise ValueError(msg)
+
     def __qasm__(self) -> str:
         """Generate QASM for Gate export"""
         string = f"{self.qasm_tag} "
@@ -142,10 +169,10 @@ class Gate(Instruction):
                 string += f"{parameter}, "
             string = string[:-2]
             string += ") "
-        if isinstance(self._target_qudits, int):
-            targets = [self._target_qudits]
-        elif isinstance(self._target_qudits, list):
-            targets = self._target_qudits
+        if isinstance(self.target_qudits, int):
+            targets = [self.target_qudits]
+        elif isinstance(self.target_qudits, list):
+            targets = self.target_qudits
         for qudit in targets:
             string += (
                 f"{self.parent_circuit.inverse_sitemap[qudit][0]}[{self.parent_circuit.inverse_sitemap[qudit][1]}], "
@@ -190,7 +217,7 @@ class Gate(Instruction):
     @property
     def control_info(self):
         return {
-            "target": self._target_qudits,
+            "target": self.target_qudits,
             "dimensions_slice": self._dimensions,
             "params": self._params,
             "controls": self._controls_data,

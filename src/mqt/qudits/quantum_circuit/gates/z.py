@@ -14,29 +14,29 @@ if TYPE_CHECKING:
 
 class Z(Gate):
     def __init__(
-        self,
-        circuit: QuantumCircuit,
-        name: str,
-        target_qudits: list[int] | int,
-        dimensions: list[int] | int,
-        controls: ControlData | None = None,
+            self,
+            circuit: QuantumCircuit,
+            name: str,
+            target_qudits: list[int] | int,
+            dimensions: list[int] | int,
+            controls: ControlData | None = None,
     ) -> None:
         super().__init__(
-            circuit=circuit,
-            name=name,
-            gate_type=GateTypes.SINGLE,
-            target_qudits=target_qudits,
-            dimensions=dimensions,
-            control_set=controls,
+                circuit=circuit,
+                name=name,
+                gate_type=GateTypes.SINGLE,
+                target_qudits=target_qudits,
+                dimensions=dimensions,
+                control_set=controls,
         )
         self.qasm_tag = "z"
 
-    def __array__(self) -> np.ndarray:
+    def __array__(self) -> np.ndarray:  # noqa: PLW3201
         matrix = np.zeros((self._dimensions, self._dimensions), dtype="complex")
         for i in range(self._dimensions):
             omega = np.mod(2 * i / self._dimensions, 2)
             omega = omega * np.pi * 1j
-            omega = np.e**omega
+            omega = np.e ** omega
             array = np.zeros(self._dimensions, dtype="complex")
             array[i] = 1
             result = omega * np.outer(array, array)
@@ -44,7 +44,7 @@ class Z(Gate):
 
         return matrix
 
-    def validate_parameter(self, parameter=None) -> bool:
+    def validate_parameter(self, parameter: int | None = None) -> bool:
         return True
 
     def __str__(self) -> str:

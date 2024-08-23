@@ -39,7 +39,7 @@ class GellMann(Gate):
             self._params = parameters
         self.qasm_tag = "gell"
 
-    def __array__(self) -> np.ndarray:
+    def __array__(self) -> np.ndarray: # noqa: PLW3201
         d = self._dimensions
         matrix = np.zeros((d, d), dtype=complex)
 

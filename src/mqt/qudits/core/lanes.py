@@ -31,12 +31,12 @@ class Lanes:
         for gate_tuple in self.instructions:
             gate = gate_tuple[1]
             if gate.gate_type == GateTypes.SINGLE:
-                index = gate._target_qudits
+                index = gate.target_qudits
                 if index not in self.index_dict:
                     self.index_dict[index] = []
                 self.index_dict[index].append(gate_tuple)
             elif gate.gate_type in {GateTypes.TWO, GateTypes.MULTI}:
-                indices = gate._target_qudits
+                indices = gate.target_qudits
                 for index in indices:
                     if index not in self.index_dict:
                         self.index_dict[index] = []
@@ -80,12 +80,12 @@ class Lanes:
         for gate_tuple in gates:
             gate = gate_tuple[1]
             if gate.gate_type == GateTypes.SINGLE:
-                if consecutive_groups[gate._target_qudits]:
-                    consecutive_groups[gate._target_qudits][-1].append(gate_tuple)
+                if consecutive_groups[gate.target_qudits]:
+                    consecutive_groups[gate.target_qudits][-1].append(gate_tuple)
                 else:
-                    consecutive_groups[gate._target_qudits] = [[gate_tuple]]
+                    consecutive_groups[gate.target_qudits] = [[gate_tuple]]
             else:
-                for qudit in gate._target_qudits:
+                for qudit in gate.target_qudits:
                     consecutive_groups[qudit].append([gate_tuple])
                     consecutive_groups[qudit].append([])
         consecutive_groups = {

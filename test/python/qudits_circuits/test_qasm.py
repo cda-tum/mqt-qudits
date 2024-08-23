@@ -6,7 +6,8 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
 class TestQASM(TestCase):
-    def test_from_qasm(self):
+    @staticmethod
+    def test_from_qasm():
         """Create circuit from QASM program"""
         qasm = """
                 DITQASM 2.0;
@@ -36,9 +37,9 @@ class TestQASM(TestCase):
 
         circuit = QuantumCircuit()
         circuit.from_qasm(qasm)
-        assert circuit._num_cl == 9
-        assert circuit._num_qudits == 9
-        assert circuit._dimensions == [5, 5, 5, 5, 5, 5, 5, 2, 2]
+        assert circuit.num_cl == 9
+        assert circuit.num_qudits == 9
+        assert circuit.dimensions == [5, 5, 5, 5, 5, 5, 5, 2, 2]
         assert circuit.number_gates == 15
         assert len(circuit.quantum_registers) == 2
         assert len(circuit.classic_registers) == 2

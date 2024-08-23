@@ -47,7 +47,7 @@ class HistogramWithErrors:
         plt.tight_layout()
         plt.show()
 
-    def save_to_png(self, filename) -> None:
+    def save_to_png(self, filename: str) -> None:
         plt.bar(
             self.labels,
             self.counts,
@@ -66,16 +66,11 @@ class HistogramWithErrors:
         plt.close()
 
 
-def state_labels(circuit):
+def state_labels(circuit: QuantumCircuit):
     dimensions = circuit.dimensions  # reversed(circuit.dimensions)
     # it was in the order of the DD simulation now it is in circuit order
-    logic = []
-    lut = []
-    for d in dimensions:
-        logic.append(list(range(d)))
-
-    for element in itertools.product(*logic):
-        lut.append(list(element))
+    logic = [list(range(d)) for d in dimensions]
+    lut = [list(element) for element in itertools.product(*logic)]
 
     string_states = []
     for item in lut:

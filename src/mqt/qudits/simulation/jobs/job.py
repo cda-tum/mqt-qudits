@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import os
 import time
-from typing import TYPE_CHECKING, Callable, NoReturn
+from typing import TYPE_CHECKING, Any, NoReturn
 
 from ...exceptions import JobError, JobTimeoutError
 from .jobstatus import JobStatus
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from ..backends.backendv2 import Backend
 
 
@@ -24,7 +26,7 @@ class Job:
     version = 1
     _async = True
 
-    def __init__(self, backend: Backend | None, job_id: str = "auto", **kwargs) -> None:
+    def __init__(self, backend: Backend | None, job_id: str = "auto", **kwargs: Any) -> None:
         """Initializes the asynchronous job.
 
         Args:

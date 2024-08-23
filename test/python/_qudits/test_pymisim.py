@@ -1,18 +1,18 @@
 from __future__ import annotations
 
-from random import randint
 from unittest import TestCase
 
 import numpy as np
 
-from mqt.qudits._qudits.misim import state_vector_simulation
+from mqt.qudits._qudits.misim import state_vector_simulation  #noqa: PLC2701
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
 from mqt.qudits.simulation.noise_tools import Noise, NoiseModel
 
 
 def rand_0_5():
-    return randint(0, 5)
+    rng = np.random.default_rng()
+    return int(rng.integers(0, 5))
 
 
 def is_quantum_state(state):
@@ -47,7 +47,8 @@ def is_quantum_state(state):
 
 
 class Testpymisim(TestCase):
-    def test_state_vector_simulation(self):
+    @staticmethod
+    def test_state_vector_simulation():
         qreg_example = QuantumRegister("reg", 6, 6 * [5])
         circ = QuantumCircuit(qreg_example)
         for _i in range(300):
