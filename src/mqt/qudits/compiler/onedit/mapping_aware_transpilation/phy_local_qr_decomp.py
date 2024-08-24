@@ -46,7 +46,7 @@ class PhyLocQRPass(CompilerPass):
 
 
 class PhyQrDecomp:
-    def __init__(self, gate, graph_orig, Z_prop=False, not_stand_alone=True) -> None:
+    def __init__(self, gate: Gate, graph_orig: LevelGraph, Z_prop: bool = False, not_stand_alone: bool = True) -> None:
         self.gate: Gate = gate
         self.circuit: QuantumCircuit = gate.parent_circuit
         self.dimension: int = gate._dimensions

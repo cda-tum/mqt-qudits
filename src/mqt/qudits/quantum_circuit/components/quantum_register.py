@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from typing import Any
+
 
 class QuantumRegister:
     @classmethod
-    def from_map(cls, sitemap: dict) -> list[QuantumRegister]:
+    def from_map(cls, sitemap: dict[tuple[str, int], Any]) -> list[QuantumRegister]:
         registers_map = {}
 
         for qreg_with_index, line_info in sitemap.items():
@@ -22,17 +24,17 @@ class QuantumRegister:
         # print(registers_from_qasm)
         return registers_from_qasm
 
-    def __init__(self, name, size, dims=None) -> None:
+    def __init__(self, name: str, size: int, dims: list[int] | None = None) -> None:
         self.label = name
-        self.size = size
-        self.dimensions = size * [2] if dims is None else dims
-        self.local_sitemap = {}
+        self.size: int = size
+        self.dimensions: list[int] = size * [2] if dims is None else dims
+        self.local_sitemap: dict[int, int] = {}
 
-    def __qasm__(self):
+    def __qasm__(self) -> str:
         string_dims = str(self.dimensions).replace(" ", "")
         return "qreg " + self.label + " [" + str(self.size) + "]" + string_dims + ";"
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: int | slice) -> int | list[int]:
         if isinstance(key, slice):
             start, stop = key.start, key.stop
             return [self.local_sitemap[i] for i in range(start, stop)]

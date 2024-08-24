@@ -1,19 +1,27 @@
 from __future__ import annotations
 
+import typing
 from math import floor
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from mqt.qudits.compiler.twodit.blocks.crot import CEX_SEQUENCE
 from mqt.qudits.quantum_circuit import gates
 
+if TYPE_CHECKING:
+    from mqt.qudits.quantum_circuit.gate import Gate
+
+if typing.TYPE_CHECKING:
+    from mqt.qudits.quantum_circuit import QuantumCircuit
+
 
 class PSwapGen:
-    def __init__(self, circuit, indices) -> None:
-        self.circuit = circuit
-        self.indices = indices
+    def __init__(self, circuit: QuantumCircuit, indices: list[int]) -> None:
+        self.circuit: QuantumCircuit = circuit
+        self.indices: list[int] = indices
 
-    def pswap_101_as_list_phases(self, theta, phi):
+    def pswap_101_as_list_phases(self, theta: float, phi: float) -> list[Gate]:
         index_ctrl = self.indices[0]
         dim_ctrl = self.circuit.dimensions[index_ctrl]
         index_target = self.indices[1]
@@ -50,12 +58,12 @@ class PSwapGen:
 
         if CEX_SEQUENCE is None:
             cex = gates.CEx(
-                self.circuit,
-                "CEx" + str([self.circuit.dimensions[i] for i in self.indices]),
-                self.indices,
-                None,
-                [self.circuit.dimensions[i] for i in self.indices],
-                None,
+                    self.circuit,
+                    "CEx" + str([self.circuit.dimensions[i] for i in self.indices]),
+                    self.indices,
+                    None,
+                    [self.circuit.dimensions[i] for i in self.indices],
+                    None,
             )
             # Cex().cex_101(d, 0)
         else:
@@ -137,17 +145,18 @@ class PSwapGen:
 
         if dim_target != 2:
             r_flip_back_1 = gates.R(
-                self.circuit, "R_flip_back", index_target, [1, dim_target - 1, -np.pi, np.pi / 2], dim_target
+                    self.circuit, "R_flip_back", index_target, [1, dim_target - 1, -np.pi, np.pi / 2], dim_target
             )
             compose.append(r_flip_back_1)  # (on1(R(-np.pi, np.pi / 2, 1, d - 1, d).matrix, d))
 
         return compose
 
-    def pswap_101_as_list_no_phases(self, theta, phi):
+    def pswap_101_as_list_no_phases(self, theta: float, phi: float) -> list[Gate]:
         rotation = self.pswap_101_as_list_phases(-theta / 4, phi)
         return rotation + rotation + rotation + rotation
 
-    def permute_pswap_101_as_list(self, pos, theta, phase, with_phase=False):
+    def permute_pswap_101_as_list(self, pos: int, theta: float,
+                                  phase: float, with_phase: bool = False) -> list[Gate]:
         index_ctrl = self.indices[0]
         dim_ctrl = self.circuit.dimensions[index_ctrl]
         index_target = self.indices[1]
@@ -161,19 +170,19 @@ class PSwapGen:
 
         if control_block != 0:
             permute_there_00 = gates.R(
-                self.circuit, "R_there_00", index_ctrl, [0, control_block, np.pi, -np.pi / 2], dim_ctrl
+                    self.circuit, "R_there_00", index_ctrl, [0, control_block, np.pi, -np.pi / 2], dim_ctrl
             )
             # on0(R(np.pi, -np.pi / 2, 0, j, d).matrix, d)
             permute_there_01 = gates.R(
-                self.circuit, "R_there_01", index_ctrl, [1, control_block + 1, -np.pi, np.pi / 2], dim_ctrl
+                    self.circuit, "R_there_01", index_ctrl, [1, control_block + 1, -np.pi, np.pi / 2], dim_ctrl
             )
             # on0(R(-np.pi, np.pi / 2, 1, j + 1, d).matrix, d))
 
             permute_there_00_dag = gates.R(
-                self.circuit, "R_there_00", index_ctrl, [0, control_block, np.pi, -np.pi / 2], dim_ctrl
+                    self.circuit, "R_there_00", index_ctrl, [0, control_block, np.pi, -np.pi / 2], dim_ctrl
             ).dag()
             permute_there_01_dag = gates.R(
-                self.circuit, "R_there_01", index_ctrl, [1, control_block + 1, -np.pi, np.pi / 2], dim_ctrl
+                    self.circuit, "R_there_01", index_ctrl, [1, control_block + 1, -np.pi, np.pi / 2], dim_ctrl
             ).dag()
 
             perm = [permute_there_00, permute_there_01]

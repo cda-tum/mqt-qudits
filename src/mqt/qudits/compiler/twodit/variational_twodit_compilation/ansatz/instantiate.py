@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import typing
+
 import numpy as np
 
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.ansatz.ansatz_gen_utils import Primitive
@@ -7,8 +9,18 @@ from mqt.qudits.compiler.twodit.variational_twodit_compilation.parametrize impor
 from mqt.qudits.quantum_circuit import gates
 from mqt.qudits.quantum_circuit.gates import CustomOne
 
+if typing.TYPE_CHECKING:
+    from mqt.qudits.compiler.twodit.variational_twodit_compilation.opt.distance_measures import NDArray
+    from mqt.qudits.quantum_circuit import QuantumCircuit
+    from mqt.qudits.quantum_circuit.gate import Gate
 
-def ansatz_decompose(circuit, u, params, dims):
+
+def ansatz_decompose(
+        circuit: QuantumCircuit,
+        u: Gate,
+        params: list[list[float] | NDArray[np.float64]],
+        dims: list[int]
+) -> list[Gate]:
     counter = 0
     decomposition = []
     for i in range(len(params)):
@@ -17,7 +29,7 @@ def ansatz_decompose(circuit, u, params, dims):
             decomposition.append(u)
 
         decomposition.append(
-            CustomOne(circuit, "CUo_SUD", counter, generic_sud(params[i], dims[counter]), dims[counter])
+                CustomOne(circuit, "CUo_SUD", counter, generic_sud(params[i], dims[counter]), dims[counter])
         )
 
         counter += 1
@@ -25,20 +37,32 @@ def ansatz_decompose(circuit, u, params, dims):
     return decomposition
 
 
-def create_cu_instance(circuit, P, dims):
+def create_cu_instance(
+        circuit: QuantumCircuit,
+        P: list[float] | NDArray[np.float64],
+        dims: list[int]
+) -> list[Gate]:
     params = params_splitter(P, dims)
     cu = Primitive.CUSTOM_PRIMITIVE
     return ansatz_decompose(circuit, cu, params, dims)
 
 
-def create_ms_instance(circuit, P, dims):
+def create_ms_instance(
+        circuit: QuantumCircuit,
+        P: list[float],
+        dims: list[int]
+) -> list[Gate]:
     params = params_splitter(P, dims)
     ms = gates.MS(circuit, "MS", [0, 1], [np.pi / 2], dims)  # ms_gate(np.pi / 2, dim)
 
     return ansatz_decompose(circuit, ms, params, dims)
 
 
-def create_ls_instance(circuit, P, dims):
+def create_ls_instance(
+        circuit: QuantumCircuit,
+        P: list[float] | NDArray[np.float64],
+        dims: list[int]
+) -> list[Gate]:
     params = params_splitter(P, dims)
 
     if 2 in dims:

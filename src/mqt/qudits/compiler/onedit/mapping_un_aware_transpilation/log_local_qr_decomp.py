@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import gc
+import typing
 
 import numpy as np
 
@@ -12,18 +13,24 @@ from ..local_operation_swap import (
     cost_calculator,
 )
 
+if typing.TYPE_CHECKING:
+    from ....core import LevelGraph
+    from ....quantum_circuit import QuantumCircuit
+    from ....quantum_circuit.gate import Gate
+    from ....simulation.backends.backendv2 import Backend
+
 
 class LogLocQRPass(CompilerPass):
-    def __init__(self, backend) -> None:
+    def __init__(self, backend: Backend) -> None:
         super().__init__(backend)
 
-    def transpile_gate(self, gate):
+    def transpile_gate(self, gate: Gate) -> list[Gate]:
         energy_graph_i = self.backend.energy_level_graphs[gate.target_qudits]
         QR = QrDecomp(gate, energy_graph_i, not_stand_alone=False)
         decomp, _algorithmic_cost, _total_cost = QR.execute()
         return decomp
 
-    def transpile(self, circuit):
+    def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:
         self.circuit = circuit
         instructions = circuit.instructions
         new_instructions = []
@@ -39,17 +46,17 @@ class LogLocQRPass(CompilerPass):
 
 
 class QrDecomp:
-    def __init__(self, gate, graph_orig, Z_prop=False, not_stand_alone=True) -> None:
-        self.gate = gate
-        self.circuit = gate.parent_circuit
-        self.dimension = gate._dimensions
-        self.qudit_index = gate.target_qudits
-        self.U = gate.to_matrix(identities=0)
-        self.graph = graph_orig
-        self.phase_propagation = Z_prop
-        self.not_stand_alone = not_stand_alone
+    def __init__(self, gate: Gate, graph_orig: LevelGraph, Z_prop: bool = False, not_stand_alone: bool = True) -> None:
+        self.gate: Gate = gate
+        self.circuit: QuantumCircuit = gate.parent_circuit
+        self.dimension: int = gate._dimensions
+        self.qudit_index: int = gate.target_qudits
+        self.U: np.ndarray = gate.to_matrix(identities=0)
+        self.graph: LevelGraph = graph_orig
+        self.phase_propagation: bool = Z_prop
+        self.not_stand_alone: bool = not_stand_alone
 
-    def execute(self):
+    def execute(self) -> tuple[list[Gate], float, float]:
         decomp = []
         total_cost = 0
         algorithmic_cost = 0
@@ -66,11 +73,11 @@ class QrDecomp:
                     thetaZ = new_mod(self.graph.nodes[i]["phase_storage"])
                     if abs(thetaZ) > 1.0e-4:
                         phase_gate = gates.VirtRz(
-                            self.gate.parent_circuit,
-                            "VRz",
-                            self.gate.target_qudits,
-                            [self.graph.nodes[i], thetaZ],
-                            self.gate.dimension,
+                                self.gate.parent_circuit,
+                                "VRz",
+                                self.gate.target_qudits,
+                                [self.graph.nodes[i], thetaZ],
+                                self.gate.dimension,
                         )  # (thetaZ, self.graph.nodes[i]['lpmap'], dimension) # [self.graph.nodes[i]["lpmap"], thetaZ],
                         decomp.append(phase_gate)
                     recover_dict[i] = thetaZ
@@ -91,7 +98,7 @@ class QrDecomp:
                     phi = -(np.pi / 2 + np.angle(U_[r - 1, c]) - np.angle(U_[r, c]))
 
                     rotation_involved = gates.R(
-                        self.circuit, "R", self.qudit_index, [r - 1, r, theta, phi], self.dimension
+                            self.circuit, "R", self.qudit_index, [r - 1, r, theta, phi], self.dimension
                     )  # R(theta, phi, r - 1, r, dimension)
 
                     U_ = rotation_involved.to_matrix(identities=0) @ U_  # matmul(rotation_involved.matrix, U_)
@@ -99,7 +106,7 @@ class QrDecomp:
                     non_zeros = np.count_nonzero(abs(U_) > 1.0e-4)
 
                     estimated_cost, _pi_pulses_routing, _temp_placement, cost_of_pi_pulses, gate_cost = cost_calculator(
-                        rotation_involved, self.graph, non_zeros
+                            rotation_involved, self.graph, non_zeros
                     )
                     """
                     decomp += pi_pulses_routing

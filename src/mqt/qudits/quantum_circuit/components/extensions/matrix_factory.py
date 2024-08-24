@@ -2,17 +2,23 @@ from __future__ import annotations
 
 import itertools
 import operator
+import typing
 from functools import reduce
 
 import numpy as np
 
+if typing.TYPE_CHECKING:
+    from numpy.typing import NDArray
+
+    from mqt.qudits.quantum_circuit.gate import Gate
+
 
 class MatrixFactory:
-    def __init__(self, gate, identities_flag) -> None:
-        self.gate = gate
-        self.ids = identities_flag
+    def __init__(self, gate: Gate, identities_flag: int) -> None:
+        self.gate: Gate = gate
+        self.ids: int = identities_flag
 
-    def generate_matrix(self):
+    def generate_matrix(self) -> NDArray[np.complex128]:
         matrix = self.gate.__array__()
         if self.gate.dagger:
             matrix = matrix.conj().T
@@ -21,7 +27,7 @@ class MatrixFactory:
         lines = self.gate.reference_lines.copy()
         circuit = self.gate.parent_circuit
         ref_slice = list(range(min(lines), max(lines) + 1))
-        dimensions_slice = circuit.dimensions[min(lines) : max(lines) + 1]
+        dimensions_slice = circuit.dimensions[min(lines): max(lines) + 1]
 
         if control_info:
             controls = control_info.indices
@@ -29,11 +35,11 @@ class MatrixFactory:
             # preferably only CONTROLLED-One qudit gates to be made as multi-controlled, it is still a low level
             # control library
             matrix = MatrixFactory.apply_identites_and_controls(
-                matrix, self.gate.target_qudits, dimensions_slice, ref_slice, controls, ctrl_levs
+                    matrix, self.gate.target_qudits, dimensions_slice, ref_slice, controls, ctrl_levs
             )
         elif self.ids > 0:
             matrix = MatrixFactory.apply_identites_and_controls(
-                matrix, self.gate.target_qudits, dimensions_slice, ref_slice
+                    matrix, self.gate.target_qudits, dimensions_slice, ref_slice
             )
 
         if self.ids >= 2:
@@ -43,8 +49,14 @@ class MatrixFactory:
 
     @classmethod
     def apply_identites_and_controls(
-        cls, matrix, qudits_applied, dimensions, ref_lines, controls=None, controls_levels=None
-    ):
+            cls,
+            matrix: NDArray[np.complex128],
+            qudits_applied: int | list[int],
+            dimensions: int | list[int],
+            ref_lines: list[int],
+            controls: list[int] | None = None,
+            controls_levels: list[int] | None = None
+    ) -> NDArray[np.complex128]:
         # dimensions = list(reversed(dimensions))
         # Convert qudits_applied and dimensions to lists if they are not already
         qudits_applied = [qudits_applied] if isinstance(qudits_applied, int) else qudits_applied
@@ -106,7 +118,7 @@ class MatrixFactory:
                         extract_c = [extract_c]
                     if list(extract_r) == controls_levels and extract_r == extract_c:
                         if not rest_of_indices or operator.itemgetter(*slide_indices_rest)(
-                            global_index_to_state[r]
+                                global_index_to_state[r]
                         ) == operator.itemgetter(*slide_indices_rest)(global_index_to_state[c]):
                             og_row_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[r])
                             og_col_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[c])
@@ -120,7 +132,7 @@ class MatrixFactory:
                             result[r, c] = value
 
                 elif not rest_of_indices or operator.itemgetter(*slide_indices_rest)(
-                    global_index_to_state[r]
+                        global_index_to_state[r]
                 ) == operator.itemgetter(*slide_indices_rest)(global_index_to_state[c]):
                     og_row_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[r])
                     og_col_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[c])
@@ -136,7 +148,12 @@ class MatrixFactory:
         return result
 
     @classmethod
-    def wrap_in_identities(cls, matrix, indices, sizes):
+    def wrap_in_identities(
+            cls,
+            matrix: NDArray[np.complex128],
+            indices: list[int],
+            sizes: list[int]
+    ) -> NDArray[np.complex128]:
         indices.sort()
         if any(index >= len(sizes) for index in indices):
             msg = "Index out of range"
@@ -155,7 +172,9 @@ class MatrixFactory:
         return result
 
 
-def from_dirac_to_basis(vec, d):  # |00> -> [1,0,...,0] -> len() == other_size**2
+def from_dirac_to_basis(vec: list[int],
+                        d: list[int] | int) -> list[complex]:
+    # |00> -> [1,0,...,0] -> len() == other_size**2
     if isinstance(d, int):
         d = [d] * len(vec)
 
@@ -172,14 +191,18 @@ def from_dirac_to_basis(vec, d):  # |00> -> [1,0,...,0] -> len() == other_size**
     return ret
 
 
-def calculate_q0_q1(lev, dim):
+def calculate_q0_q1(lev: int, dim: int) -> tuple[int, int]:
     q1 = lev % dim
     q0 = (lev - q1) // dim
 
     return q0, q1
 
 
-def insert_at(big_arr, pos, to_insert_arr):
+def insert_at(
+        big_arr: NDArray[np.complex128],
+        pos: tuple[int, int],
+        to_insert_arr: NDArray[np.complex128]
+) -> NDArray[np.complex128]:
     """Quite a forceful way of embedding a parameters into big_arr."""
     x1 = pos[0]
     y1 = pos[1]

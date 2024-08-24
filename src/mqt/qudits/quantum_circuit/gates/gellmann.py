@@ -8,6 +8,8 @@ from ..components.extensions.gate_types import GateTypes
 from ..gate import Gate
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from ..circuit import QuantumCircuit
     from ..components.extensions.controls import ControlData
 
@@ -21,10 +23,10 @@ class GellMann(Gate):
         self,
         circuit: QuantumCircuit,
         name: str,
-        target_qudits: list[int] | int,
+        target_qudits: int,
         parameters: list,
-        dimensions: list[int] | int,
-        controls: ControlData | None = None,
+        dimensions: int,
+        controls: ControlData | None = None
     ) -> None:
         super().__init__(
             circuit=circuit,
@@ -39,7 +41,7 @@ class GellMann(Gate):
             self._params = parameters
         self.qasm_tag = "gell"
 
-    def __array__(self) -> np.ndarray: # noqa: PLW3201
+    def __array__(self) -> NDArray: # noqa: PLW3201
         d = self._dimensions
         matrix = np.zeros((d, d), dtype=complex)
 
@@ -65,17 +67,13 @@ class GellMann(Gate):
 
         return matrix
 
-    def validate_parameter(self, parameter) -> bool:
+    def validate_parameter(self, parameter: list[int, int, str]) -> bool:
         assert isinstance(parameter[0], int)
         assert isinstance(parameter[1], int)
         assert isinstance(parameter[2], str)
         assert (
-            0 <= parameter[0] < parameter[1]
+                0 <= parameter[0] < parameter[1]
         ), f"lev_a and lev_b are out of range or in wrong order: {parameter[0]}, {parameter[1]}"
         assert isinstance(parameter[2], str), "type parameter should be a string"
 
         return True
-
-    def __str__(self) -> str:
-        # TODO
-        pass

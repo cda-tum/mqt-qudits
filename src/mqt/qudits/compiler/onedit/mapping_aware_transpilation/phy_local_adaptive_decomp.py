@@ -99,7 +99,7 @@ class PhyAdaptiveDecomposition:
             matrices_decomposed, best_cost, final_graph = self.TREE.retrieve_decomposition(self.TREE.root)
 
             if matrices_decomposed != []:
-                matrices_decomposed, final_graph = self.Z_extraction(
+                matrices_decomposed, final_graph = self.z_extraction(
                         matrices_decomposed, final_graph, self.phase_propagation
                 )
             else:
@@ -109,7 +109,7 @@ class PhyAdaptiveDecomposition:
 
             return matrices_decomposed, best_cost, final_graph
 
-    def Z_extraction(self, decomposition: list[TreeNode],
+    def z_extraction(self, decomposition: list[TreeNode],
                      placement: LevelGraph, phase_propagation: bool) -> tuple[list[Gate], LevelGraph]:
         matrices = []
 

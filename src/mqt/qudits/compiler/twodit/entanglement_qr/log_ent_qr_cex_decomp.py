@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import gc
+import typing
 from operator import itemgetter
 
 import numpy as np
@@ -15,17 +16,25 @@ from ..blocks.crot import CRotGen
 from ..blocks.czrot import CZRotGen
 from ..blocks.pswap import PSwapGen
 
+if typing.TYPE_CHECKING:
+    from numpy.typing import NDArray
+
+    from mqt.qudits.quantum_circuit import QuantumCircuit
+    from mqt.qudits.quantum_circuit.gate import Gate
+    from mqt.qudits.simulation.backends.backendv2 import Backend
+    complex_array: NDArray[np.complex128]
+
 
 class LogEntQRCEXPass(CompilerPass):
-    def __init__(self, backend) -> None:
+    def __init__(self, backend: Backend) -> None:
         super().__init__(backend)
 
-    def transpile_gate(self, gate):
+    def transpile_gate(self, gate: Gate) -> list[Gate]:
         eqr = EntangledQRCEX(gate)
         decomp, _countcr, _countpsw = eqr.execute()
         return decomp
 
-    def transpile(self, circuit):
+    def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:
         self.circuit = circuit
         instructions = circuit.instructions
         new_instructions = []
@@ -42,16 +51,15 @@ class LogEntQRCEXPass(CompilerPass):
 
 
 class EntangledQRCEX:
-    def __init__(self, gate) -> None:
-        self.gate = gate
-        self.circuit = gate.parent_circuit
-        self.dimensions = itemgetter(*gate.reference_lines)(self.circuit.dimensions)
-        self.qudit_indices = gate.reference_lines
-        self.u = gate.to_matrix(identities=0)
-        self.decomposition = None
-        self.decomp_indexes = []
+    def __init__(self, gate: Gate) -> None:
+        self.gate: Gate = gate
+        self.circuit: QuantumCircuit = gate.parent_circuit
+        self.dimensions: list[int] = itemgetter(*gate.reference_lines)(self.circuit.dimensions)
+        self.qudit_indices: list[int] = gate.reference_lines
+        self.u: complex_array = gate.to_matrix(identities=0)
+        self.decomposition: list[Gate] = None
 
-    def execute(self):
+    def execute(self) -> tuple[list[Gate], int, int]:
         crot_counter = 0
         pswap_counter = 0
 

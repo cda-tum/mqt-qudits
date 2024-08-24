@@ -13,6 +13,10 @@ from ... import CompilerPass
 from .log_local_qr_decomp import QrDecomp
 
 if TYPE_CHECKING:
+    from ....core import LevelGraph
+    from ....core.dfs_tree import Node as TreeNode
+    from ....quantum_circuit import QuantumCircuit
+    from ....quantum_circuit.gate import Gate
     from ....simulation.backends.backendv2 import Backend
 
 np.seterr(all="ignore")
@@ -22,7 +26,7 @@ class LogLocAdaPass(CompilerPass):
     def __init__(self, backend: Backend) -> None:
         super().__init__(backend)
 
-    def transpile_gate(self, gate):
+    def transpile_gate(self, gate: Gate) -> list[Gate]:
         energy_graph_i = self.backend.energy_level_graphs[gate.target_qudits]
 
         QR = QrDecomp(gate, energy_graph_i)
@@ -39,7 +43,7 @@ class LogLocAdaPass(CompilerPass):
 
         return matrices_decomposed
 
-    def transpile(self, circuit):
+    def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:
         self.circuit = circuit
         instructions = circuit.instructions
         new_instructions = []
@@ -55,18 +59,20 @@ class LogLocAdaPass(CompilerPass):
 
 
 class LogAdaptiveDecomposition:
-    def __init__(self, gate, graph_orig, cost_limit=(0, 0), dimension=-1, Z_prop=False) -> None:
-        self.circuit = gate.parent_circuit
-        self.U = gate.to_matrix(identities=0)
-        self.qudit_index = gate.target_qudits
-        self.graph = graph_orig
+    def __init__(self, gate: Gate, graph_orig: LevelGraph, cost_limit: tuple[float, float] = (0, 0),
+                 dimension: int = -1,
+                 Z_prop: bool = False) -> None:
+        self.circuit: QuantumCircuit = gate.parent_circuit
+        self.U: np.ndarray = gate.to_matrix(identities=0)
+        self.qudit_index: int = gate.target_qudits
+        self.graph: LevelGraph = graph_orig
         self.graph.phase_storing_setup()
-        self.cost_limit = cost_limit
-        self.dimension = dimension
-        self.phase_propagation = Z_prop
-        self.TREE = NAryTree()
+        self.cost_limit: tuple[float, float] = cost_limit
+        self.dimension: int = dimension
+        self.phase_propagation: bool = Z_prop
+        self.TREE: NAryTree = NAryTree()
 
-    def execute(self):
+    def execute(self) -> tuple[list[gates.R | gates.VirtRz], tuple[int, int], LevelGraph]:
         self.TREE.add(
                 0,
                 gates.CustomOne(
@@ -98,7 +104,8 @@ class LogAdaptiveDecomposition:
 
             return matrices_decomposed, best_cost, final_graph
 
-    def z_extraction(self, decomposition, placement, phase_propagation):
+    def z_extraction(self, decomposition: list[TreeNode],
+                     placement: LevelGraph, phase_propagation: bool) -> tuple[list[Gate], LevelGraph]:
         matrices = []
 
         for d in decomposition[1:]:
@@ -136,7 +143,7 @@ class LogAdaptiveDecomposition:
 
         return matrices, placement
 
-    def DFS(self, current_root, level=0) -> None:
+    def DFS(self, current_root: TreeNode, level: int = 0) -> None:
         # check if close to diagonal
         Ucopy = current_root.U_of_level.copy()
 

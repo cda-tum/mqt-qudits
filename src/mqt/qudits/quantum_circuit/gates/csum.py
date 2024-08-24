@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -11,30 +11,32 @@ from ..gate import Gate
 from .x import X
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from ..circuit import QuantumCircuit
     from ..components.extensions.controls import ControlData
 
 
 class CSum(Gate):
     def __init__(
-        self,
-        circuit: QuantumCircuit,
-        name: str,
-        target_qudits: list[int] | int,
-        dimensions: list[int] | int,
-        controls: ControlData | None = None,
+            self,
+            circuit: QuantumCircuit,
+            name: str,
+            target_qudits: list[int],
+            dimensions: list[int],
+            controls: ControlData | None = None
     ) -> None:
         super().__init__(
-            circuit=circuit,
-            name=name,
-            gate_type=GateTypes.TWO,
-            target_qudits=target_qudits,
-            dimensions=dimensions,
-            control_set=controls,
+                circuit=circuit,
+                name=name,
+                gate_type=GateTypes.TWO,
+                target_qudits=target_qudits,
+                dimensions=dimensions,
+                control_set=controls,
         )
         self.qasm_tag = "csum"
 
-    def __array__(self) -> np.ndarray: # noqa: PLW3201
+    def __array__(self) -> NDArray:  # noqa: PLW3201
         ctrl_size = self.parent_circuit.dimensions[self.target_qudits[0]]
         target_size = self.parent_circuit.dimensions[self.target_qudits[1]]
 
@@ -51,9 +53,5 @@ class CSum(Gate):
                 matrix += np.kron(x_mat_i, mapmat)
         return matrix
 
-    def validate_parameter(self, parameter=None) -> bool:
+    def validate_parameter(self, parameter: Any | None = None) -> bool:
         return True
-
-    def __str__(self) -> str:
-        # TODO
-        pass

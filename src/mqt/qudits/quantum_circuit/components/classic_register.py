@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from typing import Any
+
 
 class ClassicRegister:
     @classmethod
-    def from_map(cls, sitemap: dict) -> list[ClassicRegister]:
+    def from_map(cls, sitemap: dict[tuple[str, int], Any]) -> list[ClassicRegister]:
         registers_map = {}
 
         for creg_with_index, line_info in sitemap.items():
@@ -21,18 +23,15 @@ class ClassicRegister:
 
         return registers_from_qasm
 
-    def __init__(self, name, size) -> None:
-        """
-        Class for classical register memories
-        """
-        self.label = name
-        self.size = size
-        self.local_sitemap = {}
+    def __init__(self, name: str, size: int) -> None:
+        self.label: str = name
+        self.size: int = size
+        self.local_sitemap: dict[int, int] = {}
 
-    def __qasm__(self):
+    def __qasm__(self) -> str:  #noqa: PLW3201
         return "creg " + self.label + " [" + str(self.size) + "]" + ";"
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: int | slice) -> int | list[int]:
         if isinstance(key, slice):
             start, stop = key.start, key.stop
             return [self.local_sitemap[i] for i in range(start, stop)]

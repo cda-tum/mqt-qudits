@@ -1,17 +1,22 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 from scipy.linalg import expm
 
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.ansatz.ansatz_gen_utils import reindex
 from mqt.qudits.quantum_circuit.components.extensions.matrix_factory import from_dirac_to_basis
 
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
 
 def params_splitter(
-        params: list[float] | np.ndarray,
+        params: list[float] | NDArray[np.float64],
         dims: tuple[int, int]
-) -> list[list[float] | np.ndarray]:
+) -> list[list[float] | NDArray[np.float64]]:
     """
     Split a list of parameters into sublists based on given dimensions.
 
@@ -29,7 +34,7 @@ def params_splitter(
         msg = "dims must be a tuple of two integers"
         raise ValueError(msg)
 
-    n, m = dims[0]**2 - 1, dims[1]**2 - 1
+    n, m = dims[0] ** 2 - 1, dims[1] ** 2 - 1
     step_size = n + m
 
     if len(params) % step_size != 0:
@@ -38,12 +43,13 @@ def params_splitter(
 
     split_params = []
     for i in range(0, len(params), step_size):
-        split_params.extend([params[i:i+n], params[i+n:i+step_size]])
+        split_params.extend([params[i:i + n], params[i + n:i + step_size]])
 
     return split_params
 
 
-def generic_sud(params, dimension) -> np.ndarray:  # required well-structured d2 -1 params
+def generic_sud(params: list[float] | NDArray[np.float64], dimension: int) -> NDArray[np.complex128]:
+    # required well-structured d2 -1 params
     c_unitary = np.identity(dimension, dtype="complex")
 
     for diag_index in range(dimension - 1):
@@ -60,11 +66,11 @@ def generic_sud(params, dimension) -> np.ndarray:  # required well-structured d2
             n_vec = from_dirac_to_basis([n], dimension)
 
             zmn = np.outer(np.array(m_vec), np.array(m_vec).T.conj()) - np.outer(
-                np.array(n_vec), np.array(n_vec).T.conj()
+                    np.array(n_vec), np.array(n_vec).T.conj()
             )
 
             ymn = -1j * np.outer(np.array(m_vec), np.array(n_vec).T.conj()) + 1j * np.outer(
-                np.array(n_vec), np.array(m_vec).T.conj()
+                    np.array(n_vec), np.array(m_vec).T.conj()
             )
 
             c_unitary = c_unitary @ expm(1j * params[reindex(n, m, dimension)] * zmn)  # noqa

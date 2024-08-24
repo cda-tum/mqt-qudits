@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import queue
 import threading
+from typing import Literal
 
 import numpy as np
 
@@ -12,7 +13,8 @@ def interrupt_function() -> None:
     Optimizer.timer_var = True
 
 
-def binary_search_compile(max_num_layer, ansatz_type):
+def binary_search_compile(max_num_layer: int,
+                          ansatz_type: Literal["MS", "LS", "CU"]) -> tuple[int, float, list[float]]:
     if max_num_layer < 0:
         raise Exception
 
@@ -42,7 +44,10 @@ def binary_search_compile(max_num_layer, ansatz_type):
     return best_layer, best_error, best_xi
 
 
-def run(num_layer, ansatz_type):
+def run(
+        num_layer: int,
+        ansatz_type: Literal["MS", "LS", "CU"]
+) -> tuple[float, list[float]]:
     bounds = Optimizer.return_bounds(num_layer)
 
     duration = 3600 * (Optimizer.SINGLE_DIM_0 * Optimizer.SINGLE_DIM_1 / 4)

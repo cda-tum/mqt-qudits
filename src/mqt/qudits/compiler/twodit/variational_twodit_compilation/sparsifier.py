@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import typing
 from itertools import starmap
 from random import uniform
 
@@ -12,8 +13,14 @@ from mqt.qudits.compiler.twodit.variational_twodit_compilation.opt import Optimi
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.parametrize import generic_sud, params_splitter
 from mqt.qudits.quantum_circuit.gates import CustomOne
 
+if typing.TYPE_CHECKING:
+    from mqt.qudits.compiler.twodit.variational_twodit_compilation.opt.distance_measures import NDArray
+    from mqt.qudits.quantum_circuit import QuantumCircuit
+    from mqt.qudits.quantum_circuit.gate import Gate
 
-def apply_rotations(M, params, dims):
+
+def apply_rotations(M: NDArray[np.complex128],
+                    params: list[float], dims: list[int]) -> NDArray[np.complex128]:
     params = params_splitter(params, dims)
     R1 = gate_expand_to_circuit(generic_sud(params[0], dims[0]), circuits_size=2, target=0, dims=dims)
     R2 = gate_expand_to_circuit(generic_sud(params[1], dims[1]), circuits_size=2, target=1, dims=dims)
@@ -23,7 +30,8 @@ def apply_rotations(M, params, dims):
     return R1 @ R2 @ M @ R3 @ R4
 
 
-def instantiate_rotations(circuit, gate, params):
+def instantiate_rotations(circuit: QuantumCircuit,
+                          gate: Gate, params: list[float]) -> list[Gate]:
     gate = copy.deepcopy(gate)
     gate.parent_circuit = circuit
     dims = gate._dimensions
@@ -42,22 +50,22 @@ def instantiate_rotations(circuit, gate, params):
     return decomposition
 
 
-def density(M_prime):
+def density(M_prime: NDArray[np.float64]) -> float:
     non_zero_elements = M_prime[M_prime > 1e-8]
     if len(non_zero_elements) == 0:
         return 0
     return non_zero_elements.size / M_prime.size
 
 
-def manhattan_norm(matrix):
+def manhattan_norm(matrix: NDArray[np.complex128]) -> float:
     return np.sum(np.abs(matrix))
 
 
-def frobenius_norm(matrix):
+def frobenius_norm(matrix: NDArray[np.complex128]) -> float:
     return np.sqrt(np.sum(np.abs(matrix) ** 2))
 
 
-def compute_F(X):
+def compute_F(X: NDArray[np.complex128]) -> float:
     # Hoyer's sparsity measure on matrices
     # 0<=H<=1 , 0 is non sparse, 1 is very sparse
     # sparsity is then 1 when non sparse , 0 when sparse
@@ -85,7 +93,8 @@ def compute_F(X):
     return 1 - F_X
 
 
-def objective_function(thetas, M, dims):
+def objective_function(thetas: list[float], M: NDArray[np.complex128],
+                       dims: list[int]) -> float:
     """
     Objective function for promoting sparsity and low variance in the transformed matrix M'.
 
@@ -109,7 +118,7 @@ def objective_function(thetas, M, dims):
     return compute_F(M_ghost) * den
 
 
-def sparsify(gate, tol=0.1):
+def sparsify(gate: Gate, tol: float = 0.1) -> QuantumCircuit:
     M = gate.to_matrix()
     dims = gate._dimensions
 

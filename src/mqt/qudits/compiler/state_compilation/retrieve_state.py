@@ -2,11 +2,17 @@ from __future__ import annotations
 
 import operator
 from functools import reduce
+from typing import TYPE_CHECKING
 
 import numpy as np
 
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
 
-def verify_normalized_state(quantum_state):
+complex_array: NDArray[np.complex128]
+
+
+def verify_normalized_state(quantum_state: complex_array) -> bool:
     squared_magnitudes = np.abs(quantum_state) ** 2
     sum_squared_magnitudes = np.sum(squared_magnitudes)
 
@@ -15,7 +21,7 @@ def verify_normalized_state(quantum_state):
     return np.isclose(sum_squared_magnitudes, 1.0, atol=tolerance)
 
 
-def generate_random_quantum_state(cardinalities):
+def generate_random_quantum_state(cardinalities: list[int]) -> complex_array:
     length = reduce(operator.mul, cardinalities)
     # Generate random complex numbers with real and imaginary parts
     real_parts = np.random.randn(length)
@@ -94,7 +100,7 @@ def find_entries_indices(input_list: list[list[int]], sublist: list[list[int]]) 
     return indices
 
 
-def generate_uniform_state(dimensions: list[int], state: str) -> np.array:
+def generate_uniform_state(dimensions: list[int], state: str) -> complex_array:
     all_entries = generate_all_combinations(dimensions)
 
     if state == "qudit-w-state":

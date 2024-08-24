@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import gc
+import typing
 
 from mqt.qudits.compiler import CompilerPass
 from mqt.qudits.compiler.onedit import PhyLocAdaPass
@@ -8,13 +9,18 @@ from mqt.qudits.compiler.twodit.entanglement_qr import EntangledQRCEX
 from mqt.qudits.quantum_circuit.components.extensions.gate_types import GateTypes
 from mqt.qudits.quantum_circuit.gates import Perm
 
+if typing.TYPE_CHECKING:
+    from mqt.qudits.quantum_circuit import QuantumCircuit
+    from mqt.qudits.quantum_circuit.gate import Gate
+    from mqt.qudits.simulation.backends.backendv2 import Backend
+
 
 class PhyEntQRCEXPass(CompilerPass):
-    def __init__(self, backend) -> None:
+    def __init__(self, backend: Backend) -> None:
         super().__init__(backend)
         self.circuit = None
 
-    def transpile_gate(self, gate):
+    def transpile_gate(self, gate: Gate) -> list[Gate]:
         energy_graph_c = self.backend.energy_level_graphs[gate.target_qudits[0]]
         energy_graph_t = self.backend.energy_level_graphs[gate.target_qudits[1]]
         lp_map_0 = [lev for lev in energy_graph_c.log_phy_map if lev < gate._dimensions[gate.target_qudits[0]]]
@@ -40,7 +46,7 @@ class PhyEntQRCEXPass(CompilerPass):
 
         return [op.dag() for op in reversed(decomp)]
 
-    def transpile(self, circuit):
+    def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:
         self.circuit = circuit
         instructions = circuit.instructions
         new_instructions = []

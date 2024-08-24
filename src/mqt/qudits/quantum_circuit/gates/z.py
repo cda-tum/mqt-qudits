@@ -8,6 +8,8 @@ from ..components.extensions.gate_types import GateTypes
 from ..gate import Gate
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from ..circuit import QuantumCircuit
     from ..components.extensions.controls import ControlData
 
@@ -17,9 +19,9 @@ class Z(Gate):
             self,
             circuit: QuantumCircuit,
             name: str,
-            target_qudits: list[int] | int,
-            dimensions: list[int] | int,
-            controls: ControlData | None = None,
+            target_qudits: int,
+            dimensions:  int,
+            controls: ControlData | None = None
     ) -> None:
         super().__init__(
                 circuit=circuit,
@@ -31,7 +33,7 @@ class Z(Gate):
         )
         self.qasm_tag = "z"
 
-    def __array__(self) -> np.ndarray:  # noqa: PLW3201
+    def __array__(self) -> NDArray:  # noqa: PLW3201
         matrix = np.zeros((self._dimensions, self._dimensions), dtype="complex")
         for i in range(self._dimensions):
             omega = np.mod(2 * i / self._dimensions, 2)
@@ -44,9 +46,5 @@ class Z(Gate):
 
         return matrix
 
-    def validate_parameter(self, parameter: int | None = None) -> bool:
+    def validate_parameter(self) -> bool:
         return True
-
-    def __str__(self) -> str:
-        # TODO
-        pass

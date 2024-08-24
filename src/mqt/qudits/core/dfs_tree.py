@@ -5,17 +5,17 @@ from ..exceptions import NodeNotFoundException
 
 class Node:
     def __init__(
-        self,
-        key,
-        rotation,
-        U_of_level,
-        graph_current,
-        current_cost,
-        current_decomp_cost,
-        max_cost,
-        pi_pulses,
-        parent_key,
-        children=None,
+            self,
+            key,
+            rotation,
+            U_of_level,
+            graph_current,
+            current_cost,
+            current_decomp_cost,
+            max_cost,
+            pi_pulses,
+            parent_key,
+            children=None,
     ) -> None:
         self.key = key
         self.children = children
@@ -31,20 +31,20 @@ class Node:
         self.PI_PULSES = pi_pulses
 
     def add(
-        self, new_key, rotation, U_of_level, graph_current, current_cost, current_decomp_cost, max_cost, pi_pulses
+            self, new_key, rotation, U_of_level, graph_current, current_cost, current_decomp_cost, max_cost, pi_pulses
     ) -> None:
         # TODO refactor so that size is kept track also in the tree upper structure
 
         new_node = Node(
-            new_key,
-            rotation,
-            U_of_level,
-            graph_current,
-            current_cost,
-            current_decomp_cost,
-            max_cost,
-            pi_pulses,
-            self.key,
+                new_key,
+                rotation,
+                U_of_level,
+                graph_current,
+                current_cost,
+                current_decomp_cost,
+                max_cost,
+                pi_pulses,
+                self.key,
         )
         if self.children is None:
             self.children = []

@@ -17,6 +17,8 @@ from .components.extensions.gate_types import GateTypes
 if TYPE_CHECKING:
     import enum
 
+    from numpy.typing import NDArray
+
     from .circuit import QuantumCircuit
 
 
@@ -36,11 +38,11 @@ class Gate(Instruction):
         gate_type: enum,
         target_qudits: list[int] | int,
         dimensions: list[int] | int,
-        params: list | np.ndarray | None = None,
+        params: list | NDArray | None = None,
         control_set=None,
         label: str | None = None,
         duration=None,
-        unit="dt",
+        unit="dt"
     ) -> None:
         self.dagger = False
         self.parent_circuit = circuit
@@ -59,7 +61,7 @@ class Gate(Instruction):
         self.qasm_tag = ""
 
     @property
-    def reference_lines(self):
+    def reference_lines(self) -> list[int]:
         lines = []
         if isinstance(self.target_qudits, int):
             lines = self.get_control_lines.copy()
@@ -72,15 +74,15 @@ class Gate(Instruction):
         return lines
 
     @abstractmethod
-    def __array__(self) -> np.ndarray:
+    def __array__(self) -> NDArray:
         pass
 
-    def dag(self):
+    def dag(self) -> Gate:
         self._name += "_dag"
         self.dagger = True
         return self
 
-    def to_matrix(self, identities=0) -> np.ndarray:
+    def to_matrix(self, identities: int = 0) -> NDArray:
         """Return a np.ndarray for the gate_matrix unitary parameters.
 
         Returns:
@@ -96,13 +98,13 @@ class Gate(Instruction):
         msg = "to_matrix not defined for this "
         raise CircuitError(msg, {type(self)})
 
-    def control(self, indices: list[int] | int, ctrl_states: list[int] | int):
+    def control(self, indices: list[int], ctrl_states: list[int]) -> Gate:
         if len(indices) == 0 or len(ctrl_states) == 0:
             return self
         # AT THE MOMENT WE SUPPORT CONTROL OF SINGLE QUDIT GATES
         assert self.gate_type == GateTypes.SINGLE
         if len(indices) > self.parent_circuit.num_qudits or any(
-            idx >= self.parent_circuit.num_qudits for idx in indices
+                idx >= self.parent_circuit.num_qudits for idx in indices
         ):
             msg = "Indices or Number of Controls is beyond the Quantum Circuit Size"
             raise IndexError(msg)
@@ -128,11 +130,11 @@ class Gate(Instruction):
         return self
 
     @abstractmethod
-    def validate_parameter(self, parameter):
+    def validate_parameter(self, parameter: list | NDArray | None = None) -> bool:
         pass
 
     @property
-    def target_qudits(self) -> list[int] | np.ndarray:
+    def target_qudits(self) -> list[int]:
         """
         Get the target qudits.
 
@@ -142,20 +144,20 @@ class Gate(Instruction):
         return self._target_qudits
 
     @target_qudits.setter
-    def target_qudits(self, value: list[int] | np.ndarray) -> None:
+    def target_qudits(self, value: list[int] | int) -> None:
         """
         Set the target qudits.
 
         Args:
-            value (Union[List[int], np.ndarray]): The new target qudits.
+            value (Union[List[int], int]): The new target qudits.
 
         Raises:
-            ValueError: If the input is not a list of integers or numpy array of integers.
+            ValueError: If the input is not a list of integers or a single integer.
         """
-        if (isinstance(value, list) and all(isinstance(x, int) for x in value)) or (isinstance(value, np.ndarray) and np.issubdtype(value.dtype, np.integer)):
+        if isinstance(value, int) or (isinstance(value, list) and all(isinstance(x, int) for x in value)):
             self._target_qudits = value
         else:
-            msg = "target_qudits must be a list of integers or a numpy array of integers"
+            msg = "target_qudits must be a list of integers or a single integer"
             raise ValueError(msg)
 
     def __qasm__(self) -> str:
@@ -188,12 +190,7 @@ class Gate(Instruction):
 
         return string + ";\n"
 
-    @abstractmethod
-    def __str__(self) -> str:
-        # String representation for drawing?
-        pass
-
-    def check_long_range(self):
+    def check_long_range(self) -> bool:
         target_qudits = self.reference_lines
         if isinstance(target_qudits, list) and len(target_qudits) > 0:
             self.is_long_range = any((b - a) > 1 for a, b in zip(sorted(target_qudits)[:-1], sorted(target_qudits)[1:]))
@@ -209,13 +206,13 @@ class Gate(Instruction):
         self.gate_type = GateTypes.MULTI
 
     @property
-    def get_control_lines(self):
+    def get_control_lines(self) -> list[int]:
         if self._controls_data:
             return self._controls_data.indices
         return []
 
     @property
-    def control_info(self):
+    def control_info(self) -> dict:
         return {
             "target": self.target_qudits,
             "dimensions_slice": self._dimensions,

@@ -10,27 +10,29 @@ from ..gate import Gate
 from .r import R
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from ..circuit import QuantumCircuit
     from ..components.extensions.controls import ControlData
 
 
 class Rz(Gate):
     def __init__(
-        self,
-        circuit: QuantumCircuit,
-        name: str,
-        target_qudits: list[int] | int,
-        parameters: list | None,
-        dimensions: list[int] | int,
-        controls: ControlData | None = None,
+            self,
+            circuit: QuantumCircuit,
+            name: str,
+            target_qudits: int,
+            parameters: list[int | float],
+            dimensions: int,
+            controls: ControlData | None = None
     ) -> None:
         super().__init__(
-            circuit=circuit,
-            name=name,
-            gate_type=GateTypes.SINGLE,
-            target_qudits=target_qudits,
-            dimensions=dimensions,
-            control_set=controls,
+                circuit=circuit,
+                name=name,
+                gate_type=GateTypes.SINGLE,
+                target_qudits=target_qudits,
+                dimensions=dimensions,
+                control_set=controls,
         )
         if self.validate_parameter(parameters):
             self.lev_a, self.lev_b, self.phi = parameters
@@ -39,28 +41,28 @@ class Rz(Gate):
             self._params = parameters
         self.qasm_tag = "rz"
 
-    def __array__(self) -> np.ndarray: # noqa: PLW3201
+    def __array__(self) -> NDArray:  # noqa: PLW3201
         dimension = self._dimensions
         phi = self.phi
 
         pi_there = R(
-            self.parent_circuit, "R", self.target_qudits, [self.lev_a, self.lev_b, -np.pi / 2, 0.0], dimension
+                self.parent_circuit, "R", self.target_qudits, [self.lev_a, self.lev_b, -np.pi / 2, 0.0], dimension
         ).to_matrix()
         rotate = R(
-            self.parent_circuit, "R", self.target_qudits, [self.lev_a, self.lev_b, phi, np.pi / 2], dimension
+                self.parent_circuit, "R", self.target_qudits, [self.lev_a, self.lev_b, phi, np.pi / 2], dimension
         ).to_matrix()
         pi_back = R(
-            self.parent_circuit, "R", self.target_qudits, [self.lev_a, self.lev_b, np.pi / 2, 0.0], dimension
+                self.parent_circuit, "R", self.target_qudits, [self.lev_a, self.lev_b, np.pi / 2, 0.0], dimension
         ).to_matrix()
 
         return pi_back @ rotate @ pi_there
 
-    def levels_setter(self, la, lb):
+    def levels_setter(self, la: int, lb: int) -> tuple[int, int]:
         if la < lb:
             return la, lb
         return lb, la
 
-    def validate_parameter(self, parameter) -> bool:
+    def validate_parameter(self, parameter: list[int | float]) -> bool:
         assert isinstance(parameter[0], int)
         assert isinstance(parameter[1], int)
         assert isinstance(parameter[2], float)
@@ -76,10 +78,6 @@ class Rz(Gate):
 
         return True
 
-    def __str__(self) -> str:
-        # TODO
-        pass
-
     @property
-    def cost(self):
+    def cost(self) -> float:
         return phi_cost(self.phi)

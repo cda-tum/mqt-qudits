@@ -9,30 +9,32 @@ from ..components.extensions.gate_types import GateTypes
 from ..gate import Gate
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from ..circuit import QuantumCircuit
     from ..components.extensions.controls import ControlData
 
 
 class S(Gate):
     def __init__(
-        self,
-        circuit: QuantumCircuit,
-        name: str,
-        target_qudits: list[int] | int,
-        dimensions: list[int] | int,
-        controls: ControlData | None = None,
+            self,
+            circuit: QuantumCircuit,
+            name: str,
+            target_qudits: int,
+            dimensions: int,
+            controls: ControlData | None = None
     ) -> None:
         super().__init__(
-            circuit=circuit,
-            name=name,
-            gate_type=GateTypes.SINGLE,
-            target_qudits=target_qudits,
-            dimensions=dimensions,
-            control_set=controls,
+                circuit=circuit,
+                name=name,
+                gate_type=GateTypes.SINGLE,
+                target_qudits=target_qudits,
+                dimensions=dimensions,
+                control_set=controls,
         )
         self.qasm_tag = "s"
 
-    def __array__(self) -> np.ndarray: # noqa: PLW3201
+    def __array__(self) -> NDArray:  # noqa: PLW3201
         if self._dimensions == 2:
             return np.array([[1, 0], [0, 1j]])
         matrix = np.zeros((self._dimensions, self._dimensions), dtype="complex")
@@ -45,12 +47,31 @@ class S(Gate):
             matrix += result
         return matrix
 
-    def validate_parameter(self, parameter: int | None = None) -> bool:
-        if np.mod(self._dimensions, 2) == 0 and self._dimensions > 2:
+    @staticmethod
+    def is_prime(n: int) -> bool:
+        """
+        Check if a number is prime.
+        Optimized for dimensions under 23.
+
+        Args:
+        n (int): The number to check for primality
+
+        Returns:
+        bool: True if the number is prime, False otherwise
+        """
+        if n < 2:
+            return False
+        if n == 2:
+            return True
+        if n % 2 == 0:
+            return False
+        for i in range(3, int(n ** 0.5) + 1, 2):
+            if n % i == 0:
+                return False
+        return True
+
+    def validate_parameter(self) -> bool:
+        if (not self.is_prime(self._dimensions)):
             msg = "S can be applied to prime dimensional qudits"
             raise InvalidQuditDimensionError(msg)
         return True
-
-    def __str__(self) -> str:
-        # TODO
-        pass

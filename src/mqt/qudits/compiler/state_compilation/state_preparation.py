@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import typing
 
 import numpy as np
 
@@ -14,18 +15,27 @@ from mqt.qudits.core.micro_dd import (
 )
 from mqt.qudits.quantum_circuit.gates import R
 
+if typing.TYPE_CHECKING:
+    from numpy.typing import NDArray
 
-def find_complex_number(x, c):
+    from mqt.qudits.quantum_circuit import QuantumCircuit
+
+    from ...core.micro_dd import TreeNode as TN
+
+complex_array: NDArray[np.complex128]
+
+
+def find_complex_number(x: complex, c: complex) -> complex:
     a = x.real  # Real part of x
     b = x.imag  # Imaginary part of x
 
     # Calculate z
-    real_part = (c.real - b * c.imag) / (a**2 + b**2)
-    imag_part = (c.imag + b * c.real) / (a**2 + b**2)
+    real_part = (c.real - b * c.imag) / (a ** 2 + b ** 2)
+    imag_part = (c.imag + b * c.real) / (a ** 2 + b ** 2)
     return complex(real_part, imag_part)
 
 
-def getAngles(from_, to_):
+def getAngles(from_: complex, to_: complex) -> tuple[float, float]:
     theta = 2 * np.arctan2(abs(from_), abs(to_))
     phi = -(np.pi / 2 + np.angle(to_) - np.angle(from_))
 
@@ -33,7 +43,8 @@ def getAngles(from_, to_):
 
 
 class Operation:
-    def __init__(self, controls, qudit, levels, angles) -> None:
+    def __init__(self, controls: list[tuple[int, int]], qudit: int,
+                 levels: tuple[int, int], angles: tuple[float, float]) -> None:
         self._controls = controls
         self._qudit = qudit
         self._levels = levels
@@ -91,12 +102,14 @@ class Operation:
 
 
 class StatePrep:
-    def __init__(self, quantum_circuit, state, approx=False) -> None:
+    def __init__(self, quantum_circuit: QuantumCircuit,
+                 state: NDArray[np.complex128], approx: bool = False) -> None:
         self.circuit = quantum_circuit
         self.state = state
         self.approximation = approx
 
-    def retrieve_local_sequence(self, fweight, children):
+    def retrieve_local_sequence(self, fweight: complex,
+                                children: list[TN]) -> dict[tuple[int, int], tuple[float, float]]:
         size = len(children)
         qudit = children[0].value
         aplog = {}
@@ -114,7 +127,8 @@ class StatePrep:
 
         return aplog
 
-    def synthesis(self, labels, cardinalities, node, circuit_meta, controls=None, depth=0) -> None:
+    def synthesis(self, labels: list[int], cardinalities: list[int], node: TN, circuit_meta: list[Operation],
+                  controls: list[tuple[int, int]] | None = None, depth: int = 0) -> None:
         if controls is None:
             controls = []
         if node.terminal:
@@ -133,20 +147,21 @@ class StatePrep:
                     self.synthesis(labels, cardinalities, node.children[i], circuit_meta, controls_track, depth + 1)
                 else:
                     self.synthesis(
-                        labels,
-                        cardinalities,
-                        node.children[node.children_index[i]],
-                        circuit_meta,
-                        controls_track,
-                        depth + 1,
+                            labels,
+                            cardinalities,
+                            node.children[node.children_index[i]],
+                            circuit_meta,
+                            controls_track,
+                            depth + 1,
                     )
         else:
             controls_track = copy.deepcopy(controls)
             self.synthesis(
-                labels, cardinalities, node.children[node.children_index[0]], circuit_meta, controls_track, depth + 1
+                    labels, cardinalities, node.children[node.children_index[0]], circuit_meta, controls_track,
+                    depth + 1
             )
 
-    def compile_state(self):
+    def compile_state(self) -> QuantumCircuit:
         final_state = self.state
         cardinalities = self.circuit.dimensions
         labels = list(range(len(self.circuit.dimensions)))

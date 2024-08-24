@@ -9,6 +9,8 @@ from ..components.extensions.gate_types import GateTypes
 from ..gate import Gate
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from ..circuit import QuantumCircuit
     from ..components.extensions.controls import ControlData
 
@@ -18,10 +20,10 @@ class VirtRz(Gate):
         self,
         circuit: QuantumCircuit,
         name: str,
-        target_qudits: list[int] | int,
-        parameters: list | None,
-        dimensions: list[int] | int,
-        controls: ControlData | None = None,
+        target_qudits: int,
+        parameters: list[int | float],
+        dimensions: int,
+        controls: ControlData | None = None
     ) -> None:
         super().__init__(
             circuit=circuit,
@@ -29,7 +31,7 @@ class VirtRz(Gate):
             gate_type=GateTypes.SINGLE,
             target_qudits=target_qudits,
             dimensions=dimensions,
-            control_set=controls,
+            control_set=controls
         )
         if self.validate_parameter(parameters):
             self.lev_a, self.phi = parameters
@@ -37,7 +39,7 @@ class VirtRz(Gate):
             self._params = parameters
         self.qasm_tag = "virtrz"
 
-    def __array__(self) -> np.ndarray: # ruff: noqa: PLW3201
+    def __array__(self) -> NDArray: # ruff: noqa: PLW3201
         dimension = self._dimensions
         theta = self.phi
         matrix = np.identity(dimension, dtype="complex")
@@ -50,10 +52,6 @@ class VirtRz(Gate):
         assert isinstance(parameter[1], float)
         assert 0 <= parameter[0] < self._dimensions
         return True
-
-    def __str__(self) -> str:
-        # TODO
-        pass
 
     @property
     def cost(self) -> float:

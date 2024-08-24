@@ -12,6 +12,7 @@ class InvalidQuditDimensionError(ValueError):
     def __init__(self, message: str) -> None:
         print(message)
 
+
 class ShapeMismatchError(ValueError):
     """Raised when input arrays have mismatched shapes."""
 

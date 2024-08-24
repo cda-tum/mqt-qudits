@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 import locale
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
 import numpy as np
 
@@ -31,18 +31,23 @@ from .gates import (
 from .qasm import QASM
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from .components.extensions.controls import ControlData
     from .gate import Gate
 
 
-def is_not_none_or_empty(variable):
+def is_not_none_or_empty(variable) -> bool:
     return (variable is not None and hasattr(variable, "__iter__") and len(variable) > 0) or (
             isinstance(variable, np.ndarray) and variable.size > 0
     )
 
 
-def add_gate_decorator(func):
-    def gate_constructor(circ, *args):
+G = TypeVar("G", bound="Gate")
+
+
+def add_gate_decorator(func: Callable[..., G]) -> Callable[..., G]:
+    def gate_constructor(circ, *args: Any) -> G:
         gate = func(circ, *args)
         circ.number_gates += 1
         circ.instructions.append(gate)
@@ -52,7 +57,7 @@ def add_gate_decorator(func):
 
 
 class QuantumCircuit:
-    qasm_to_gate_set_dict = {
+    qasm_to_gate_set_dict: dict[str, str] = {
         "csum":    "csum",
         "cuone":   "cu_one",
         "cutwo":   "cu_two",
@@ -73,7 +78,7 @@ class QuantumCircuit:
         "z":       "z",
     }
 
-    def __init__(self, *args) -> None:
+    def __init__(self, *args: int | QuantumRegister | list[int] | None) -> None:
         self.cl_inverse_sitemap = {}
         self.inverse_sitemap = {}
         self.number_gates = 0
@@ -104,19 +109,19 @@ class QuantumCircuit:
             self.append(register)
 
     @classmethod
-    def get_qasm_set(cls):
+    def get_qasm_set(cls) -> dict[str, str]:
         return cls.qasm_to_gate_set_dict
 
     @property
-    def dimensions(self):
+    def dimensions(self) -> list[int]:
         return self._dimensions
 
     @property
-    def num_qudits(self):
+    def num_qudits(self) -> int:
         return self._num_qudits
 
     @num_qudits.setter
-    def num_qudits(self, value) -> None:
+    def num_qudits(self, value: int) -> None:
         if not isinstance(value, int) or value < 0:
             msg = "num_qudits must be a non-negative integer"
             raise ValueError(msg)
@@ -136,7 +141,7 @@ class QuantumCircuit:
         self._dimensions = []
         self.path_save = None
 
-    def copy(self):
+    def copy(self) -> QuantumCircuit:
         return copy.deepcopy(self)
 
     def append(self, qreg: QuantumRegister) -> None:
@@ -161,20 +166,20 @@ class QuantumCircuit:
             self.cl_inverse_sitemap[num_lines_stored + i] = (str(creg.label), i)
 
     @add_gate_decorator
-    def csum(self, qudits: list[int]):
+    def csum(self, qudits: list[int]) -> CSum:
         return CSum(
                 self, "CSum" + str([self.dimensions[i] for i in qudits]), qudits, [self.dimensions[i] for i in qudits],
                 None
         )
 
     @add_gate_decorator
-    def cu_one(self, qudits: int, parameters: np.ndarray, controls: ControlData | None = None):
+    def cu_one(self, qudits: int, parameters: NDArray, controls: ControlData | None = None) -> CustomOne:
         return CustomOne(
                 self, "CUo" + str(self.dimensions[qudits]), qudits, parameters, self.dimensions[qudits], controls
         )
 
     @add_gate_decorator
-    def cu_two(self, qudits: list[int], parameters: np.ndarray, controls: ControlData | None = None):
+    def cu_two(self, qudits: list[int], parameters: NDArray, controls: ControlData | None = None) -> CustomTwo:
         return CustomTwo(
                 self,
                 "CUt" + str([self.dimensions[i] for i in qudits]),
@@ -185,7 +190,7 @@ class QuantumCircuit:
         )
 
     @add_gate_decorator
-    def cu_multi(self, qudits: list[int], parameters: np.ndarray, controls: ControlData | None = None):
+    def cu_multi(self, qudits: list[int], parameters: NDArray, controls: ControlData | None = None) -> CustomMulti:
         return CustomMulti(
                 self,
                 "CUm" + str([self.dimensions[i] for i in qudits]),
@@ -196,7 +201,7 @@ class QuantumCircuit:
         )
 
     @add_gate_decorator
-    def cx(self, qudits: list[int], parameters: list | None = None):
+    def cx(self, qudits: list[int], parameters: list | None = None) -> CEx:
         return CEx(
                 self,
                 "CEx" + str([self.dimensions[i] for i in qudits]),
@@ -207,20 +212,20 @@ class QuantumCircuit:
         )
 
     # @add_gate_decorator # decide to make it usable for computations but only for constructions
-    def gellmann(self, qudit: int, parameters: list | None = None, controls: ControlData | None = None):
+    def gellmann(self, qudit: int, parameters: list, controls: ControlData | None = None) -> GellMann:
         # warnings.warn("Using this matrix in a circuit will not allow simulation.", UserWarning)
         return GellMann(self, "Gell" + str(self.dimensions[qudit]), qudit, parameters, self.dimensions[qudit], controls)
 
     @add_gate_decorator
-    def h(self, qudit: int, controls: ControlData | None = None):
+    def h(self, qudit: int, controls: ControlData | None = None) -> H:
         return H(self, "H" + str(self.dimensions[qudit]), qudit, self.dimensions[qudit], controls)
 
     @add_gate_decorator
-    def rh(self, qudit: int, parameters: list, controls: ControlData | None = None):
+    def rh(self, qudit: int, parameters: list, controls: ControlData | None = None) -> Rh:
         return Rh(self, "Rh" + str(self.dimensions[qudit]), qudit, parameters, self.dimensions[qudit], controls)
 
     @add_gate_decorator
-    def ls(self, qudits: list[int], parameters: list | None = None):
+    def ls(self, qudits: list[int], parameters: list[float]) -> LS:
         return LS(
                 self,
                 "LS" + str([self.dimensions[i] for i in qudits]),
@@ -231,7 +236,7 @@ class QuantumCircuit:
         )
 
     @add_gate_decorator
-    def ms(self, qudits: list[int], parameters: list | None = None):
+    def ms(self, qudits: list[int], parameters: list[float]) -> MS:
         return MS(
                 self,
                 "MS" + str([self.dimensions[i] for i in qudits]),
@@ -242,7 +247,7 @@ class QuantumCircuit:
         )
 
     @add_gate_decorator
-    def pm(self, qudits: list[int], parameters: list):
+    def pm(self, qudits: int, parameters: list[int]) -> Perm:
         return Perm(
                 self,
                 "Pm" + str([self.dimensions[i] for i in qudits]),
@@ -253,33 +258,33 @@ class QuantumCircuit:
         )
 
     @add_gate_decorator
-    def r(self, qudit: int, parameters: list, controls: ControlData | None = None):
+    def r(self, qudit: int, parameters: list[int | float], controls: ControlData | None = None) -> R:
         return R(self, "R" + str(self.dimensions[qudit]), qudit, parameters, self.dimensions[qudit], controls)
 
     @add_gate_decorator
-    def randu(self, qudits: list[int]):
+    def randu(self, qudits: list[int]) -> RandU:
         return RandU(
                 self, "RandU" + str([self.dimensions[i] for i in qudits]), qudits, [self.dimensions[i] for i in qudits]
         )
 
     @add_gate_decorator
-    def rz(self, qudit: int, parameters: list, controls: ControlData | None = None):
+    def rz(self, qudit: int, parameters: list[int | float], controls: ControlData | None = None) -> Rz:
         return Rz(self, "Rz" + str(self.dimensions[qudit]), qudit, parameters, self.dimensions[qudit], controls)
 
     @add_gate_decorator
-    def virtrz(self, qudit: int, parameters: list, controls: ControlData | None = None):
+    def virtrz(self, qudit: int, parameters: list[int | float], controls: ControlData | None = None) -> VirtRz:
         return VirtRz(self, "VirtRz" + str(self.dimensions[qudit]), qudit, parameters, self.dimensions[qudit], controls)
 
     @add_gate_decorator
-    def s(self, qudit: int, controls: ControlData | None = None):
+    def s(self, qudit: int, controls: ControlData | None = None) -> S:
         return S(self, "S" + str(self.dimensions[qudit]), qudit, self.dimensions[qudit], controls)
 
     @add_gate_decorator
-    def x(self, qudit: int, controls: ControlData | None = None):
+    def x(self, qudit: int, controls: ControlData | None = None) -> X:
         return X(self, "X" + str(self.dimensions[qudit]), qudit, self.dimensions[qudit], controls)
 
     @add_gate_decorator
-    def z(self, qudit: int, controls: ControlData | None = None):
+    def z(self, qudit: int, controls: ControlData | None = None) -> Z:
         return Z(self, "Z" + str(self.dimensions[qudit]), qudit, self.dimensions[qudit], controls)
 
     def replace_gate(self, gate_index: int, sequence: list[Gate]) -> None:
@@ -341,7 +346,7 @@ class QuantumCircuit:
                     msg = "the required gate_matrix is not available anymore."
                     raise NotImplementedError(msg)
 
-    def to_qasm(self):
+    def to_qasm(self) -> str:
         text = ""
         text += "DITQASM 2.0;\n"
         for qreg in self.quantum_registers:
@@ -396,16 +401,13 @@ class QuantumCircuit:
             text = file.read()
         self.from_qasm(text)
 
-    def draw(self) -> None:
-        # TODO
-        pass
-
     @property
-    def gate_set(self) -> None:
+    def gate_set(self) -> str:
         for _item in self.qasm_to_gate_set_dict.values():
             print(_item)
+        return "\n".join(self.qasm_to_gate_set_dict.values())
 
-    def simulate(self):
+    def simulate(self) -> NDArray:
         from mqt.qudits.simulation import MQTQuditProvider
 
         provider = MQTQuditProvider()
@@ -414,7 +416,7 @@ class QuantumCircuit:
         result = job.result()
         return result.get_state_vector()
 
-    def compile(self, backend_name):
+    def compile(self, backend_name) -> QuantumCircuit:
         from mqt.qudits.compiler import QuditCompiler
         from mqt.qudits.simulation import MQTQuditProvider
 

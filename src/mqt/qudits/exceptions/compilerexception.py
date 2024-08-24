@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 
-class NodeNotFoundException(Exception):
+class NodeNotFoundException(ValueError):
     def __init__(self, value) -> None:
         self.value = value
 
@@ -9,7 +9,7 @@ class NodeNotFoundException(Exception):
         return repr(self.value)
 
 
-class SequenceFoundException(Exception):
+class SequenceFoundException(RuntimeError):
     def __init__(self, node_key: int = -1) -> None:
         self.last_node_id = node_key
 
@@ -17,7 +17,7 @@ class SequenceFoundException(Exception):
         return repr(self.last_node_id)
 
 
-class RoutingException(Exception):
+class RoutingException(RuntimeError):
     def __init__(self) -> None:
         self.message = "ROUTING PROBLEM STUCK!"
 
@@ -25,6 +25,6 @@ class RoutingException(Exception):
         return repr(self.message)
 
 
-class FidelityReachException(Exception):
+class FidelityReachException(ValueError):
     def __init__(self, message: str = "") -> None:
         self.message = message
