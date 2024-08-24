@@ -415,7 +415,7 @@ class TestTNSim(TestCase):
         assert len(state_vector.squeeze()) == 5**3
         assert is_quantum_state(state_vector)
 
-    def test_tn_multi(self): # noqa: PLR6301
+    def test_tn_multi(self):  # noqa: PLR6301
         # TODO: Implement test currently just a stub
         assert True
 

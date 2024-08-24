@@ -150,11 +150,11 @@ class QrDecomp:
                 self.graph.nodes[i]  # self.graph.nodes[i]["lpmap"]
 
                 phase_gate = gates.VirtRz(
-                        self.gate.parent_circuit,
-                        "VRz",
-                        self.gate.target_qudits,
-                        [i, np.angle(diag_U[i])],
-                        self.gate._dimensions,
+                    self.gate.parent_circuit,
+                    "VRz",
+                    self.gate.target_qudits,
+                    [i, np.angle(diag_U[i])],
+                    self.gate._dimensions,
                 )  # Rz(np.angle(diag_U[i]), phy_n_i, dimension)
 
                 decomp.append(phase_gate)

@@ -8,8 +8,9 @@ import h5py
 import numpy as np
 
 
-def save_full_states(list_of_vectors: list[np.ndarray],
-                     file_path: str | Path | None = None, file_name: str | None = None) -> None:
+def save_full_states(
+    list_of_vectors: list[np.ndarray], file_path: str | Path | None = None, file_name: str | None = None
+) -> None:
     if file_name is None:
         file_name = "experiment_states.h5"
 
@@ -33,8 +34,7 @@ def save_full_states(list_of_vectors: list[np.ndarray],
         # Create a table dataset within the file to store the vectors
         dtype = [("name", "S36"), ("vector_data", np.complex128, size)]
         table_data = np.array(
-                [(vector_info["name"].encode("utf-8"), vector_info["data"]) for vector_info in list_of_vectors],
-                dtype=dtype
+            [(vector_info["name"].encode("utf-8"), vector_info["data"]) for vector_info in list_of_vectors], dtype=dtype
         )
 
         hdf_file.create_dataset("vectors", data=table_data)
@@ -42,8 +42,7 @@ def save_full_states(list_of_vectors: list[np.ndarray],
     print(f"States saved to {full_path}")
 
 
-def save_shots(shots, file_path: str | Path | None = None,
-               file_name: str | None = "simulation_results.h5") -> None:
+def save_shots(shots, file_path: str | Path | None = None, file_name: str | None = "simulation_results.h5") -> None:
     if file_path is None:
         username = getpass.getuser()
         file_path = Path(f"/home/{username}/Documents")
@@ -60,7 +59,7 @@ def save_shots(shots, file_path: str | Path | None = None,
         # Create a table dataset within the file to store the vectors
         dtype = [("nr", int), ("shot", int)]
         table_data = np.array(
-                [(shot_info["shot_nr"], shot_info["outcome"]) for shot_info in list_of_outcomes], dtype=dtype
+            [(shot_info["shot_nr"], shot_info["outcome"]) for shot_info in list_of_outcomes], dtype=dtype
         )
         hdf_file.create_dataset("shots", data=table_data)
 

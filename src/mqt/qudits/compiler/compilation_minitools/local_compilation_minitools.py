@@ -63,11 +63,11 @@ def rotation_cost_calc(gate: R, placement: LevelGraph) -> float:
 
     if placement.is_irnode(source) or placement.is_irnode(target):
         sp_penalty = (
-                min(
-                        placement.distance_nodes(placement.fst_inode, source),
-                        placement.distance_nodes(placement.fst_inode, target),
-                )
-                + 1
+            min(
+                placement.distance_nodes(placement.fst_inode, source),
+                placement.distance_nodes(placement.fst_inode, target),
+            )
+            + 1
         )
 
         gate_cost = sp_penalty * theta_cost(gate.theta)
