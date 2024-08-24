@@ -26,7 +26,7 @@ class GellMann(Gate):
         target_qudits: int,
         parameters: list,
         dimensions: int,
-        controls: ControlData | None = None
+        controls: ControlData | None = None,
     ) -> None:
         super().__init__(
             circuit=circuit,
@@ -41,7 +41,7 @@ class GellMann(Gate):
             self._params = parameters
         self.qasm_tag = "gell"
 
-    def __array__(self) -> NDArray: # noqa: PLW3201
+    def __array__(self) -> NDArray:  # noqa: PLW3201
         d = self._dimensions
         matrix = np.zeros((d, d), dtype=complex)
 
@@ -72,7 +72,7 @@ class GellMann(Gate):
         assert isinstance(parameter[1], int)
         assert isinstance(parameter[2], str)
         assert (
-                0 <= parameter[0] < parameter[1]
+            0 <= parameter[0] < parameter[1]
         ), f"lev_a and lev_b are out of range or in wrong order: {parameter[0]}, {parameter[1]}"
         assert isinstance(parameter[2], str), "type parameter should be a string"
 

@@ -14,8 +14,7 @@ if TYPE_CHECKING:
 
 
 def params_splitter(
-        params: list[float] | NDArray[np.float64],
-        dims: tuple[int, int]
+    params: list[float] | NDArray[np.float64], dims: tuple[int, int]
 ) -> list[list[float] | NDArray[np.float64]]:
     """
     Split a list of parameters into sublists based on given dimensions.
@@ -43,7 +42,7 @@ def params_splitter(
 
     split_params = []
     for i in range(0, len(params), step_size):
-        split_params.extend([params[i:i + n], params[i + n:i + step_size]])
+        split_params.extend([params[i : i + n], params[i + n : i + step_size]])
 
     return split_params
 
@@ -66,11 +65,11 @@ def generic_sud(params: list[float] | NDArray[np.float64], dimension: int) -> ND
             n_vec = from_dirac_to_basis([n], dimension)
 
             zmn = np.outer(np.array(m_vec), np.array(m_vec).T.conj()) - np.outer(
-                    np.array(n_vec), np.array(n_vec).T.conj()
+                np.array(n_vec), np.array(n_vec).T.conj()
             )
 
             ymn = -1j * np.outer(np.array(m_vec), np.array(n_vec).T.conj()) + 1j * np.outer(
-                    np.array(n_vec), np.array(m_vec).T.conj()
+                np.array(n_vec), np.array(m_vec).T.conj()
             )
 
             c_unitary = c_unitary @ expm(1j * params[reindex(n, m, dimension)] * zmn)  # noqa

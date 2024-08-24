@@ -19,8 +19,7 @@ if typing.TYPE_CHECKING:
     from mqt.qudits.quantum_circuit.gate import Gate
 
 
-def apply_rotations(M: NDArray[np.complex128],
-                    params: list[float], dims: list[int]) -> NDArray[np.complex128]:
+def apply_rotations(M: NDArray[np.complex128], params: list[float], dims: list[int]) -> NDArray[np.complex128]:
     params = params_splitter(params, dims)
     R1 = gate_expand_to_circuit(generic_sud(params[0], dims[0]), circuits_size=2, target=0, dims=dims)
     R2 = gate_expand_to_circuit(generic_sud(params[1], dims[1]), circuits_size=2, target=1, dims=dims)
@@ -30,8 +29,7 @@ def apply_rotations(M: NDArray[np.complex128],
     return R1 @ R2 @ M @ R3 @ R4
 
 
-def instantiate_rotations(circuit: QuantumCircuit,
-                          gate: Gate, params: list[float]) -> list[Gate]:
+def instantiate_rotations(circuit: QuantumCircuit, gate: Gate, params: list[float]) -> list[Gate]:
     gate = copy.deepcopy(gate)
     gate.parent_circuit = circuit
     dims = gate._dimensions
@@ -93,8 +91,7 @@ def compute_F(X: NDArray[np.complex128]) -> float:
     return 1 - F_X
 
 
-def objective_function(thetas: list[float], M: NDArray[np.complex128],
-                       dims: list[int]) -> float:
+def objective_function(thetas: list[float], M: NDArray[np.complex128], dims: list[int]) -> float:
     """
     Objective function for promoting sparsity and low variance in the transformed matrix M'.
 

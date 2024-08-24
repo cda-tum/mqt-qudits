@@ -22,6 +22,7 @@ if typing.TYPE_CHECKING:
     from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
     from mqt.qudits.simulation.backends.backendv2 import Backend
+
     complex_array: NDArray[np.complex128]
 
 

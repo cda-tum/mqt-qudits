@@ -21,7 +21,7 @@ class X(Gate):
         name: str,
         target_qudits: int,
         dimensions: int,
-        controls: ControlData | None = None
+        controls: ControlData | None = None,
     ) -> None:
         super().__init__(
             circuit=circuit,
@@ -33,7 +33,7 @@ class X(Gate):
         )
         self.qasm_tag = "x"
 
-    def __array__(self) -> NDArray: # ruff: noqa: PLW3201
+    def __array__(self) -> NDArray:  # ruff: noqa: PLW3201
         matrix = np.zeros((self._dimensions, self._dimensions), dtype="complex")
         for i in range(self._dimensions):
             i_plus_1 = np.mod(i + 1, self._dimensions)

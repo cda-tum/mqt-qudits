@@ -28,7 +28,7 @@ class ClassicRegister:
         self.size: int = size
         self.local_sitemap: dict[int, int] = {}
 
-    def __qasm__(self) -> str:  #noqa: PLW3201
+    def __qasm__(self) -> str:  # noqa: PLW3201
         return "creg " + self.label + " [" + str(self.size) + "]" + ";"
 
     def __getitem__(self, key: int | slice) -> int | list[int]:

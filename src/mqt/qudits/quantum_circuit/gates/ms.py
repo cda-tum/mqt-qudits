@@ -18,28 +18,28 @@ if TYPE_CHECKING:
 
 class MS(Gate):
     def __init__(
-            self,
-            circuit: QuantumCircuit,
-            name: str,
-            target_qudits: list[int],
-            parameters: list[float],
-            dimensions: list[int],
-            controls: ControlData | None = None
+        self,
+        circuit: QuantumCircuit,
+        name: str,
+        target_qudits: list[int],
+        parameters: list[float],
+        dimensions: list[int],
+        controls: ControlData | None = None,
     ) -> None:
         super().__init__(
-                circuit=circuit,
-                name=name,
-                gate_type=GateTypes.TWO,
-                target_qudits=target_qudits,
-                dimensions=dimensions,
-                control_set=controls,
+            circuit=circuit,
+            name=name,
+            gate_type=GateTypes.TWO,
+            target_qudits=target_qudits,
+            dimensions=dimensions,
+            control_set=controls,
         )
         if self.validate_parameter(parameters):
             self.theta = parameters[0]
             self._params = parameters
         self.qasm_tag = "ms"
 
-    def __array__(self) -> NDArray: # noqa: PLW3201
+    def __array__(self) -> NDArray:  # noqa: PLW3201
         theta = self.theta
         dimension_0 = self._dimensions[0]
         dimension_1 = self._dimensions[1]
@@ -65,25 +65,25 @@ class MS(Gate):
             np.identity(dimension_1, dtype="complex"),
         )
         gate_part_2 = np.kron(
-                np.identity(dimension_0, dtype="complex"),
-                GellMann(
-                        self.parent_circuit,
-                        "Gellman_s",
-                        self.target_qudits,
-                        [0, 1, "s"],
-                        dimension_1,
-                        None,
-                ).to_matrix(),
+            np.identity(dimension_0, dtype="complex"),
+            GellMann(
+                self.parent_circuit,
+                "Gellman_s",
+                self.target_qudits,
+                [0, 1, "s"],
+                dimension_1,
+                None,
+            ).to_matrix(),
         ) + np.kron(
-                GellMann(
-                        self.parent_circuit,
-                        "Gellman_s",
-                        self.target_qudits,
-                        [0, 1, "s"],
-                        dimension_0,
-                        None,
-                ).to_matrix(),
-                np.identity(dimension_1, dtype="complex"),
+            GellMann(
+                self.parent_circuit,
+                "Gellman_s",
+                self.target_qudits,
+                [0, 1, "s"],
+                dimension_0,
+                None,
+            ).to_matrix(),
+            np.identity(dimension_1, dtype="complex"),
         )
         return expm(-1j * theta * gate_part_1 @ gate_part_2 / 4)
 

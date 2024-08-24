@@ -14,9 +14,7 @@ if TYPE_CHECKING:
 
 
 def prepare_ansatz(
-        u: NDArray[np.complex128],
-        params: list[list[float] | NDArray[np.float64]],
-        dims: list[int]
+    u: NDArray[np.complex128], params: list[list[float] | NDArray[np.float64]], dims: list[int]
 ) -> NDArray[np.complex128]:
     counter = 0
 
@@ -29,7 +27,7 @@ def prepare_ansatz(
             unitary = unitary @ u  # noqa
 
         unitary @= gate_expand_to_circuit(
-                generic_sud(params[i], dims[counter]), circuits_size=2, target=counter, dims=dims
+            generic_sud(params[i], dims[counter]), circuits_size=2, target=counter, dims=dims
         )
 
         counter += 1
@@ -37,28 +35,22 @@ def prepare_ansatz(
     return unitary
 
 
-def cu_ansatz(
-        P: list[float] | NDArray[np.float64],
-        dims: list[int]) -> NDArray[np.complex128]:
+def cu_ansatz(P: list[float] | NDArray[np.float64], dims: list[int]) -> NDArray[np.complex128]:
     params = params_splitter(P, dims)
     cu = Primitive.CUSTOM_PRIMITIVE
     return prepare_ansatz(cu, params, dims)
 
 
-def ms_ansatz(
-        P: list[float] | NDArray[np.float64],
-        dims: list[int]) -> NDArray[np.complex128]:
+def ms_ansatz(P: list[float] | NDArray[np.float64], dims: list[int]) -> NDArray[np.complex128]:
     params = params_splitter(P, dims)
     ms = gates.MS(QuantumCircuit(2, dims, 0), "MS", [0, 1], [np.pi / 2], dims).to_matrix(
-            identities=0
+        identities=0
     )  # ms_gate(np.pi / 2, dim)
 
     return prepare_ansatz(ms, params, dims)
 
 
-def ls_ansatz(
-        P: list[float] | NDArray[np.float64],
-        dims: list[int]) -> NDArray[np.complex128]:
+def ls_ansatz(P: list[float] | NDArray[np.float64], dims: list[int]) -> NDArray[np.complex128]:
     params = params_splitter(P, dims)
 
     if 2 in dims:
@@ -69,12 +61,12 @@ def ls_ansatz(
         theta = np.pi
 
     ls = gates.LS(
-            QuantumCircuit(2, dims, 0),
-            "LS",
-            [0, 1],
-            [theta],
-            dims,
-            None,
+        QuantumCircuit(2, dims, 0),
+        "LS",
+        [0, 1],
+        [theta],
+        dims,
+        None,
     ).to_matrix()  # ls_gate(theta, dim)
 
     return prepare_ansatz(ls, params, dims)

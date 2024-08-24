@@ -22,7 +22,7 @@ class H(Gate):
         name: str,
         target_qudits: int,
         dimensions: int,
-        controls: ControlData | None = None
+        controls: ControlData | None = None,
     ) -> None:
         super().__init__(
             circuit=circuit,
@@ -34,7 +34,7 @@ class H(Gate):
         )
         self.qasm_tag = "h"
 
-    def __array__(self) -> NDArray: # noqa: PLW3201
+    def __array__(self) -> NDArray:  # noqa: PLW3201
         matrix = np.zeros((self._dimensions, self._dimensions), dtype="complex")
         for e0, e1 in itertools.product(range(self._dimensions), repeat=2):
             omega = np.mod(2 / self._dimensions * (e0 * e1), 2)

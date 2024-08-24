@@ -59,9 +59,14 @@ class LogLocAdaPass(CompilerPass):
 
 
 class LogAdaptiveDecomposition:
-    def __init__(self, gate: Gate, graph_orig: LevelGraph, cost_limit: tuple[float, float] = (0, 0),
-                 dimension: int = -1,
-                 Z_prop: bool = False) -> None:
+    def __init__(
+        self,
+        gate: Gate,
+        graph_orig: LevelGraph,
+        cost_limit: tuple[float, float] = (0, 0),
+        dimension: int = -1,
+        Z_prop: bool = False,
+    ) -> None:
         self.circuit: QuantumCircuit = gate.parent_circuit
         self.U: np.ndarray = gate.to_matrix(identities=0)
         self.qudit_index: int = gate.target_qudits
@@ -103,8 +108,9 @@ class LogAdaptiveDecomposition:
 
             return matrices_decomposed, best_cost, final_graph
 
-    def z_extraction(self, decomposition: list[TreeNode],
-                     placement: LevelGraph, phase_propagation: bool) -> tuple[list[Gate], LevelGraph]:
+    def z_extraction(
+        self, decomposition: list[TreeNode], placement: LevelGraph, phase_propagation: bool
+    ) -> tuple[list[Gate], LevelGraph]:
         matrices = []
 
         for d in decomposition[1:]:

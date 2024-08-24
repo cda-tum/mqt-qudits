@@ -21,11 +21,11 @@ if typing.TYPE_CHECKING:
 
 
 def variational_compile(
-        target: Gate,
-        tolerance: float,
-        ansatz_type: Literal[MS, LS, CU],
-        layers: int,
-        custom_primitive: Primitive | None = None
+    target: Gate,
+    tolerance: float,
+    ansatz_type: Literal[MS, LS, CU],
+    layers: int,
+    custom_primitive: Primitive | None = None,
 ) -> QuantumCircuit:
     dim_0, dim_1 = itemgetter(*target.reference_lines)(target.parent_circuit.dimensions)
     Primitive.set_class_variables(custom_primitive)
