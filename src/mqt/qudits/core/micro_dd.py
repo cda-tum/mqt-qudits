@@ -29,15 +29,15 @@ class TreeNode:
         # Compare based on the 'value' field
         return self.value < int(other.value)
 
-    def __gt__(self, other: TreeNode)-> bool:
+    def __gt__(self, other: TreeNode) -> bool:
         # based on the inverse of lt
         return other.__lt__(self)
 
-    def __le__(self, other: TreeNode)-> bool:
+    def __le__(self, other: TreeNode) -> bool:
         # based on the other two for efficiency
         return self.__lt__(other) or self.__eq__(other)
 
-    def __ge__(self, other: TreeNode)-> bool:
+    def __ge__(self, other: TreeNode) -> bool:
         # based on the other two for efficiency
         return self.__gt__(other) or self.__eq__(other)
 
@@ -275,8 +275,9 @@ def dd_reduction_aggregation(node: TreeNode, cardinalities: list[int], depth: in
     if node.terminal:
         node.reduced = True
     else:
-        reduced_children = [node.children_index[c_i] for c_i in range(cardinalities[depth]) if
-                            abs(node.children[c_i].weight) != 0.0]
+        reduced_children = [
+            node.children_index[c_i] for c_i in range(cardinalities[depth]) if abs(node.children[c_i].weight) != 0.0
+        ]
 
         if len(reduced_children) == 1:
             node.reduced = False

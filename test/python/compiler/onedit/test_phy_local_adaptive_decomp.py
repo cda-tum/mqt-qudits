@@ -39,9 +39,7 @@ class TestPhyAdaptiveDecomposition(TestCase):
 
         _decomp, _algorithmic_cost, _total_cost = qr.execute()
 
-        v = UnitaryVerifier(
-            _decomp, htest, [dim], test_sample_nodes, test_sample_nodes_map, test_sample_nodes_map
-        )
+        v = UnitaryVerifier(_decomp, htest, [dim], test_sample_nodes, test_sample_nodes_map, test_sample_nodes_map)
         assert len(_decomp) == 30
         assert v.verify()
 

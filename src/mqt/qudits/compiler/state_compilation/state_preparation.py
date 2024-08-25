@@ -30,8 +30,8 @@ def find_complex_number(x: complex, c: complex) -> complex:
     b = x.imag  # Imaginary part of x
 
     # Calculate z
-    real_part = (c.real - b * c.imag) / (a ** 2 + b ** 2)
-    imag_part = (c.imag + b * c.real) / (a ** 2 + b ** 2)
+    real_part = (c.real - b * c.imag) / (a**2 + b**2)
+    imag_part = (c.imag + b * c.real) / (a**2 + b**2)
     return complex(real_part, imag_part)
 
 
@@ -44,7 +44,7 @@ def get_angles(from_: complex, to_: complex) -> tuple[float, float]:
 
 class Operation:
     def __init__(
-            self, controls: list[tuple[int, int]], qudit: int, levels: tuple[int, int], angles: tuple[float, float]
+        self, controls: list[tuple[int, int]], qudit: int, levels: tuple[int, int], angles: tuple[float, float]
     ) -> None:
         self._controls = controls
         self._qudit = qudit
@@ -109,7 +109,7 @@ class StatePrep:
         self.approximation = approx
 
     def retrieve_local_sequence(
-            self, fweight: complex, children: list[TreeNode]
+        self, fweight: complex, children: list[TreeNode]
     ) -> dict[tuple[int, int], tuple[float, float]]:
         size = len(children)
         qudit = children[0].value
@@ -129,13 +129,13 @@ class StatePrep:
         return aplog
 
     def synthesis(
-            self,
-            labels: list[int],
-            cardinalities: list[int],
-            node: TreeNode,
-            circuit_meta: list[Operation],
-            controls: list[tuple[int, int]] | None = None,
-            depth: int = 0,
+        self,
+        labels: list[int],
+        cardinalities: list[int],
+        node: TreeNode,
+        circuit_meta: list[Operation],
+        controls: list[tuple[int, int]] | None = None,
+        depth: int = 0,
     ) -> None:
         if controls is None:
             controls = []
@@ -155,18 +155,17 @@ class StatePrep:
                     self.synthesis(labels, cardinalities, node.children[i], circuit_meta, controls_track, depth + 1)
                 else:
                     self.synthesis(
-                            labels,
-                            cardinalities,
-                            node.children[node.children_index[i]],
-                            circuit_meta,
-                            controls_track,
-                            depth + 1,
+                        labels,
+                        cardinalities,
+                        node.children[node.children_index[i]],
+                        circuit_meta,
+                        controls_track,
+                        depth + 1,
                     )
         else:
             controls_track = copy.deepcopy(controls)
             self.synthesis(
-                    labels, cardinalities, node.children[node.children_index[0]], circuit_meta, controls_track,
-                    depth + 1
+                labels, cardinalities, node.children[node.children_index[0]], circuit_meta, controls_track, depth + 1
             )
 
     def compile_state(self) -> QuantumCircuit:

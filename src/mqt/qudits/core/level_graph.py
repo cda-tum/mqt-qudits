@@ -15,13 +15,13 @@ if TYPE_CHECKING:
 
 class LevelGraph(nx.Graph):
     def __init__(
-            self,
-            edges: list[tuple[int, int, dict]],
-            nodes: list[int],
-            nodes_physical_mapping: list[int] | None = None,
-            initialization_nodes: list[int] | None = None,
-            qudit_index: int | None = None,
-            og_circuit: QuantumCircuit = None
+        self,
+        edges: list[tuple[int, int, dict]],
+        nodes: list[int],
+        nodes_physical_mapping: list[int] | None = None,
+        initialization_nodes: list[int] | None = None,
+        qudit_index: int | None = None,
+        og_circuit: QuantumCircuit = None,
     ) -> None:
         super().__init__()
         self.og_circuit: QuantumCircuit = og_circuit
@@ -110,7 +110,9 @@ class LevelGraph(nx.Graph):
         return new_lst
 
     @staticmethod
-    def deep_copy_func(l_n: list[tuple[int, int, dict]] | list[tuple[int, dict]]) -> list[tuple[int, int, dict]] | list[tuple[int, dict]]:
+    def deep_copy_func(
+        l_n: list[tuple[int, int, dict]] | list[tuple[int, dict]],
+    ) -> list[tuple[int, int, dict]] | list[tuple[int, dict]]:
         cpy_list = []
         for li in l_n:
             d2 = copy.deepcopy(li)
@@ -174,17 +176,18 @@ class LevelGraph(nx.Graph):
         matrices = []
         for node in self.nodes:
             node_dict = self.nodes[node]
-            if ("phase_storage" in node_dict and (node_dict["phase_storage"] > 1e-3
-                                                  or np.mod(node_dict["phase_storage"], 2 * np.pi) > 1e-3)):
+            if "phase_storage" in node_dict and (
+                node_dict["phase_storage"] > 1e-3 or np.mod(node_dict["phase_storage"], 2 * np.pi) > 1e-3
+            ):
                 phy_n_i = self.nodes[node]["lpmap"]
 
                 # phase_gate = VirtRz(node_dict["phase_storage"], phy_n_i, len(list(self.nodes)))
                 phase_gate = VirtRz(
-                        self.og_circuit,
-                        "VirtRz_egraph",
-                        self.qudit_index,
-                        [phy_n_i, node_dict["phase_storage"]],
-                        self.og_circuit.dimensions[self.qudit_index],
+                    self.og_circuit,
+                    "VirtRz_egraph",
+                    self.qudit_index,
+                    [phy_n_i, node_dict["phase_storage"]],
+                    self.og_circuit.dimensions[self.qudit_index],
                 )
                 matrices.append(phase_gate)
 

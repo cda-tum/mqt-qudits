@@ -14,7 +14,6 @@ from mqt.qudits.compiler.twodit.variational_twodit_compilation.ansatz.ansatz_sol
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.opt import Optimizer
 
 if typing.TYPE_CHECKING:
-
     from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
 

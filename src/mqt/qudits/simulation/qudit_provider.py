@@ -16,11 +16,11 @@ class MQTQuditProvider:
         return 0
 
     __backends: ClassVar[dict[str, type[Backend]]] = {
-        "tnsim":           TNSim,
-        "misim":           MISim,
+        "tnsim": TNSim,
+        "misim": MISim,
         "faketraps2trits": FakeIonTraps2Trits,
-        "faketraps2six":   FakeIonTraps2Six,
-        "faketraps3six":   FakeIonTraps3Six,
+        "faketraps2six": FakeIonTraps2Six,
+        "faketraps3six": FakeIonTraps3Six,
     }
 
     def get_backend(self, name: str | None = None, **kwargs: dict[str, Any]) -> Backend:

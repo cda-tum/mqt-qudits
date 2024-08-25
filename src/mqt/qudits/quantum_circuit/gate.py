@@ -32,15 +32,15 @@ class Gate(Instruction):
     """Unitary gate_matrix."""
 
     def __init__(
-            self,
-            circuit: QuantumCircuit,
-            name: str,
-            gate_type: enum,
-            target_qudits: list[int] | int,
-            dimensions: list[int] | int,
-            params: list | NDArray | None = None,
-            control_set: ControlData | None = None,
-            label: str | None = None
+        self,
+        circuit: QuantumCircuit,
+        name: str,
+        gate_type: enum,
+        target_qudits: list[int] | int,
+        dimensions: list[int] | int,
+        params: list | NDArray | None = None,
+        control_set: ControlData | None = None,
+        label: str | None = None,
     ) -> None:
         self.dagger = False
         self.parent_circuit = circuit
@@ -70,7 +70,7 @@ class Gate(Instruction):
         return lines
 
     @abstractmethod
-    def __array__(self) -> NDArray: #noqa: PLW3201
+    def __array__(self) -> NDArray:  # noqa: PLW3201
         pass
 
     def dag(self) -> Gate:
@@ -160,7 +160,7 @@ class Gate(Instruction):
             msg = "target_qudits must be a list of integers or a single integer"
             raise ValueError(msg)
 
-    def __qasm__(self) -> str: # noqa: PLW3201
+    def __qasm__(self) -> str:  # noqa: PLW3201
         """Generate QASM for Gate export"""
         string = f"{self.qasm_tag} "
         if isinstance(self._params, np.ndarray):
@@ -224,7 +224,7 @@ class Gate(Instruction):
         if not self.parent_circuit.path_save:
             return "(custom_data) "
 
-        key = "".join(random.choice(string.ascii_letters) for _ in range(4)) #noqa: S311
+        key = "".join(random.choice(string.ascii_letters) for _ in range(4))  # noqa: S311
         file_path = Path(self.parent_circuit.path_save) / f"{self._name}_{key}.npy"
         np.save(file_path, self._params)
         return f"({file_path}) "

@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 def generate_seed() -> int:
     """Generate a random seed for numpy random generator."""
     current_time = int(time.time() * 1000)
-    return hash((os.getpid(), current_time)) % 2 ** 32
+    return hash((os.getpid(), current_time)) % 2**32
 
 
 def measure_state(vector_data: NDArray[np.complex128]) -> int:
@@ -41,6 +41,7 @@ def stochastic_simulation(backend: Backend, circuit: QuantumCircuit) -> NDArray 
     shots = backend.shots
     num_processes = mp.cpu_count()
     from . import MISim, TNSim
+
     if isinstance(backend, TNSim):
         factory = NoisyCircuitFactory(backend.noise_model, circuit)
         args = [(backend, factory) for _ in range(shots)]

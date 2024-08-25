@@ -30,11 +30,14 @@ class Optimizer:
     FUN_SOLUTION: typing.ClassVar = []
 
     @classmethod
-    def set_class_variables(cls, target: NDArray[np.complex128] | None = None,
-                            obj_fid: float = 1e-4,
-                            dim_0: int | None = None,
-                            dim_1: int | None = None,
-                            layers: int | None = None) -> None:
+    def set_class_variables(
+        cls,
+        target: NDArray[np.complex128] | None = None,
+        obj_fid: float = 1e-4,
+        dim_0: int | None = None,
+        dim_1: int | None = None,
+        layers: int | None = None,
+    ) -> None:
         cls.OBJ_FIDELITY = obj_fid
         cls.SINGLE_DIM_0 = dim_0
         cls.SINGLE_DIM_1 = dim_1
@@ -46,8 +49,9 @@ class Optimizer:
         cls.FUN_SOLUTION = []
 
     @staticmethod
-    def bounds_assigner(b1: tuple[float, float], b2: tuple[float, float], b3: tuple[float, float],
-                        num_params_single: int, d: int) -> list[tuple[float, float]]:
+    def bounds_assigner(
+        b1: tuple[float, float], b2: tuple[float, float], b3: tuple[float, float], num_params_single: int, d: int
+    ) -> list[tuple[float, float]]:
         assignment = [None] * (num_params_single + 1)
 
         for m in range(d):
@@ -63,14 +67,14 @@ class Optimizer:
 
     @classmethod
     def return_bounds(cls, num_layer_search: int = 1) -> list[tuple[float, float]]:
-        num_params_single_unitary_line_0 = -1 + Optimizer.SINGLE_DIM_0 ** 2
-        num_params_single_unitary_line_1 = -1 + Optimizer.SINGLE_DIM_1 ** 2
+        num_params_single_unitary_line_0 = -1 + Optimizer.SINGLE_DIM_0**2
+        num_params_single_unitary_line_1 = -1 + Optimizer.SINGLE_DIM_1**2
 
         bounds_line_0 = Optimizer.bounds_assigner(
-                bound_1, bound_2, bound_3, num_params_single_unitary_line_0, Optimizer.SINGLE_DIM_0
+            bound_1, bound_2, bound_3, num_params_single_unitary_line_0, Optimizer.SINGLE_DIM_0
         )
         bounds_line_1 = Optimizer.bounds_assigner(
-                bound_1, bound_2, bound_3, num_params_single_unitary_line_1, Optimizer.SINGLE_DIM_1
+            bound_1, bound_2, bound_3, num_params_single_unitary_line_1, Optimizer.SINGLE_DIM_1
         )
 
         # Determine the length of the longest bounds list
@@ -113,9 +117,9 @@ class Optimizer:
         return cls.obj_fun_core(ansatz, lambdas)
 
     @classmethod
-    def solve_anneal(cls, bounds: list[tuple[float, float]],
-                     ansatz_type: str,
-                     result_queue: multiprocessing.Queue) -> None:
+    def solve_anneal(
+        cls, bounds: list[tuple[float, float]], ansatz_type: str, result_queue: multiprocessing.Queue
+    ) -> None:
         try:
             if ansatz_type == "MS":  # MS is 0
                 opt = dual_annealing(cls.objective_fnc_ms, bounds=bounds)

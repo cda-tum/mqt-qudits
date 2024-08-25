@@ -17,15 +17,15 @@ if TYPE_CHECKING:
 
 class QuditCompiler:
     passes_enabled: typing.ClassVar = {
-        "PhyLocQRPass":           PhyLocQRPass,
-        "PhyLocAdaPass":          PhyLocAdaPass,
-        "LocQRPass":              PhyLocQRPass,
-        "LocAdaPass":             PhyLocAdaPass,
-        "LogLocQRPass":           LogLocQRPass,
-        "ZPropagationOptPass":    ZPropagationOptPass,
-        "ZRemovalOptPass":        ZRemovalOptPass,
-        "LogEntQRCEXPass":        LogEntQRCEXPass,
-        "PhyEntQRCEXPass":        PhyEntQRCEXPass,
+        "PhyLocQRPass": PhyLocQRPass,
+        "PhyLocAdaPass": PhyLocAdaPass,
+        "LocQRPass": PhyLocQRPass,
+        "LocAdaPass": PhyLocAdaPass,
+        "LogLocQRPass": LogLocQRPass,
+        "ZPropagationOptPass": ZPropagationOptPass,
+        "ZRemovalOptPass": ZRemovalOptPass,
+        "LogEntQRCEXPass": LogEntQRCEXPass,
+        "PhyEntQRCEXPass": PhyEntQRCEXPass,
         "NaiveLocResynthOptPass": NaiveLocResynthOptPass,
     }
 
@@ -55,7 +55,7 @@ class QuditCompiler:
 
         return circuit
 
-    def compile_O0(self, backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  #noqa: N802
+    def compile_O0(self, backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  # noqa: N802
         passes = ["PhyLocQRPass", "PhyEntQRCEXPass"]
         compiled = self.compile(backend, circuit, passes)
 
@@ -66,7 +66,7 @@ class QuditCompiler:
         return compiled
 
     @staticmethod
-    def compile_O1(backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  #noqa: N802
+    def compile_O1(backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  # noqa: N802
         phyloc = PhyLocAdaPass(backend)
         phyent = PhyEntQRCEXPass(backend)
 

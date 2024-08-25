@@ -13,17 +13,17 @@ if typing.TYPE_CHECKING:
 
 class Node:
     def __init__(
-            self,
-            key: int,
-            rotation: gates.R,
-            u_of_level: NDArray,
-            graph_current: LevelGraph,
-            current_cost: float,
-            current_decomp_cost: float,
-            max_cost: tuple[float, float],
-            pi_pulses: list[gates.R],
-            parent_key: int,
-            children: Node | None = None,
+        self,
+        key: int,
+        rotation: gates.R,
+        u_of_level: NDArray,
+        graph_current: LevelGraph,
+        current_cost: float,
+        current_decomp_cost: float,
+        max_cost: tuple[float, float],
+        pi_pulses: list[gates.R],
+        parent_key: int,
+        children: Node | None = None,
     ) -> None:
         self.key = key
         self.children = children
@@ -39,28 +39,28 @@ class Node:
         self.PI_PULSES = pi_pulses
 
     def add(
-            self,
-            new_key: int,
-            rotation: gates.R,
-            u_of_level: NDArray,
-            graph_current: LevelGraph,
-            current_cost: float,
-            current_decomp_cost: float,
-            max_cost: tuple[float, float],
-            pi_pulses: list[gates.R]
+        self,
+        new_key: int,
+        rotation: gates.R,
+        u_of_level: NDArray,
+        graph_current: LevelGraph,
+        current_cost: float,
+        current_decomp_cost: float,
+        max_cost: tuple[float, float],
+        pi_pulses: list[gates.R],
     ) -> None:
         # TODO refactor so that size is kept track also in the tree upper structure
 
         new_node = Node(
-                new_key,
-                rotation,
-                u_of_level,
-                graph_current,
-                current_cost,
-                current_decomp_cost,
-                max_cost,
-                pi_pulses,
-                self.key,
+            new_key,
+            rotation,
+            u_of_level,
+            graph_current,
+            current_cost,
+            current_decomp_cost,
+            max_cost,
+            pi_pulses,
+            self.key,
         )
         if self.children is None:
             self.children = []
@@ -82,28 +82,28 @@ class NAryTree:
         self.global_id_counter: int = 0
 
     def add(
-            self,
-            new_key: int,
-            rotation: gates.R,
-            u_of_level: NDArray,
-            graph_current: LevelGraph,
-            current_cost: float,
-            current_decomp_cost: float,
-            max_cost: tuple[float, float],
-            pi_pulses: list[gates.R],
-            parent_key: int | None = None,
+        self,
+        new_key: int,
+        rotation: gates.R,
+        u_of_level: NDArray,
+        graph_current: LevelGraph,
+        current_cost: float,
+        current_decomp_cost: float,
+        max_cost: tuple[float, float],
+        pi_pulses: list[gates.R],
+        parent_key: int | None = None,
     ) -> None:
         if parent_key is None:
             self.root = Node(
-                    new_key,
-                    rotation,
-                    u_of_level,
-                    graph_current,
-                    current_cost,
-                    current_decomp_cost,
-                    max_cost,
-                    pi_pulses,
-                    parent_key,
+                new_key,
+                rotation,
+                u_of_level,
+                graph_current,
+                current_cost,
+                current_decomp_cost,
+                max_cost,
+                pi_pulses,
+                parent_key,
             )
             self.size = 1
         else:
@@ -112,7 +112,7 @@ class NAryTree:
                 msg = "No element was found with the informed parent key."
                 raise NodeNotFoundError(msg)
             parent_node.add(
-                    new_key, rotation, u_of_level, graph_current, current_cost, current_decomp_cost, max_cost, pi_pulses
+                new_key, rotation, u_of_level, graph_current, current_cost, current_decomp_cost, max_cost, pi_pulses
             )
             self.size += 1
 

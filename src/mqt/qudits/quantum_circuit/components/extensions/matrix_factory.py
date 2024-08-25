@@ -27,7 +27,7 @@ class MatrixFactory:
         lines = self.gate.reference_lines.copy()
         circuit = self.gate.parent_circuit
         ref_slice = list(range(min(lines), max(lines) + 1))
-        dimensions_slice = circuit.dimensions[min(lines): max(lines) + 1]
+        dimensions_slice = circuit.dimensions[min(lines) : max(lines) + 1]
 
         if control_info:
             controls = control_info.indices
@@ -35,11 +35,11 @@ class MatrixFactory:
             # preferably only CONTROLLED-One qudit gates to be made as multi-controlled, it is still a low level
             # control library
             matrix = MatrixFactory.apply_identites_and_controls(
-                    matrix, self.gate.target_qudits, dimensions_slice, ref_slice, controls, ctrl_levs
+                matrix, self.gate.target_qudits, dimensions_slice, ref_slice, controls, ctrl_levs
             )
         elif self.ids > 0:
             matrix = MatrixFactory.apply_identites_and_controls(
-                    matrix, self.gate.target_qudits, dimensions_slice, ref_slice
+                matrix, self.gate.target_qudits, dimensions_slice, ref_slice
             )
 
         if self.ids >= 2:
@@ -49,13 +49,13 @@ class MatrixFactory:
 
     @classmethod
     def apply_identites_and_controls(
-            cls,
-            matrix: NDArray[np.complex128],
-            qudits_applied: int | list[int],
-            dimensions: int | list[int],
-            ref_lines: list[int],
-            controls: list[int] | None = None,
-            controls_levels: list[int] | None = None,
+        cls,
+        matrix: NDArray[np.complex128],
+        qudits_applied: int | list[int],
+        dimensions: int | list[int],
+        ref_lines: list[int],
+        controls: list[int] | None = None,
+        controls_levels: list[int] | None = None,
     ) -> NDArray[np.complex128]:
         # dimensions = list(reversed(dimensions))
         # Convert qudits_applied and dimensions to lists if they are not already
@@ -79,7 +79,8 @@ class MatrixFactory:
         slide_indices_rest = [q - min(ref_lines) for q in rest_of_indices]
 
         single_site_logics = (
-            [list(range(dimensions[qudits_applied[0]]))] if len(qudits_applied) == 1
+            [list(range(dimensions[qudits_applied[0]]))]
+            if len(qudits_applied) == 1
             else [list(range(d)) for d in operator.itemgetter(*slide_indices_qudits_a)(dimensions)]
         )
 
@@ -101,11 +102,15 @@ class MatrixFactory:
                     if isinstance(extract_r, int):
                         extract_r = [extract_r]
                         extract_c = [extract_c]
-                    if (list(extract_r) == controls_levels and
-                            extract_r == extract_c and
-                            (not rest_of_indices or
-                             operator.itemgetter(*slide_indices_rest)(global_index_to_state[r]) ==
-                             operator.itemgetter(*slide_indices_rest)(global_index_to_state[c]))):
+                    if (
+                        list(extract_r) == controls_levels
+                        and extract_r == extract_c
+                        and (
+                            not rest_of_indices
+                            or operator.itemgetter(*slide_indices_rest)(global_index_to_state[r])
+                            == operator.itemgetter(*slide_indices_rest)(global_index_to_state[c])
+                        )
+                    ):
                         og_row_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[r])
                         og_col_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[c])
                         if isinstance(og_row_key, int):
@@ -118,7 +123,7 @@ class MatrixFactory:
                         result[r, c] = value
 
                 elif not rest_of_indices or operator.itemgetter(*slide_indices_rest)(
-                        global_index_to_state[r]
+                    global_index_to_state[r]
                 ) == operator.itemgetter(*slide_indices_rest)(global_index_to_state[c]):
                     og_row_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[r])
                     og_col_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[c])
@@ -135,7 +140,7 @@ class MatrixFactory:
 
     @classmethod
     def wrap_in_identities(
-            cls, matrix: NDArray[np.complex128], indices: list[int], sizes: list[int]
+        cls, matrix: NDArray[np.complex128], indices: list[int], sizes: list[int]
     ) -> NDArray[np.complex128]:
         indices.sort()
         if any(index >= len(sizes) for index in indices):
@@ -181,7 +186,7 @@ def calculate_q0_q1(lev: int, dim: int) -> tuple[int, int]:
 
 
 def insert_at(
-        big_arr: NDArray[np.complex128], pos: tuple[int, int], to_insert_arr: NDArray[np.complex128]
+    big_arr: NDArray[np.complex128], pos: tuple[int, int], to_insert_arr: NDArray[np.complex128]
 ) -> NDArray[np.complex128]:
     """Quite a forceful way of embedding a parameters into big_arr."""
     x1 = pos[0]

@@ -45,21 +45,21 @@ class ZPropagationOptPass(CompilerPass):
                 # object is R
                 if back:
                     new_phi = pi_mod(
-                            line[gate_index].phi + z_angles[line[gate_index].lev_a] - z_angles[line[gate_index].lev_b]
+                        line[gate_index].phi + z_angles[line[gate_index].lev_a] - z_angles[line[gate_index].lev_b]
                     )
                 else:
                     new_phi = pi_mod(
-                            line[gate_index].phi - z_angles[line[gate_index].lev_a] + z_angles[line[gate_index].lev_b]
+                        line[gate_index].phi - z_angles[line[gate_index].lev_a] + z_angles[line[gate_index].lev_b]
                     )
 
                 list_of_x_yrots.append(
-                        gates.R(
-                                circuit,
-                                "R",
-                                qudit_index,
-                                [line[gate_index].lev_a, line[gate_index].lev_b, line[gate_index].theta, new_phi],
-                                dimension,
-                        )
+                    gates.R(
+                        circuit,
+                        "R",
+                        qudit_index,
+                        [line[gate_index].lev_a, line[gate_index].lev_b, line[gate_index].theta, new_phi],
+                        dimension,
+                    )
                 )
                 # list_of_XYrots.append(R(line[gate_index].theta, new_phi,
                 # line[gate_index].lev_a, line[gate_index].lev_b, line[gate_index].dimension))
@@ -113,7 +113,7 @@ class ZPropagationOptPass(CompilerPass):
 
         for interval in intervals:
             if len(interval) > 1:
-                sequence: list[Gate] = circuit.instructions[interval[0]: interval[-1] + 1]
+                sequence: list[Gate] = circuit.instructions[interval[0] : interval[-1] + 1]
                 fixed_seq: list[R]
                 z_tail: list[VirtRz]
                 fixed_seq, z_tail = self.propagate_z(circuit, sequence, back)
@@ -122,7 +122,7 @@ class ZPropagationOptPass(CompilerPass):
                 else:
                     new_instructions[interval[0]: interval[-1] + 1] = fixed_seq + z_tail"""
                 combined_seq = z_tail + fixed_seq if back else fixed_seq + z_tail
-                new_instructions[interval[0]: interval[-1] + 1] = []
+                new_instructions[interval[0] : interval[-1] + 1] = []
                 new_instructions.extend(combined_seq)
 
         return circuit.set_instructions(new_instructions)

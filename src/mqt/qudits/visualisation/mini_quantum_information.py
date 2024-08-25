@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from ..quantum_circuit import QuantumCircuit
 
 
-def get_density_matrix_from_counts(results:  list[int] | NDArray[int], circuit: QuantumCircuit) -> NDArray:
+def get_density_matrix_from_counts(results: list[int] | NDArray[int], circuit: QuantumCircuit) -> NDArray:
     num_kets = reduce(operator.mul, circuit.dimensions)
     number_counts = Counter(results)
     probabilities = [(number_counts[num] / len(results)) for num in range(num_kets)]
@@ -29,10 +29,9 @@ def get_density_matrix_from_counts(results:  list[int] | NDArray[int], circuit: 
     return density_matrix
 
 
-def partial_trace(rho: np.ndarray,
-                  qudits2keep: list[int] | np.ndarray,
-                  dims: list[int],
-                  optimize: bool = False) -> NDArray:
+def partial_trace(
+    rho: np.ndarray, qudits2keep: list[int] | np.ndarray, dims: list[int], optimize: bool = False
+) -> NDArray:
     """Calculate the partial trace
 
     p_a = Tr_b(p)

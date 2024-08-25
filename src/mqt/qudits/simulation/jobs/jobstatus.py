@@ -23,12 +23,12 @@ class JobStatus(str, enum.Enum):
         """Return a detailed description of the status."""
         return {
             self.INITIALIZING: "Job is being initialized",
-            self.QUEUED:       "Job is waiting in the queue",
-            self.VALIDATING:   "Job is being validated",
-            self.RUNNING:      "Job is actively running",
-            self.CANCELLED:    "Job has been cancelled",
-            self.DONE:         "Job has successfully run",
-            self.ERROR:        "Job incurred an error"
+            self.QUEUED: "Job is waiting in the queue",
+            self.VALIDATING: "Job is being validated",
+            self.RUNNING: "Job is actively running",
+            self.CANCELLED: "Job has been cancelled",
+            self.DONE: "Job has successfully run",
+            self.ERROR: "Job incurred an error",
         }[self]
 
     @classmethod

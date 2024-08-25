@@ -45,7 +45,7 @@ class UnitaryVerifier:
             self.permutation_matrix_initial = None
             self.permutation_matrix_final = None
 
-    def get_perm_matrix(self, nodes: list[int], mapping:list[int]) -> NDArray:
+    def get_perm_matrix(self, nodes: list[int], mapping: list[int]) -> NDArray:
         # sum ( |phy> <log| )
         perm = np.zeros((self.dimension, self.dimension))
 

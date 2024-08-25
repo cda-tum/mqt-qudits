@@ -106,10 +106,11 @@ class LogAdaptiveDecomposition:
 
             self.TREE.print_tree(self.TREE.root, "TREE: ")
 
-            return matrices_decomposed, best_cost, final_graph # noqa: B012
+            return matrices_decomposed, best_cost, final_graph  # noqa: B012
 
     def z_extraction(
-        self, decomposition: list[TreeNode], placement: LevelGraph) -> tuple[list[Gate], LevelGraph]: # phase_propagation: bool
+        self, decomposition: list[TreeNode], placement: LevelGraph
+    ) -> tuple[list[Gate], LevelGraph]:  # phase_propagation: bool
         matrices = []
 
         for d in decomposition[1:]:

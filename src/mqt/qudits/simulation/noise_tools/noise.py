@@ -7,6 +7,7 @@ from typing import Literal
 @dataclass
 class Noise:
     """Represents a noise model with depolarizing and dephasing probabilities."""
+
     probability_depolarizing: float
     probability_dephasing: float
 
@@ -16,9 +17,15 @@ class NoiseModel:
 
     def __init__(self) -> None:
         self.quantum_errors: dict[
-            str, dict[tuple[int, ...] | Literal["local", "all", "nonlocal", "target", "control"], Noise]] = {}
+            str, dict[tuple[int, ...] | Literal["local", "all", "nonlocal", "target", "control"], Noise]
+        ] = {}
 
-    def _add_quantum_error(self, noise: Noise, gates: list[str], mode: tuple[int, ...] | Literal["local", "all", "nonlocal", "target", "control"]) -> None:
+    def _add_quantum_error(
+        self,
+        noise: Noise,
+        gates: list[str],
+        mode: tuple[int, ...] | Literal["local", "all", "nonlocal", "target", "control"],
+    ) -> None:
         """
         Helper method to add quantum errors to the model.
 

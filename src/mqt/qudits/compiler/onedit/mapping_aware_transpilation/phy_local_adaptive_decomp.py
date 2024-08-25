@@ -112,7 +112,7 @@ class PhyAdaptiveDecomposition:
 
             self.TREE.print_tree(self.TREE.root, "TREE: ")
 
-            return matrices_decomposed, best_cost, final_graph # noqa: B012
+            return matrices_decomposed, best_cost, final_graph  # noqa: B012
 
     def z_extraction(
         self, decomposition: list[TreeNode], placement: LevelGraph, phase_propagation: bool
@@ -170,11 +170,11 @@ class PhyAdaptiveDecomposition:
                     theta_z = new_mod(placement.nodes[i]["phase_storage"])
                     if abs(theta_z) > 1.0e-4:
                         phase_gate = gates.VirtRz(
-                                self.circuit,
-                                "VRz",
-                                self.qudit_index,
-                                [placement.nodes[i]["lpmap"], theta_z],
-                                self.dimension,
+                            self.circuit,
+                            "VRz",
+                            self.qudit_index,
+                            [placement.nodes[i]["lpmap"], theta_z],
+                            self.dimension,
                         )  # VirtRz(thetaZ, placement.nodes[i]['lpmap'],
                         # dimension)
                         matrices.append(phase_gate)

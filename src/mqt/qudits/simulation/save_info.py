@@ -42,9 +42,9 @@ def save_full_states(
     print(f"States saved to {full_path}")
 
 
-def save_shots(shots: list[int],
-               file_path: str | Path | None = None,
-               file_name: str | None = "simulation_results.h5") -> None:
+def save_shots(
+    shots: list[int], file_path: str | Path | None = None, file_name: str | None = "simulation_results.h5"
+) -> None:
     if file_path is None:
         username = getpass.getuser()
         file_path = Path(f"/home/{username}/Documents")
