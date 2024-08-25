@@ -10,6 +10,8 @@ from .jobstatus import JobStatus
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from numpy.typing import NDArray
+
     from ..backends.backendv2 import Backend
 
 
@@ -26,7 +28,7 @@ class Job:
     version = 1
     _async = True
 
-    def __init__(self, backend: Backend | None, job_id: str = "auto", **kwargs: Any) -> None:
+    def __init__(self, backend: Backend | None, job_id: str = "auto", **kwargs: dict[str, Any]) -> None:
         """Initializes the asynchronous job.
 
         Args:
@@ -100,11 +102,11 @@ class Job:
         """Submit the job to the backend for execution."""
         raise NotImplementedError
 
-    def result(self):
+    def result(self) -> NDArray | list[int]:
         """Return the results of the job."""
         return self._result
 
-    def set_result(self, result) -> None:
+    def set_result(self, result: NDArray | list[int]) -> None:
         self._result = result
 
     def cancel(self) -> NoReturn:

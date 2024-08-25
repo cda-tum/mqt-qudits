@@ -32,17 +32,15 @@ class Gate(Instruction):
     """Unitary gate_matrix."""
 
     def __init__(
-        self,
-        circuit: QuantumCircuit,
-        name: str,
-        gate_type: enum,
-        target_qudits: list[int] | int,
-        dimensions: list[int] | int,
-        params: list | NDArray | None = None,
-        control_set=None,
-        label: str | None = None,
-        duration=None,
-        unit="dt"
+            self,
+            circuit: QuantumCircuit,
+            name: str,
+            gate_type: enum,
+            target_qudits: list[int] | int,
+            dimensions: list[int] | int,
+            params: list | NDArray | None = None,
+            control_set: ControlData | None = None,
+            label: str | None = None
     ) -> None:
         self.dagger = False
         self.parent_circuit = circuit
@@ -52,8 +50,6 @@ class Gate(Instruction):
         self._dimensions = dimensions
         self._params = params
         self._label = label
-        self._duration = duration
-        self._unit = unit
         self._controls_data = None
         self.is_long_range = self.check_long_range()
         if control_set:
@@ -74,7 +70,7 @@ class Gate(Instruction):
         return lines
 
     @abstractmethod
-    def __array__(self) -> NDArray:
+    def __array__(self) -> NDArray: #noqa: PLW3201
         pass
 
     def dag(self) -> Gate:
@@ -104,7 +100,7 @@ class Gate(Instruction):
         # AT THE MOMENT WE SUPPORT CONTROL OF SINGLE QUDIT GATES
         assert self.gate_type == GateTypes.SINGLE
         if len(indices) > self.parent_circuit.num_qudits or any(
-                idx >= self.parent_circuit.num_qudits for idx in indices
+            idx >= self.parent_circuit.num_qudits for idx in indices
         ):
             msg = "Indices or Number of Controls is beyond the Quantum Circuit Size"
             raise IndexError(msg)
@@ -134,6 +130,10 @@ class Gate(Instruction):
         pass
 
     @property
+    def dimensions(self) -> list[int] | int:
+        return self._dimensions
+
+    @property
     def target_qudits(self) -> list[int]:
         """
         Get the target qudits.
@@ -160,7 +160,7 @@ class Gate(Instruction):
             msg = "target_qudits must be a list of integers or a single integer"
             raise ValueError(msg)
 
-    def __qasm__(self) -> str:
+    def __qasm__(self) -> str: # noqa: PLW3201
         """Generate QASM for Gate export"""
         string = f"{self.qasm_tag} "
         if isinstance(self._params, np.ndarray):
@@ -224,7 +224,7 @@ class Gate(Instruction):
         if not self.parent_circuit.path_save:
             return "(custom_data) "
 
-        key = "".join(random.choice(string.ascii_letters) for _ in range(4))
+        key = "".join(random.choice(string.ascii_letters) for _ in range(4)) #noqa: S311
         file_path = Path(self.parent_circuit.path_save) / f"{self._name}_{key}.npy"
         np.save(file_path, self._params)
         return f"({file_path}) "

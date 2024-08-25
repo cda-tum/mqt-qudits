@@ -7,10 +7,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from numpy.typing import NDArray
+
     from ..quantum_circuit import QuantumCircuit
 
 
-def remap_result(result: np.ndarray, circuit: QuantumCircuit) -> np.ndarray:
+def remap_result(result: NDArray[np.complex128] | list[int] | NDArray[int],
+                 circuit: QuantumCircuit) -> NDArray[np.complex128] | list[int] | NDArray[int]:
     new_result = result.copy()
     if circuit.mappings:
         permutation = np.eye(circuit.dimensions[0])[:, circuit.mappings[0]]
@@ -21,7 +26,8 @@ def remap_result(result: np.ndarray, circuit: QuantumCircuit) -> np.ndarray:
 
 
 class HistogramWithErrors:
-    def __init__(self, labels, counts, errors, title="", xlabel="Labels", ylabel="Counts") -> None:
+    def __init__(self, labels: Sequence[str], counts: Sequence[float], errors: Sequence[float],
+                 title: str = "", xlabel: str = "Labels", ylabel: str = "Counts") -> None:
         self.labels = labels
         self.counts = counts
         self.errors = errors
@@ -32,13 +38,13 @@ class HistogramWithErrors:
 
     def generate_histogram(self) -> None:
         plt.bar(
-            self.labels,
-            self.counts,
-            yerr=self.errors,
-            capsize=5,
-            color="b",
-            alpha=0.7,
-            align="center",
+                self.labels,
+                self.counts,
+                yerr=self.errors,
+                capsize=5,
+                color="b",
+                alpha=0.7,
+                align="center",
         )
         plt.xlabel(self.xlabel)
         plt.ylabel(self.ylabel)
@@ -49,13 +55,13 @@ class HistogramWithErrors:
 
     def save_to_png(self, filename: str) -> None:
         plt.bar(
-            self.labels,
-            self.counts,
-            yerr=self.errors,
-            capsize=5,
-            color="b",
-            alpha=0.7,
-            align="center",
+                self.labels,
+                self.counts,
+                yerr=self.errors,
+                capsize=5,
+                color="b",
+                alpha=0.7,
+                align="center",
         )
         plt.xlabel(self.xlabel)
         plt.ylabel(self.ylabel)
@@ -66,7 +72,7 @@ class HistogramWithErrors:
         plt.close()
 
 
-def state_labels(circuit: QuantumCircuit):
+def state_labels(circuit: QuantumCircuit) -> list[str]:
     dimensions = circuit.dimensions  # reversed(circuit.dimensions)
     # it was in the order of the DD simulation now it is in circuit order
     logic = [list(range(d)) for d in dimensions]
@@ -82,7 +88,8 @@ def state_labels(circuit: QuantumCircuit):
     return string_states
 
 
-def plot_state(state_vector: np.ndarray, circuit: QuantumCircuit, errors=None) -> np.ndarray:
+def plot_state(state_vector: NDArray[np.complex128],
+               circuit: QuantumCircuit, errors: Sequence[float] | None = None) -> NDArray[np.complex128]:
     labels = state_labels(circuit)
 
     state_vector_list = np.squeeze(state_vector).tolist()
@@ -94,7 +101,7 @@ def plot_state(state_vector: np.ndarray, circuit: QuantumCircuit, errors=None) -
     return counts
 
 
-def plot_counts(measurements, circuit: QuantumCircuit) -> np.ndarray:
+def plot_counts(measurements: list[int] | NDArray[int], circuit: QuantumCircuit) -> list[int] | NDArray[int]:
     labels = state_labels(circuit)
     counts = [measurements.count(i) for i in range(len(labels))]
     counts = remap_result(counts, circuit)

@@ -3,78 +3,128 @@ from __future__ import annotations
 import copy
 import os
 import time
-from typing import TYPE_CHECKING
+from functools import partial
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 
 from ...quantum_circuit import QuantumCircuit, gates
-from ...quantum_circuit.gate import GateTypes
+from ...quantum_circuit.gate import Gate, GateTypes
 
 if TYPE_CHECKING:
-    from .noise import NoiseModel
+    from collections.abc import Callable
+
+    from numpy.random import Generator
+
+    from .noise import NoiseInfo, NoiseModel
 
 
 class NoisyCircuitFactory:
     def __init__(self, noise_model: NoiseModel, circuit: QuantumCircuit) -> None:
-        self.noise_model = noise_model
-        self.circuit = circuit
+        self.noise_model: NoiseModel = noise_model
+        self.circuit: QuantumCircuit = circuit
+        self.rng: Generator = self._initialize_rng()
+
+    @staticmethod
+    def _initialize_rng() -> Generator:
+        current_time = int(time.time() * 1000)
+        seed = hash((os.getpid(), current_time)) % 2 ** 32
+        return np.random.default_rng(seed)
 
     def generate_circuit(self) -> QuantumCircuit:
-        current_time = int(time.time() * 1000)
-        seed = hash((os.getpid(), current_time)) % 2**32
-        gen = np.random.Generator(np.random.PCG64(seed=seed))
-
-        # num_qudits, dimensions_slice, numcl
         noisy_circuit = QuantumCircuit(self.circuit.num_qudits, self.circuit.dimensions, self.circuit.num_cl)
         noisy_circuit.number_gates = 0
+
         for instruction in self.circuit.instructions:
-            # Deep copy the instruction
             copied_instruction = copy.deepcopy(instruction)
-            # Append the deep copied instruction to the new circuit
             noisy_circuit.instructions.append(copied_instruction)
             noisy_circuit.number_gates += 1
 
-            # Append an error depending on the prob
-            if instruction.qasm_tag in self.noise_model.quantum_errors:
-                for mode, noise_info in self.noise_model.quantum_errors[instruction.qasm_tag].items():
-                    x_prob = [(1 - noise_info.probability_depolarizing), noise_info.probability_depolarizing]
-                    z_prob = [(1 - noise_info.probability_dephasing), noise_info.probability_dephasing]
-                    x_choice = gen.choice(a=range(2), p=x_prob)
-                    z_choice = gen.choice(a=range(2), p=z_prob)
-                    if x_choice == 1 or z_choice == 1:
-                        qudits = None
-                        if isinstance(mode, (list, tuple)):
-                            qudits = list(mode)
-                        elif isinstance(mode, str):
-                            if mode == "local":
-                                qudits = instruction.reference_lines
-                            elif mode == "all":
-                                qudits = list(range(instruction.parent_circuit.num_qudits))
-                            elif mode == "nonlocal":
-                                assert instruction.gate_type in {GateTypes.TWO, GateTypes.MULTI}
-                                qudits = instruction.reference_lines
-                            elif mode == "control":
-                                assert instruction.gate_type == GateTypes.TWO
-                                qudits = instruction.target_qudits[:1]
-                            elif mode == "target":
-                                assert instruction.gate_type == GateTypes.TWO
-                                qudits = instruction.target_qudits[1:]
-                        else:
-                            pass
-
-                        if x_choice == 1:
-                            if isinstance(instruction, (gates.R, gates.Rz)):
-                                for dit in qudits:
-                                    noisy_circuit.r(dit, [instruction.lev_a, instruction.lev_b, np.pi, np.pi / 2])
-                            else:
-                                for dit in qudits:
-                                    noisy_circuit.x(dit)
-                        if z_choice == 1:
-                            if isinstance(instruction, (gates.R, gates.Rz)):
-                                for dit in qudits:
-                                    noisy_circuit.rz(dit, [instruction.lev_a, instruction.lev_b, np.pi])
-                            else:
-                                for dit in qudits:
-                                    noisy_circuit.z(dit)
+            self._apply_noise(noisy_circuit, instruction)
 
         return noisy_circuit
+
+    def _apply_noise(self, noisy_circuit: QuantumCircuit, instruction: Gate) -> None:
+        if instruction.qasm_tag not in self.noise_model.quantum_errors:
+            return
+
+        for mode, noise_info in self.noise_model.quantum_errors[instruction.qasm_tag].items():
+            qudits = self._get_affected_qudits(instruction, mode)
+            if qudits is None:
+                continue
+
+            self._apply_depolarizing_noise(noisy_circuit, instruction, qudits, noise_info)
+            self._apply_dephasing_noise(noisy_circuit, instruction, qudits, noise_info)
+
+    def _get_affected_qudits(self, instruction: Gate, mode: list[int] | str) -> list[int] | None:
+        if isinstance(mode, list):
+            return mode
+        if isinstance(mode, str):
+            return self._get_qudits_for_mode(instruction, mode)
+        return None
+
+    def _get_qudits_for_mode(self, instruction: Gate,
+                             mode: Literal["local", "all", "nonlocal", "control", "target"]) -> list[int]:
+        mode_handlers: dict[str, Callable[[], list[int]]] = {
+            "local":    lambda: instruction.reference_lines,
+            "all":      lambda: list(range(instruction.parent_circuit.num_qudits)),
+            "nonlocal": partial(self._get_nonlocal_qudits, instruction),
+            "control":  partial(self._get_control_qudits, instruction),
+            "target":   partial(self._get_target_qudits, instruction)
+        }
+
+        handler = mode_handlers.get(mode)
+        if not handler:
+            msg = f"Unknown mode: {mode}"
+            raise ValueError(msg)
+
+        return handler()
+
+    @staticmethod
+    def _get_nonlocal_qudits(instruction: Gate) -> list[int]:
+        if instruction.gate_type not in {GateTypes.TWO, GateTypes.MULTI}:
+            msg = f"Nonlocal mode not applicable for gate type: {instruction.gate_type}"
+            raise ValueError(msg)
+        return instruction.reference_lines
+
+    def _get_control_qudits(self, instruction: Gate) -> list[int]:
+        self._validate_two_qudit_gate(instruction, "Control")
+        return instruction.target_qudits[:1]
+
+    def _get_target_qudits(self, instruction: Gate) -> list[int]:
+        self._validate_two_qudit_gate(instruction, "Target")
+        return instruction.target_qudits[1:]
+
+    @staticmethod
+    def _validate_two_qudit_gate(instruction: Gate, mode: str) -> None:
+        if instruction.gate_type != GateTypes.TWO:
+            msg = f"{mode} mode only applicable for two-qudit gates, not {instruction.gate_type}"
+            raise ValueError(msg)
+
+    def _apply_depolarizing_noise(self, noisy_circuit: QuantumCircuit, instruction: Gate, qudits: list[int],
+                                  noise_info: NoiseInfo) -> None:
+        if self.rng.random() < noise_info.probability_depolarizing:
+            self._apply_x_noise(noisy_circuit, instruction, qudits)
+
+    def _apply_dephasing_noise(self, noisy_circuit: QuantumCircuit, instruction: Gate, qudits: list[int],
+                               noise_info: NoiseInfo) -> None:
+        if self.rng.random() < noise_info.probability_dephasing:
+            self._apply_z_noise(noisy_circuit, instruction, qudits)
+
+    @staticmethod
+    def _apply_x_noise(noisy_circuit: QuantumCircuit, instruction: Gate, qudits: list[int]) -> None:
+        if isinstance(instruction, (gates.R, gates.Rz)):
+            for dit in qudits:
+                noisy_circuit.r(dit, [instruction.lev_a, instruction.lev_b, np.pi, np.pi / 2])
+        else:
+            for dit in qudits:
+                noisy_circuit.x(dit)
+
+    @staticmethod
+    def _apply_z_noise(noisy_circuit: QuantumCircuit, instruction: Gate, qudits: list[int]) -> None:
+        if isinstance(instruction, (gates.R, gates.Rz)):
+            for dit in qudits:
+                noisy_circuit.rz(dit, [instruction.lev_a, instruction.lev_b, np.pi])
+        else:
+            for dit in qudits:
+                noisy_circuit.z(dit)

@@ -13,7 +13,7 @@ from mqt.qudits.exceptions.circuiterror import ShapeMismatchError
 NDArray = np.ndarray
 
 
-def size_check(a: np.ndarray, b: np.ndarray) -> bool:
+def size_check(a: NDArray[np.complex128], b: NDArray[np.complex128]) -> bool:
     return bool(a.shape == b.shape and a.shape[0] == a.shape[1])
 
 

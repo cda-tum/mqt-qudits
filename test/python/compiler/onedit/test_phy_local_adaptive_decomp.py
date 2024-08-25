@@ -34,13 +34,19 @@ class TestPhyAdaptiveDecomposition(TestCase):
         htest = circuit_5.h(0)
         graph_1.phase_storing_setup()
 
-        qr = PhyQrDecomp(htest, graph_1, Z_prop=False, not_stand_alone=False)
+        qr = PhyQrDecomp(htest, graph_1, z_prop=False, not_stand_alone=False)
         # gate, graph_orig, Z_prop=False, not_stand_alone=True
 
         _decomp, _algorithmic_cost, _total_cost = qr.execute()
 
+        v = UnitaryVerifier(
+            _decomp, htest, [dim], test_sample_nodes, test_sample_nodes_map, test_sample_nodes_map
+        )
+        assert len(_decomp) == 30
+        assert v.verify()
+
         ada = PhyAdaptiveDecomposition(
-            htest, graph_1, cost_limit=(1.1 * _algorithmic_cost, 1.1 * _total_cost), dimension=5, Z_prop=False
+            htest, graph_1, cost_limit=(1.1 * _algorithmic_cost, 1.1 * _total_cost), dimension=5, z_prop=False
         )
         # gate, graph_orig, cost_limit=(0, 0), dimension=-1, Z_prop=False
         matrices_decomposed, _best_cost, final_graph = ada.execute()

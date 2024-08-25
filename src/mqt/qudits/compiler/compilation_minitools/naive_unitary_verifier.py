@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import operator
@@ -7,6 +8,8 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from mqt.qudits.quantum_circuit.gate import Gate
 
 
@@ -42,7 +45,7 @@ class UnitaryVerifier:
             self.permutation_matrix_initial = None
             self.permutation_matrix_final = None
 
-    def get_perm_matrix(self, nodes, mapping):
+    def get_perm_matrix(self, nodes: list[int], mapping:list[int]) -> NDArray:
         # sum ( |phy> <log| )
         perm = np.zeros((self.dimension, self.dimension))
 
@@ -57,7 +60,7 @@ class UnitaryVerifier:
 
         return perm
 
-    def verify(self):
+    def verify(self) -> bool:
         target = self.target.copy()
 
         for rotation in self.decomposition:

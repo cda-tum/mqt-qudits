@@ -34,7 +34,7 @@ class TestPhyQRDecomposition(TestCase):
         htest = circuit_5.h(0)
         graph_1.phase_storing_setup()
 
-        qr = PhyQrDecomp(htest, graph_1, Z_prop=False, not_stand_alone=False)
+        qr = PhyQrDecomp(htest, graph_1, z_prop=False, not_stand_alone=False)
         # gate, graph_orig, Z_prop=False, not_stand_alone=True
 
         decomp, _algorithmic_cost, _total_cost = qr.execute()

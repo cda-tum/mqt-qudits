@@ -19,67 +19,70 @@ class ZPropagationOptPass(CompilerPass):
         super().__init__(backend)
         self.back = back
 
-    def transpile_gate(self, gate: Gate) -> Gate:
+    @staticmethod
+    def transpile_gate(gate: Gate) -> Gate:
         return gate
 
     def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:
         return self.remove_z(circuit, self.back)
 
-    def propagate_z(self, circuit: QuantumCircuit, line: list[Gate], back: bool) -> tuple[list[R], list[VirtRz]]:
-        Z_angles: dict[int, float] = {}
-        list_of_XYrots: list[R] = []
+    @staticmethod
+    def propagate_z(circuit: QuantumCircuit, line: list[Gate], back: bool) -> tuple[list[R], list[VirtRz]]:
+        z_angles: dict[int, float] = {}
+        list_of_x_yrots: list[R] = []
         qudit_index: tuple[int, ...] = line[0].target_qudits
-        dimension: int = line[0]._dimensions
+        dimension: int = line[0].dimensions
 
         for i in range(dimension):
-            Z_angles[i] = 0.0
+            z_angles[i] = 0.0
 
         if back:
             line.reverse()
 
         for gate_index in range(len(line)):
             try:
-                line[gate_index].lev_b
+                line[gate_index].lev_b  # noqa: B018
                 # object is R
                 if back:
                     new_phi = pi_mod(
-                        line[gate_index].phi + Z_angles[line[gate_index].lev_a] - Z_angles[line[gate_index].lev_b]
+                            line[gate_index].phi + z_angles[line[gate_index].lev_a] - z_angles[line[gate_index].lev_b]
                     )
                 else:
                     new_phi = pi_mod(
-                        line[gate_index].phi - Z_angles[line[gate_index].lev_a] + Z_angles[line[gate_index].lev_b]
+                            line[gate_index].phi - z_angles[line[gate_index].lev_a] + z_angles[line[gate_index].lev_b]
                     )
 
-                list_of_XYrots.append(
-                    gates.R(
-                        circuit,
-                        "R",
-                        qudit_index,
-                        [line[gate_index].lev_a, line[gate_index].lev_b, line[gate_index].theta, new_phi],
-                        dimension,
-                    )
+                list_of_x_yrots.append(
+                        gates.R(
+                                circuit,
+                                "R",
+                                qudit_index,
+                                [line[gate_index].lev_a, line[gate_index].lev_b, line[gate_index].theta, new_phi],
+                                dimension,
+                        )
                 )
                 # list_of_XYrots.append(R(line[gate_index].theta, new_phi,
                 # line[gate_index].lev_a, line[gate_index].lev_b, line[gate_index].dimension))
-            except AttributeError:
+            except AttributeError:  # noqa: PERF203
                 try:
-                    line[gate_index].lev_a
+                    line[gate_index].lev_a  # noqa: B018
                     # object is VirtRz
-                    Z_angles[line[gate_index].lev_a] = pi_mod(Z_angles[line[gate_index].lev_a] + line[gate_index].phi)
+                    z_angles[line[gate_index].lev_a] = pi_mod(z_angles[line[gate_index].lev_a] + line[gate_index].phi)
                 except AttributeError:
                     pass
         if back:
-            list_of_XYrots.reverse()
+            list_of_x_yrots.reverse()
 
-        Zseq = []
-        Zseq.extend([
-            gates.VirtRz(circuit, "VRz", qudit_index, [e_lev, Z_angles[e_lev]], dimension) for e_lev in Z_angles
+        zseq = []
+        zseq.extend([
+            gates.VirtRz(circuit, "VRz", qudit_index, [e_lev, z_angles[e_lev]], dimension) for e_lev in z_angles
         ])
         # Zseq.append(Rz(Z_angles[e_lev], e_lev, QC.dimension))
 
-        return list_of_XYrots, Zseq
+        return list_of_x_yrots, zseq
 
-    def find_intervals_with_same_target_qudits(self, instructions: list[Gate]) -> list[tuple[int, ...]]:
+    @staticmethod
+    def find_intervals_with_same_target_qudits(instructions: list[Gate]) -> list[tuple[int, ...]]:
         intervals: list[tuple[int, ...]] = []
         current_interval: list[int] = []
         current_target_qudits: tuple[int, ...] | None = None
@@ -110,7 +113,7 @@ class ZPropagationOptPass(CompilerPass):
 
         for interval in intervals:
             if len(interval) > 1:
-                sequence: list[Gate] = circuit.instructions[interval[0] : interval[-1] + 1]
+                sequence: list[Gate] = circuit.instructions[interval[0]: interval[-1] + 1]
                 fixed_seq: list[R]
                 z_tail: list[VirtRz]
                 fixed_seq, z_tail = self.propagate_z(circuit, sequence, back)
@@ -119,7 +122,7 @@ class ZPropagationOptPass(CompilerPass):
                 else:
                     new_instructions[interval[0]: interval[-1] + 1] = fixed_seq + z_tail"""
                 combined_seq = z_tail + fixed_seq if back else fixed_seq + z_tail
-                new_instructions[interval[0] : interval[-1] + 1] = []
+                new_instructions[interval[0]: interval[-1] + 1] = []
                 new_instructions.extend(combined_seq)
 
         return circuit.set_instructions(new_instructions)

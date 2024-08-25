@@ -19,22 +19,20 @@ if typing.TYPE_CHECKING:
     from mqt.qudits.quantum_circuit.gate import Gate
 
 
-def apply_rotations(M: NDArray[np.complex128],
-                    params: list[float], dims: list[int]) -> NDArray[np.complex128]:
+def apply_rotations(m: NDArray[np.complex128], params: list[float], dims: list[int]) -> NDArray[np.complex128]:
     params = params_splitter(params, dims)
-    R1 = gate_expand_to_circuit(generic_sud(params[0], dims[0]), circuits_size=2, target=0, dims=dims)
-    R2 = gate_expand_to_circuit(generic_sud(params[1], dims[1]), circuits_size=2, target=1, dims=dims)
-    R3 = gate_expand_to_circuit(generic_sud(params[2], dims[0]), circuits_size=2, target=0, dims=dims)
-    R4 = gate_expand_to_circuit(generic_sud(params[3], dims[1]), circuits_size=2, target=1, dims=dims)
+    r1 = gate_expand_to_circuit(generic_sud(params[0], dims[0]), circuits_size=2, target=0, dims=dims)
+    r2 = gate_expand_to_circuit(generic_sud(params[1], dims[1]), circuits_size=2, target=1, dims=dims)
+    r3 = gate_expand_to_circuit(generic_sud(params[2], dims[0]), circuits_size=2, target=0, dims=dims)
+    r4 = gate_expand_to_circuit(generic_sud(params[3], dims[1]), circuits_size=2, target=1, dims=dims)
 
-    return R1 @ R2 @ M @ R3 @ R4
+    return r1 @ r2 @ m @ r3 @ r4
 
 
-def instantiate_rotations(circuit: QuantumCircuit,
-                          gate: Gate, params: list[float]) -> list[Gate]:
+def instantiate_rotations(circuit: QuantumCircuit, gate: Gate, params: list[float]) -> list[Gate]:
     gate = copy.deepcopy(gate)
     gate.parent_circuit = circuit
-    dims = gate._dimensions
+    dims = gate.dimensions
     params = params_splitter(params, dims)
 
     decomposition = []
@@ -50,11 +48,11 @@ def instantiate_rotations(circuit: QuantumCircuit,
     return decomposition
 
 
-def density(M_prime: NDArray[np.float64]) -> float:
-    non_zero_elements = M_prime[M_prime > 1e-8]
+def density(m_prime: NDArray[np.float64]) -> float:
+    non_zero_elements = m_prime[m_prime > 1e-8]
     if len(non_zero_elements) == 0:
         return 0
-    return non_zero_elements.size / M_prime.size
+    return non_zero_elements.size / m_prime.size
 
 
 def manhattan_norm(matrix: NDArray[np.complex128]) -> float:
@@ -65,23 +63,23 @@ def frobenius_norm(matrix: NDArray[np.complex128]) -> float:
     return np.sqrt(np.sum(np.abs(matrix) ** 2))
 
 
-def compute_F(X: NDArray[np.complex128]) -> float:
+def compute_f(x: NDArray[np.complex128]) -> float:
     # Hoyer's sparsity measure on matrices
     # 0<=H<=1 , 0 is non sparse, 1 is very sparse
     # sparsity is then 1 when non sparse , 0 when sparse
     # Create an all-ones matrix J with the same shape as X
-    J = np.ones_like(X)
+    j = np.ones_like(x)
 
     # Compute the Manhattan norm of X
-    norm_X1 = manhattan_norm(X)
+    norm_x1 = manhattan_norm(x)
 
     # Compute the Frobenius norm of X and J
-    norm_X2 = frobenius_norm(X)
-    norm_J2 = frobenius_norm(J)
+    norm_x2 = frobenius_norm(x)
+    norm_j2 = frobenius_norm(j)
 
     # Compute the numerator and denominator
-    numerator = norm_J2 * norm_X2 - norm_X1
-    denominator = norm_J2 * norm_X2 - norm_X2
+    numerator = norm_j2 * norm_x2 - norm_x1
+    denominator = norm_j2 * norm_x2 - norm_x2
 
     # Handle the potential division by zero
     if denominator == 0:
@@ -89,46 +87,45 @@ def compute_F(X: NDArray[np.complex128]) -> float:
         raise ValueError(msg)
 
     # Compute F(X)
-    F_X = numerator / denominator
-    return 1 - F_X
+    f_x = numerator / denominator
+    return 1 - f_x
 
 
-def objective_function(thetas: list[float], M: NDArray[np.complex128],
-                       dims: list[int]) -> float:
+def objective_function(thetas: list[float], m: NDArray[np.complex128], dims: list[int]) -> float:
     """
     Objective function for promoting sparsity and low variance in the transformed matrix M'.
 
     Args:
         thetas (list of float): List of rotation angles.
-        M (numpy.ndarray): Input matrix (NxN).
+        m (numpy.ndarray): Input matrix (NxN).
 
     Returns:
         float: The value of the objective function.
     """
-    M_prime = apply_rotations(M, thetas, dims)
+    m_prime = apply_rotations(m, thetas, dims)
 
     # Separate the real and imaginary parts
-    real_part = np.real(M_prime)
-    imag_part = np.imag(M_prime)
-    M_ghost = np.abs(real_part) + np.abs(imag_part)
+    real_part = np.real(m_prime)
+    imag_part = np.imag(m_prime)
+    m_ghost = np.abs(real_part) + np.abs(imag_part)
 
     # Variance of non-zero elements
-    den = density(M_ghost)
+    den = density(m_ghost)
 
-    return compute_F(M_ghost) * den
+    return compute_f(m_ghost) * den
 
 
 def sparsify(gate: Gate, tol: float = 0.1) -> QuantumCircuit:
-    M = gate.to_matrix()
-    dims = gate._dimensions
+    m = gate.to_matrix()
+    dims = gate.dimensions
 
-    Optimizer.set_class_variables(M, tol, dims[0], dims[1])
+    Optimizer.set_class_variables(m, tol, dims[0], dims[1])
     bounds = Optimizer.return_bounds()
 
     initial_thetas = np.array(list(starmap(uniform, bounds)))
 
     # Optimize the rotation angles
-    result = minimize(objective_function, initial_thetas, args=(M, dims), bounds=bounds)
+    result = minimize(objective_function, initial_thetas, args=(m, dims), bounds=bounds)
     # result = dual_annealing(objective_function, args=(M, dims), bounds=bounds)
     optimal_thetas = result.x
     # f = result.fun

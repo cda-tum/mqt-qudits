@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import typing
@@ -16,10 +17,7 @@ if typing.TYPE_CHECKING:
 
 
 def ansatz_decompose(
-        circuit: QuantumCircuit,
-        u: Gate,
-        params: list[list[float] | NDArray[np.float64]],
-        dims: list[int]
+    circuit: QuantumCircuit, u: Gate, params: list[list[float] | NDArray[np.float64]], dims: list[int]
 ) -> list[Gate]:
     counter = 0
     decomposition = []
@@ -29,7 +27,7 @@ def ansatz_decompose(
             decomposition.append(u)
 
         decomposition.append(
-                CustomOne(circuit, "CUo_SUD", counter, generic_sud(params[i], dims[counter]), dims[counter])
+            CustomOne(circuit, "CUo_SUD", counter, generic_sud(params[i], dims[counter]), dims[counter])
         )
 
         counter += 1
@@ -37,33 +35,21 @@ def ansatz_decompose(
     return decomposition
 
 
-def create_cu_instance(
-        circuit: QuantumCircuit,
-        P: list[float] | NDArray[np.float64],
-        dims: list[int]
-) -> list[Gate]:
-    params = params_splitter(P, dims)
+def create_cu_instance(circuit: QuantumCircuit, p: list[float] | NDArray[np.float64], dims: list[int]) -> list[Gate]:
+    params = params_splitter(p, dims)
     cu = Primitive.CUSTOM_PRIMITIVE
     return ansatz_decompose(circuit, cu, params, dims)
 
 
-def create_ms_instance(
-        circuit: QuantumCircuit,
-        P: list[float],
-        dims: list[int]
-) -> list[Gate]:
-    params = params_splitter(P, dims)
+def create_ms_instance(circuit: QuantumCircuit, p: list[float], dims: list[int]) -> list[Gate]:
+    params = params_splitter(p, dims)
     ms = gates.MS(circuit, "MS", [0, 1], [np.pi / 2], dims)  # ms_gate(np.pi / 2, dim)
 
     return ansatz_decompose(circuit, ms, params, dims)
 
 
-def create_ls_instance(
-        circuit: QuantumCircuit,
-        P: list[float] | NDArray[np.float64],
-        dims: list[int]
-) -> list[Gate]:
-    params = params_splitter(P, dims)
+def create_ls_instance(circuit: QuantumCircuit, p: list[float] | NDArray[np.float64], dims: list[int]) -> list[Gate]:
+    params = params_splitter(p, dims)
 
     if 2 in dims:
         theta = np.pi / 2

@@ -14,18 +14,17 @@ from mqt.qudits.compiler.twodit.variational_twodit_compilation.ansatz.ansatz_sol
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.opt import Optimizer
 
 if typing.TYPE_CHECKING:
-    from imaplib import Literal
 
     from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
 
 
 def variational_compile(
-        target: Gate,
-        tolerance: float,
-        ansatz_type: Literal[MS, LS, CU],
-        layers: int,
-        custom_primitive: Primitive | None = None
+    target: Gate,
+    tolerance: float,
+    ansatz_type: str,
+    layers: int,
+    custom_primitive: Primitive | None = None,
 ) -> QuantumCircuit:
     dim_0, dim_1 = itemgetter(*target.reference_lines)(target.parent_circuit.dimensions)
     Primitive.set_class_variables(custom_primitive)

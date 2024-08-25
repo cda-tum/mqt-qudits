@@ -17,20 +17,20 @@ if TYPE_CHECKING:
 
 class S(Gate):
     def __init__(
-            self,
-            circuit: QuantumCircuit,
-            name: str,
-            target_qudits: int,
-            dimensions: int,
-            controls: ControlData | None = None
+        self,
+        circuit: QuantumCircuit,
+        name: str,
+        target_qudits: int,
+        dimensions: int,
+        controls: ControlData | None = None,
     ) -> None:
         super().__init__(
-                circuit=circuit,
-                name=name,
-                gate_type=GateTypes.SINGLE,
-                target_qudits=target_qudits,
-                dimensions=dimensions,
-                control_set=controls,
+            circuit=circuit,
+            name=name,
+            gate_type=GateTypes.SINGLE,
+            target_qudits=target_qudits,
+            dimensions=dimensions,
+            control_set=controls,
         )
         self.qasm_tag = "s"
 
@@ -65,13 +65,10 @@ class S(Gate):
             return True
         if n % 2 == 0:
             return False
-        for i in range(3, int(n ** 0.5) + 1, 2):
-            if n % i == 0:
-                return False
-        return True
+        return all(n % i != 0 for i in range(3, int(n**0.5) + 1, 2))
 
     def validate_parameter(self) -> bool:
-        if (not self.is_prime(self._dimensions)):
+        if not self.is_prime(self._dimensions):
             msg = "S can be applied to prime dimensional qudits"
             raise InvalidQuditDimensionError(msg)
         return True

@@ -24,7 +24,7 @@ class R(Gate):
         target_qudits: int,
         parameters: list[int | float],
         dimensions: int,
-        controls: ControlData | None = None
+        controls: ControlData | None = None,
     ) -> None:
         super().__init__(
             circuit=circuit,
@@ -43,7 +43,7 @@ class R(Gate):
             self._params = parameters
         self.qasm_tag = "rxy"
 
-    def __array__(self) -> NDArray: # noqa: PLW3201
+    def __array__(self) -> NDArray:  # noqa: PLW3201
         dimension = self._dimensions
         theta = self.theta
         phi = self.phi
@@ -63,9 +63,9 @@ class R(Gate):
                 [self.lev_a, self.lev_b, "a"],
                 self._dimensions,
                 None,
-        ).to_matrix()
-                + np.cos(phi)
-                * GellMann(
+            ).to_matrix()
+            + np.cos(phi)
+            * GellMann(
                 self.parent_circuit,
                 "Gellman_s",
                 self.target_qudits,
@@ -75,7 +75,8 @@ class R(Gate):
             ).to_matrix()
         )
 
-    def levels_setter(self, la: int, lb: int) -> tuple[int, int]:
+    @staticmethod
+    def levels_setter(la: int, lb: int) -> tuple[int, int]:
         if la < lb:
             return la, lb
         return lb, la

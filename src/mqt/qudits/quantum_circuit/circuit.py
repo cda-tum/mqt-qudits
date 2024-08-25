@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import copy
 import locale
+import typing
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, TypeVar
+from typing import TYPE_CHECKING, Iterable, TypeVar
 
 import numpy as np
 
@@ -31,13 +32,15 @@ from .gates import (
 from .qasm import QASM
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from numpy.typing import NDArray
 
     from .components.extensions.controls import ControlData
     from .gate import Gate
 
 
-def is_not_none_or_empty(variable) -> bool:
+def is_not_none_or_empty(variable: Iterable) -> bool:
     return (variable is not None and hasattr(variable, "__iter__") and len(variable) > 0) or (
             isinstance(variable, np.ndarray) and variable.size > 0
     )
@@ -47,7 +50,7 @@ G = TypeVar("G", bound="Gate")
 
 
 def add_gate_decorator(func: Callable[..., G]) -> Callable[..., G]:
-    def gate_constructor(circ, *args: Any) -> G:
+    def gate_constructor(circ: QuantumCircuit, *args: typing.Any) -> G: # noqa: ANN401
         gate = func(circ, *args)
         circ.number_gates += 1
         circ.instructions.append(gate)
@@ -57,7 +60,7 @@ def add_gate_decorator(func: Callable[..., G]) -> Callable[..., G]:
 
 
 class QuantumCircuit:
-    qasm_to_gate_set_dict: dict[str, str] = {
+    qasm_to_gate_set_dict: typing.ClassVar = {
         "csum":    "csum",
         "cuone":   "cu_one",
         "cutwo":   "cu_two",
@@ -291,17 +294,17 @@ class QuantumCircuit:
         self.instructions[gate_index: gate_index + 1] = sequence
         self.number_gates = (self.number_gates - 1) + len(sequence)
 
-    def set_instructions(self, sequence: list[Gate]):
+    def set_instructions(self, sequence: list[Gate]) -> QuantumCircuit:
         self.instructions = []
         self.instructions += sequence
         self.number_gates = len(sequence)
         return self
 
-    def set_mapping(self, mappings: list[list]):
+    def set_mapping(self, mappings: list[list]) -> QuantumCircuit:
         self.mappings = mappings
         return self
 
-    def from_qasm(self, qasm_prog) -> None:
+    def from_qasm(self, qasm_prog: str) -> None:
         """Create a circuit from qasm text"""
         self.reset()
         qasm_parser = QASM().parse_ditqasm2_str(qasm_prog)
@@ -416,7 +419,7 @@ class QuantumCircuit:
         result = job.result()
         return result.get_state_vector()
 
-    def compile(self, backend_name) -> QuantumCircuit:
+    def compile(self, backend_name: str) -> QuantumCircuit:
         from mqt.qudits.compiler import QuditCompiler
         from mqt.qudits.simulation import MQTQuditProvider
 
@@ -426,7 +429,7 @@ class QuantumCircuit:
 
         return qudit_compiler.compile_O1(backend_ion, self)
 
-    def set_initial_state(self, state: np.ndarray, approx=False) -> QuantumCircuit:
+    def set_initial_state(self, state: np.ndarray, approx: bool = False) -> QuantumCircuit:
         from mqt.qudits.compiler.state_compilation.state_preparation import StatePrep
 
         preparation = StatePrep(self, state, approx)

@@ -8,7 +8,7 @@ from mqt.qudits.core.micro_dd import (
     create_decision_tree,
     cut_branches,
     dd_reduction,
-    getNodeContributions,
+    get_node_contributions,
     normalize,
     normalize_all,
     one,
@@ -109,7 +109,7 @@ class TestMicroDD(TestCase):
         data = [np.sqrt(1 - 0.02 - 0.01), np.sqrt(0.02), np.sqrt(0.005), np.sqrt(0.005)]
 
         root, _number_of_nodes = create_decision_tree(labels, cardinalities, data)
-        contributions = getNodeContributions(root, labels)
+        contributions = get_node_contributions(root, labels)
         cut_branches(contributions, 0.02)
         normalize_all(root, cardinalities)
 

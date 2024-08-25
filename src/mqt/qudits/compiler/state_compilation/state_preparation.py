@@ -10,7 +10,7 @@ from mqt.qudits.core.micro_dd import (
     cut_branches,
     dd_reduction_aggregation,
     dd_reduction_hashing,
-    getNodeContributions,
+    get_node_contributions,
     normalize_all,
 )
 from mqt.qudits.quantum_circuit.gates import R
@@ -20,9 +20,9 @@ if typing.TYPE_CHECKING:
 
     from mqt.qudits.quantum_circuit import QuantumCircuit
 
-    from ...core.micro_dd import TreeNode as TN
+    from ...core.micro_dd import TreeNode
 
-complex_array: NDArray[np.complex128]
+    complex_array = NDArray[np.complex128]
 
 
 def find_complex_number(x: complex, c: complex) -> complex:
@@ -35,7 +35,7 @@ def find_complex_number(x: complex, c: complex) -> complex:
     return complex(real_part, imag_part)
 
 
-def getAngles(from_: complex, to_: complex) -> tuple[float, float]:
+def get_angles(from_: complex, to_: complex) -> tuple[float, float]:
     theta = 2 * np.arctan2(abs(from_), abs(to_))
     phi = -(np.pi / 2 + np.angle(to_) - np.angle(from_))
 
@@ -43,55 +43,56 @@ def getAngles(from_: complex, to_: complex) -> tuple[float, float]:
 
 
 class Operation:
-    def __init__(self, controls: list[tuple[int, int]], qudit: int,
-                 levels: tuple[int, int], angles: tuple[float, float]) -> None:
+    def __init__(
+            self, controls: list[tuple[int, int]], qudit: int, levels: tuple[int, int], angles: tuple[float, float]
+    ) -> None:
         self._controls = controls
         self._qudit = qudit
         self._levels = levels
         self._angles = angles
 
-    def is_z(self):
+    def is_z(self) -> bool:
         return self._levels == (-1, 0)
 
     @property
-    def controls(self):
+    def controls(self) -> list[tuple[int, int]]:
         return self._controls
 
     @controls.setter
-    def controls(self, value) -> None:
+    def controls(self, value: list[tuple[int, int]]) -> None:
         self._controls = value
 
-    def get_control_nodes(self):
+    def get_control_nodes(self) -> list[int]:
         return [c[0] for c in self._controls]
 
-    def get_control_levels(self):
+    def get_control_levels(self) -> list[int]:
         return [c[1] for c in self._controls]
 
     @property
-    def qudit(self):
+    def qudit(self) -> int:
         return self._qudit
 
     @qudit.setter
-    def qudit(self, value) -> None:
+    def qudit(self, value: int) -> None:
         self._qudit = value
 
     @property
-    def levels(self):
+    def levels(self) -> tuple[int, int]:
         return self._levels
 
     @levels.setter
-    def levels(self, value) -> None:
+    def levels(self, value: tuple[int, int]) -> None:
         self._levels = value
 
-    def get_angles(self):
+    def get_angles(self) -> tuple[float, float]:
         return self._angles
 
     @property
-    def theta(self):
+    def theta(self) -> float:
         return self._angles[0]
 
     @property
-    def phi(self):
+    def phi(self) -> float:
         return self._angles[1]
 
     def __str__(self) -> str:
@@ -102,14 +103,14 @@ class Operation:
 
 
 class StatePrep:
-    def __init__(self, quantum_circuit: QuantumCircuit,
-                 state: NDArray[np.complex128], approx: bool = False) -> None:
+    def __init__(self, quantum_circuit: QuantumCircuit, state: NDArray[np.complex128], approx: bool = False) -> None:
         self.circuit = quantum_circuit
         self.state = state
         self.approximation = approx
 
-    def retrieve_local_sequence(self, fweight: complex,
-                                children: list[TN]) -> dict[tuple[int, int], tuple[float, float]]:
+    def retrieve_local_sequence(
+            self, fweight: complex, children: list[TreeNode]
+    ) -> dict[tuple[int, int], tuple[float, float]]:
         size = len(children)
         qudit = children[0].value
         aplog = {}
@@ -117,7 +118,7 @@ class StatePrep:
         coef = np.array([c.weight for c in children])
 
         for i in reversed(range(size - 1)):
-            a, p = getAngles(coef[i + 1], coef[i])
+            a, p = get_angles(coef[i + 1], coef[i])
             gate = R(self.circuit, "R", qudit, [i, i + 1, a, p], self.circuit.dimensions[qudit], None).to_matrix()
             coef = np.dot(gate, coef)
             aplog[i, i + 1] = (-a, p)
@@ -127,8 +128,15 @@ class StatePrep:
 
         return aplog
 
-    def synthesis(self, labels: list[int], cardinalities: list[int], node: TN, circuit_meta: list[Operation],
-                  controls: list[tuple[int, int]] | None = None, depth: int = 0) -> None:
+    def synthesis(
+            self,
+            labels: list[int],
+            cardinalities: list[int],
+            node: TreeNode,
+            circuit_meta: list[Operation],
+            controls: list[tuple[int, int]] | None = None,
+            depth: int = 0,
+    ) -> None:
         if controls is None:
             controls = []
         if node.terminal:
@@ -137,7 +145,7 @@ class StatePrep:
         rotations = self.retrieve_local_sequence(node.weight, node.children)
 
         for key in sorted(rotations.keys()):
-            circuit_meta.append(Operation(controls, labels[depth], key, rotations[key]))
+            circuit_meta.append(Operation(controls, labels[depth], key, rotations[key]))  # noqa: PERF401
 
         if not node.reduced:
             for i in range(cardinalities[depth]):
@@ -169,7 +177,7 @@ class StatePrep:
         decision_tree, _number_of_nodes = create_decision_tree(labels, cardinalities, final_state)
 
         if self.approximation:
-            contributions = getNodeContributions(decision_tree, labels)
+            contributions = get_node_contributions(decision_tree, labels)
             cut_branches(contributions, 0.01)
             normalize_all(decision_tree, cardinalities)
 

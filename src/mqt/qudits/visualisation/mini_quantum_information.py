@@ -12,10 +12,12 @@ from mqt.qudits.quantum_circuit.components.extensions.matrix_factory import from
 from .plot_information import state_labels
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from ..quantum_circuit import QuantumCircuit
 
 
-def get_density_matrix_from_counts(results, circuit: QuantumCircuit):
+def get_density_matrix_from_counts(results:  list[int] | NDArray[int], circuit: QuantumCircuit) -> NDArray:
     num_kets = reduce(operator.mul, circuit.dimensions)
     number_counts = Counter(results)
     probabilities = [(number_counts[num] / len(results)) for num in range(num_kets)]
@@ -27,7 +29,10 @@ def get_density_matrix_from_counts(results, circuit: QuantumCircuit):
     return density_matrix
 
 
-def partial_trace(rho: np.ndarray, qudits2keep: list[int] | np.ndarray, dims: list[int], optimize: bool = False):
+def partial_trace(rho: np.ndarray,
+                  qudits2keep: list[int] | np.ndarray,
+                  dims: list[int],
+                  optimize: bool = False) -> NDArray:
     """Calculate the partial trace
 
     p_a = Tr_b(p)

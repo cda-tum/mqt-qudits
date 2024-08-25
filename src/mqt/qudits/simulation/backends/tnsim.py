@@ -13,11 +13,13 @@ from .backendv2 import Backend
 from .stochastic_sim import stochastic_simulation
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from ...quantum_circuit import QuantumCircuit
 
 
 class TNSim(Backend):
-    def run(self, circuit: QuantumCircuit, **options: Any) -> Job:
+    def run(self, circuit: QuantumCircuit, **options: dict[str, Any]) -> Job:
         job = Job(self)
 
         self._options.update(options)
@@ -47,19 +49,19 @@ class TNSim(Backend):
         state_size = reduce(operator.mul, self.system_sizes, 1)
         return result.reshape(1, state_size)
 
-    def __init__(self, **fields: Any) -> None:
+    def __init__(self, **fields: dict[str, Any]) -> None:
         self.system_sizes = None
         self.circ_operations = None
         super().__init__(**fields)
 
     @staticmethod
-    def __apply_gate(qudit_edges, gate, operating_qudits) -> None:
+    def __apply_gate(qudit_edges: tn.Edge, gate: NDArray, operating_qudits: list[int]) -> None:
         op = tn.Node(gate)
         for i, bit in enumerate(operating_qudits):
             tn.connect(qudit_edges[bit], op[i])
             qudit_edges[bit] = op[i + len(operating_qudits)]
 
-    def __contract_circuit(self, system_sizes: list[int], operations: list[Gate]):
+    def __contract_circuit(self, system_sizes: list[int], operations: list[Gate]) -> tn.network_components.AbstractNode:
         all_nodes = []
 
         with tn.NodeCollection(all_nodes):

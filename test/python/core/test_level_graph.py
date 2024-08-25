@@ -178,7 +178,7 @@ class TestLevelGraph(TestCase):
         self.graph_1.set_qudits_index(0)
         self.graph_1.nodes[0]["phase_storage"] = 1.0
         self.graph_1.nodes[1]["phase_storage"] = 1.0
-        rzs = self.graph_1.get_VRz_gates()
+        rzs = self.graph_1.get_vrz_gates()
         assert len(rzs) == 2
         assert rzs[0].lev_a == 3
         assert rzs[1].lev_a == 2

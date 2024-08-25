@@ -23,7 +23,7 @@ class VirtRz(Gate):
         target_qudits: int,
         parameters: list[int | float],
         dimensions: int,
-        controls: ControlData | None = None
+        controls: ControlData | None = None,
     ) -> None:
         super().__init__(
             circuit=circuit,
@@ -31,7 +31,7 @@ class VirtRz(Gate):
             gate_type=GateTypes.SINGLE,
             target_qudits=target_qudits,
             dimensions=dimensions,
-            control_set=controls
+            control_set=controls,
         )
         if self.validate_parameter(parameters):
             self.lev_a, self.phi = parameters
@@ -39,7 +39,7 @@ class VirtRz(Gate):
             self._params = parameters
         self.qasm_tag = "virtrz"
 
-    def __array__(self) -> NDArray: # ruff: noqa: PLW3201
+    def __array__(self) -> NDArray:  #noqa: PLW3201
         dimension = self._dimensions
         theta = self.phi
         matrix = np.identity(dimension, dtype="complex")

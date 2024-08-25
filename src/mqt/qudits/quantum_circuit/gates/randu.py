@@ -19,20 +19,20 @@ from scipy.stats import unitary_group
 
 class RandU(Gate):
     def __init__(
-            self,
-            circuit: QuantumCircuit,
-            name: str,
-            target_qudits: list[int],
-            dimensions: list[int],
-            controls: ControlData | None = None
+        self,
+        circuit: QuantumCircuit,
+        name: str,
+        target_qudits: list[int],
+        dimensions: list[int],
+        controls: ControlData | None = None,
     ) -> None:
         super().__init__(
-                circuit=circuit,
-                name=name,
-                gate_type=GateTypes.MULTI,
-                target_qudits=target_qudits,
-                dimensions=dimensions,
-                control_set=controls,
+            circuit=circuit,
+            name=name,
+            gate_type=GateTypes.MULTI,
+            target_qudits=target_qudits,
+            dimensions=dimensions,
+            control_set=controls,
         )
         self.qasm_tag = "rdu"
 
@@ -40,5 +40,6 @@ class RandU(Gate):
         dim = reduce(operator.mul, self._dimensions)
         return unitary_group.rvs(dim)
 
-    def validate_parameter(self) -> bool:
+    @staticmethod
+    def validate_parameter() -> bool:
         return True

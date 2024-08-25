@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import operator
 from functools import reduce
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -10,14 +10,16 @@ from ..._qudits.misim import state_vector_simulation
 from ..jobs import Job, JobResult
 from ..noise_tools import NoiseModel
 from .backendv2 import Backend
-from .stochastic_sim import stochastic_simulation_misim
+from .stochastic_sim import stochastic_simulation
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from ...quantum_circuit import QuantumCircuit
 
 
 class MISim(Backend):
-    def run(self, circuit: QuantumCircuit, **options) -> Job:
+    def run(self, circuit: QuantumCircuit, **options: dict[str, Any]) -> Job:
         job = Job(self)
 
         self._options.update(options)
@@ -31,14 +33,14 @@ class MISim(Backend):
         if self.noise_model is not None:
             assert self.shots >= 50, "Number of shots should be above 50"
             job.set_result(
-                JobResult(state_vector=self.execute(circuit), counts=stochastic_simulation_misim(self, circuit))
+                    JobResult(state_vector=self.execute(circuit), counts=stochastic_simulation(self, circuit))
             )
         else:
             job.set_result(JobResult(state_vector=self.execute(circuit), counts=None))
 
         return job
 
-    def execute(self, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> np.ndarray:
+    def execute(self, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> NDArray:
         self.system_sizes = circuit.dimensions
         self.circ_operations = circuit.instructions
         if noise_model is None:
@@ -57,7 +59,7 @@ class MISim(Backend):
         state = np.transpose(state, axes_order)
         return state.reshape((1, state_size))
 
-    def __init__(self, **fields) -> None:
+    def __init__(self, **fields: dict[str, Any]) -> None:
         self.system_sizes = None
         self.circ_operations = None
         super().__init__(**fields)

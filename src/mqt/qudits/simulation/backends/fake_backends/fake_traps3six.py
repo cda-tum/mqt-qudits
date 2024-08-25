@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from ....core import LevelGraph
 from ...noise_tools import Noise, NoiseModel
@@ -23,7 +23,7 @@ class FakeIonTraps3Six(TNSim):
         name: str | None = None,
         online_date: datetime | None = None,
         backend_version: str | None = None,
-        **fields,
+        **fields: dict[str, Any],
     ) -> None:
         self._options = self._default_options()
         self._provider = provider

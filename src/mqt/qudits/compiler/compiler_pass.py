@@ -10,9 +10,10 @@ if TYPE_CHECKING:
 
 
 class CompilerPass(ABC):
-    def __init__(self, backend: Backend, **kwargs) -> None:
+    def __init__(self, backend: Backend) -> None:
         self.backend = backend
 
+    @abstractmethod
     def transpile_gate(self, gate: Gate) -> list[Gate]:
         pass
 

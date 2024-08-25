@@ -29,7 +29,7 @@ class TestQrDecomp(TestCase):
 
         htest = circuit_3.h(0)
 
-        qr = QrDecomp(htest, graph_1, Z_prop=False, not_stand_alone=False)
+        qr = QrDecomp(htest, graph_1, z_prop=False, not_stand_alone=False)
         # gate, graph_orig, Z_prop=False, not_stand_alone=True
 
         decomp, _algorithmic_cost, _total_cost = qr.execute()

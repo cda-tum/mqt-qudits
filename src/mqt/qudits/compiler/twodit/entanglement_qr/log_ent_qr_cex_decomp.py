@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import gc
@@ -22,14 +23,16 @@ if typing.TYPE_CHECKING:
     from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
     from mqt.qudits.simulation.backends.backendv2 import Backend
-    complex_array: NDArray[np.complex128]
+
+    complex_array = NDArray[np.complex128]
 
 
 class LogEntQRCEXPass(CompilerPass):
     def __init__(self, backend: Backend) -> None:
         super().__init__(backend)
 
-    def transpile_gate(self, gate: Gate) -> list[Gate]:
+    @staticmethod
+    def transpile_gate(gate: Gate) -> list[Gate]:
         eqr = EntangledQRCEX(gate)
         decomp, _countcr, _countpsw = eqr.execute()
         return decomp
@@ -114,10 +117,7 @@ class EntangledQRCEX:
                     decomp += sequence_rotation_involved
 
         diag_u = np.diag(u_)
-        args_of_diag = []
-
-        for i in range(matrix_dimension):
-            args_of_diag.append(round(np.angle(diag_u[i]), 6))
+        args_of_diag = [round(np.angle(diag_u[i]), 6) for i in range(matrix_dimension)]
 
         phase_equations = np.zeros((matrix_dimension, matrix_dimension - 1))
 
@@ -136,7 +136,7 @@ class EntangledQRCEX:
         pseudo_diag = mml(phases_t, np.array(args_of_diag))
 
         if det(pseudo_inv) == 0:
-            raise Exception
+            raise RuntimeError
 
         phases = solve(pseudo_inv, pseudo_diag)
 

@@ -15,14 +15,16 @@ class ZRemovalOptPass(CompilerPass):
     def __init__(self, backend: Backend) -> None:
         super().__init__(backend)
 
-    def transpile_gate(self, gate: Gate) -> Gate:
+    @staticmethod
+    def transpile_gate(gate: Gate) -> Gate:
         return gate
 
     def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:
         circuit = self.remove_initial_rz(circuit)
         return self.remove_trailing_rz_sequence(circuit)
 
-    def remove_rz_gates(self, original_circuit: QuantumCircuit, reverse: bool = False) -> QuantumCircuit:
+    @staticmethod
+    def remove_rz_gates(original_circuit: QuantumCircuit, reverse: bool = False) -> QuantumCircuit:
         indices_to_remove = []
         circuit = original_circuit.copy()
         new_instructions = copy.deepcopy(circuit.instructions)

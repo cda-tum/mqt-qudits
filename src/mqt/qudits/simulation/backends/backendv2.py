@@ -19,13 +19,13 @@ class Backend(ABC):
         return 2
 
     def __init__(
-        self,
-        provider: Provider | None = None,
-        name: str | None = None,
-        description: str | None = None,
-        online_date: datetime | None = None,
-        backend_version: str | None = None,
-        **fields: Any,
+            self,
+            provider: Provider | None = None,
+            name: str | None = None,
+            description: str | None = None,
+            online_date: datetime | None = None,
+            backend_version: str | None = None,
+            **fields: dict[str, Any],
     ) -> None:
         self._options = self._default_options()
         self._provider = provider
@@ -67,10 +67,11 @@ class Backend(ABC):
     def energy_level_graphs(self) -> list[LevelGraph, LevelGraph]:
         raise NotImplementedError
 
-    def _default_options(self) -> dict[int, bool]:
+    @staticmethod
+    def _default_options() -> dict[int, bool]:
         return {"shots": 50, "memory": False}
 
-    def set_options(self, **fields) -> None:
+    def set_options(self, **fields: dict[str, Any]) -> None:
         for field in fields:
             if not hasattr(self._options, field):
                 msg = f"Options field '{field}' is not valid for this backend"
@@ -86,5 +87,5 @@ class Backend(ABC):
         return self._provider
 
     @abstractmethod
-    def run(self, circuit: QuantumCircuit, **options) -> Job:
+    def run(self, circuit: QuantumCircuit, **options: dict[str, Any]) -> Job:
         pass

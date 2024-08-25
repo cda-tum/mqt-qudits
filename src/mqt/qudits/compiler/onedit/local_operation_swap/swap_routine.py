@@ -16,6 +16,7 @@ from ...compilation_minitools import (
 
 if TYPE_CHECKING:
     from ....core import LevelGraph
+    from ....quantum_circuit.gates import R
 
 
 def find_logic_from_phys(lev_a: int, lev_b: int, graph: LevelGraph) -> list[int]:
@@ -76,12 +77,12 @@ def graph_rule_ongate(gate: gates.R, graph: LevelGraph) -> gates.R:
         new_g_phi += graph.nodes[logic_nodes[1]]["phase_storage"]
 
     return gates.R(
-        gate.parent_circuit, "R", gate.target_qudits, [g_lev_a, g_lev_b, gate.theta, new_g_phi], gate._dimensions
+            gate.parent_circuit, "R", gate.target_qudits, [g_lev_a, g_lev_b, gate.theta, new_g_phi], gate.dimensions
     )
     # R(gate_matrix.theta, new_g_phi, g_lev_a, g_lev_b, gate_matrix.dimension)
 
 
-def gate_chain_condition(previous_gates, current):
+def gate_chain_condition(previous_gates: R, current: R) -> R:
     if not previous_gates:
         return current
 
@@ -110,17 +111,18 @@ def gate_chain_condition(previous_gates, current):
         pass
 
     return gates.R(
-        current.parent_circuit,
-        "R",
-        current.target_qudits,
-        [current.lev_a, current.lev_b, theta, phi],
-        current._dimensions,
+            current.parent_circuit,
+            "R",
+            current.target_qudits,
+            [current.lev_a, current.lev_b, theta, phi],
+            current.dimensions,
     )  # R(theta, phi, current.lev_a, current.lev_b, current.dimension)
 
 
-def route_states2rotate_basic(gate, orig_placement):
+def route_states2rotate_basic(gate: R,
+                              orig_placement: LevelGraph) -> tuple[float, list[R], LevelGraph]:
     placement = orig_placement
-    dimension = gate._dimensions
+    dimension = gate.dimensions
 
     cost_of_pi_pulses = 0
     pi_pulses_routing = []
@@ -137,7 +139,7 @@ def route_states2rotate_basic(gate, orig_placement):
         phy_n_ip1 = placement.nodes[path[i + 1]]["lpmap"]
 
         pi_gate_phy = gates.R(
-            gate.parent_circuit, "R", gate.target_qudits, [phy_n_i, phy_n_ip1, np.pi, -np.pi / 2], dimension
+                gate.parent_circuit, "R", gate.target_qudits, [phy_n_i, phy_n_ip1, np.pi, -np.pi / 2], dimension
         )  # R(np.pi, -np.pi / 2, phy_n_i, phy_n_ip1, dimension)
 
         pi_gate_phy = gate_chain_condition(pi_pulses_routing, pi_gate_phy)
@@ -145,11 +147,11 @@ def route_states2rotate_basic(gate, orig_placement):
 
         # -- COSTING based only on the position of the pi pulse and angle phase is neglected ----------------
         pi_gate_logic = gates.R(
-            gate.parent_circuit,
-            "R",
-            gate.target_qudits,
-            [path[i], path[i + 1], pi_gate_phy.theta, pi_gate_phy.phi / 2],
-            dimension,
+                gate.parent_circuit,
+                "R",
+                gate.target_qudits,
+                [path[i], path[i + 1], pi_gate_phy.theta, pi_gate_phy.phi / 2],
+                dimension,
         )  # R(pi_gate_phy.theta, pi_gate_phy.phi, path[i], path[i + 1], dimension)
         cost_of_pi_pulses += rotation_cost_calc(pi_gate_logic, placement)
         # -----------------------------------------------------------------------------------------------------
@@ -163,7 +165,9 @@ def route_states2rotate_basic(gate, orig_placement):
     return cost_of_pi_pulses, pi_pulses_routing, placement
 
 
-def cost_calculator(gate, placement, non_zeros):
+def cost_calculator(gate: R,
+                    placement: LevelGraph,
+                    non_zeros: int) -> tuple[float, list[R], LevelGraph, float, float]:
     cost_of_pi_pulses, pi_pulses_routing, new_placement = route_states2rotate_basic(gate, placement)
     gate_cost = rotation_cost_calc(gate, new_placement)
     total_costing = (gate_cost + cost_of_pi_pulses) * non_zeros

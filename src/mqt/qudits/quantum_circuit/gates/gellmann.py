@@ -26,7 +26,7 @@ class GellMann(Gate):
         target_qudits: int,
         parameters: list,
         dimensions: int,
-        controls: ControlData | None = None
+        controls: ControlData | None = None,
     ) -> None:
         super().__init__(
             circuit=circuit,
@@ -41,7 +41,7 @@ class GellMann(Gate):
             self._params = parameters
         self.qasm_tag = "gell"
 
-    def __array__(self) -> NDArray: # noqa: PLW3201
+    def __array__(self) -> NDArray:  # noqa: PLW3201
         d = self._dimensions
         matrix = np.zeros((d, d), dtype=complex)
 
@@ -52,27 +52,28 @@ class GellMann(Gate):
             matrix[self.lev_a, self.lev_b] -= 1j
             matrix[self.lev_b, self.lev_a] += 1j
         else:
-            E = np.zeros((d, d), dtype=complex)
+            m = np.zeros((d, d), dtype=complex)
 
             for j_ind in range(self.lev_b):
-                E[j_ind, j_ind] += 1
+                m[j_ind, j_ind] += 1
 
-            E[self.lev_b, self.lev_b] -= self.lev_b
+            m[self.lev_b, self.lev_b] -= self.lev_b
 
             coeff = np.sqrt(2 / (self.lev_b * (self.lev_b + 1)))
 
-            E = coeff * E
+            m = coeff * m
 
-            matrix = E
+            matrix = m
 
         return matrix
 
-    def validate_parameter(self, parameter: list[int, int, str]) -> bool:
+    @staticmethod
+    def validate_parameter(parameter: list[int, int, str]) -> bool:
         assert isinstance(parameter[0], int)
         assert isinstance(parameter[1], int)
         assert isinstance(parameter[2], str)
         assert (
-                0 <= parameter[0] < parameter[1]
+            0 <= parameter[0] < parameter[1]
         ), f"lev_a and lev_b are out of range or in wrong order: {parameter[0]}, {parameter[1]}"
         assert isinstance(parameter[2], str), "type parameter should be a string"
 

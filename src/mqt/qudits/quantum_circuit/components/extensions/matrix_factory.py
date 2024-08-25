@@ -55,7 +55,7 @@ class MatrixFactory:
             dimensions: int | list[int],
             ref_lines: list[int],
             controls: list[int] | None = None,
-            controls_levels: list[int] | None = None
+            controls_levels: list[int] | None = None,
     ) -> NDArray[np.complex128]:
         # dimensions = list(reversed(dimensions))
         # Convert qudits_applied and dimensions to lists if they are not already
@@ -78,33 +78,18 @@ class MatrixFactory:
             rest_of_indices = set(ref_lines) - set(qudits_applied)
         slide_indices_rest = [q - min(ref_lines) for q in rest_of_indices]
 
-        single_site_logics = []
-        og_states_space = []
-        og_state_to_index = {}
+        single_site_logics = (
+            [list(range(dimensions[qudits_applied[0]]))] if len(qudits_applied) == 1
+            else [list(range(d)) for d in operator.itemgetter(*slide_indices_qudits_a)(dimensions)]
+        )
 
-        if len(qudits_applied) == 1:
-            single_site_logics.append(list(range(dimensions[qudits_applied[0]])))
-        else:
-            for d in list(operator.itemgetter(*slide_indices_qudits_a)(dimensions)):
-                single_site_logics.append(list(range(d)))
+        og_states_space = [list(element) for element in itertools.product(*single_site_logics)]
 
-        for element in itertools.product(*single_site_logics):
-            og_states_space.append(list(element))
+        og_state_to_index = {tuple(state): i for i, state in enumerate(og_states_space)}
 
-        for i in range(len(og_states_space)):
-            og_state_to_index[tuple(og_states_space[i])] = i
-
-        global_single_site_logics = []
-        global_states_space = []
-        global_index_to_state = {}
-        for d in dimensions:
-            global_single_site_logics.append(list(range(d)))
-
-        for element in itertools.product(*global_single_site_logics):
-            global_states_space.append(list(element))
-
-        for i in range(len(global_states_space)):
-            global_index_to_state[i] = global_states_space[i]
+        global_single_site_logics = [list(range(d)) for d in dimensions]
+        global_states_space = [list(element) for element in itertools.product(*global_single_site_logics)]
+        global_index_to_state = dict(enumerate(global_states_space))
 
         result = np.identity(reduce(operator.mul, dimensions, 1), dtype="complex")
 
@@ -116,20 +101,21 @@ class MatrixFactory:
                     if isinstance(extract_r, int):
                         extract_r = [extract_r]
                         extract_c = [extract_c]
-                    if list(extract_r) == controls_levels and extract_r == extract_c:
-                        if not rest_of_indices or operator.itemgetter(*slide_indices_rest)(
-                                global_index_to_state[r]
-                        ) == operator.itemgetter(*slide_indices_rest)(global_index_to_state[c]):
-                            og_row_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[r])
-                            og_col_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[c])
-                            if isinstance(og_row_key, int):
-                                og_row_key = (og_row_key,)
-                            if isinstance(og_col_key, int):
-                                og_col_key = (og_col_key,)
-                            matrix_row = og_state_to_index[tuple(og_row_key)]
-                            matrix_col = og_state_to_index[tuple(og_col_key)]
-                            value = matrix[matrix_row, matrix_col]
-                            result[r, c] = value
+                    if (list(extract_r) == controls_levels and
+                            extract_r == extract_c and
+                            (not rest_of_indices or
+                             operator.itemgetter(*slide_indices_rest)(global_index_to_state[r]) ==
+                             operator.itemgetter(*slide_indices_rest)(global_index_to_state[c]))):
+                        og_row_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[r])
+                        og_col_key = operator.itemgetter(*slide_indices_qudits_a)(global_index_to_state[c])
+                        if isinstance(og_row_key, int):
+                            og_row_key = (og_row_key,)
+                        if isinstance(og_col_key, int):
+                            og_col_key = (og_col_key,)
+                        matrix_row = og_state_to_index[tuple(og_row_key)]
+                        matrix_col = og_state_to_index[tuple(og_col_key)]
+                        value = matrix[matrix_row, matrix_col]
+                        result[r, c] = value
 
                 elif not rest_of_indices or operator.itemgetter(*slide_indices_rest)(
                         global_index_to_state[r]
@@ -149,10 +135,7 @@ class MatrixFactory:
 
     @classmethod
     def wrap_in_identities(
-            cls,
-            matrix: NDArray[np.complex128],
-            indices: list[int],
-            sizes: list[int]
+            cls, matrix: NDArray[np.complex128], indices: list[int], sizes: list[int]
     ) -> NDArray[np.complex128]:
         indices.sort()
         if any(index >= len(sizes) for index in indices):
@@ -172,8 +155,7 @@ class MatrixFactory:
         return result
 
 
-def from_dirac_to_basis(vec: list[int],
-                        d: list[int] | int) -> list[complex]:
+def from_dirac_to_basis(vec: list[int], d: list[int] | int) -> list[complex]:
     # |00> -> [1,0,...,0] -> len() == other_size**2
     if isinstance(d, int):
         d = [d] * len(vec)
@@ -199,9 +181,7 @@ def calculate_q0_q1(lev: int, dim: int) -> tuple[int, int]:
 
 
 def insert_at(
-        big_arr: NDArray[np.complex128],
-        pos: tuple[int, int],
-        to_insert_arr: NDArray[np.complex128]
+        big_arr: NDArray[np.complex128], pos: tuple[int, int], to_insert_arr: NDArray[np.complex128]
 ) -> NDArray[np.complex128]:
     """Quite a forceful way of embedding a parameters into big_arr."""
     x1 = pos[0]

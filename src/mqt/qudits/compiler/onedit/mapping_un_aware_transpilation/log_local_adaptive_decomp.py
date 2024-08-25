@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from ....core import NAryTree
-from ....exceptions import SequenceFoundException
+from ....exceptions import SequenceFoundError
 from ....quantum_circuit import gates
 from ....quantum_circuit.components.extensions.gate_types import GateTypes
 from ... import CompilerPass
@@ -29,17 +29,17 @@ class LogLocAdaPass(CompilerPass):
     def transpile_gate(self, gate: Gate) -> list[Gate]:
         energy_graph_i = self.backend.energy_level_graphs[gate.target_qudits]
 
-        QR = QrDecomp(gate, energy_graph_i)
+        qr = QrDecomp(gate, energy_graph_i)
 
-        _decomp, algorithmic_cost, total_cost = QR.execute()
+        _decomp, algorithmic_cost, total_cost = qr.execute()
 
-        Adaptive = LogAdaptiveDecomposition(gate, energy_graph_i, (algorithmic_cost, total_cost), gate._dimensions)
+        adaptive = LogAdaptiveDecomposition(gate, energy_graph_i, (algorithmic_cost, total_cost), gate.dimensions)
 
         (
             matrices_decomposed,
             _best_cost,
             self.backend.energy_level_graphs[gate.target_qudits],
-        ) = Adaptive.execute()
+        ) = adaptive.execute()
 
         return matrices_decomposed
 
@@ -59,9 +59,14 @@ class LogLocAdaPass(CompilerPass):
 
 
 class LogAdaptiveDecomposition:
-    def __init__(self, gate: Gate, graph_orig: LevelGraph, cost_limit: tuple[float, float] = (0, 0),
-                 dimension: int = -1,
-                 Z_prop: bool = False) -> None:
+    def __init__(
+        self,
+        gate: Gate,
+        graph_orig: LevelGraph,
+        cost_limit: tuple[float, float] = (0, 0),
+        dimension: int = -1,
+        z_prop: bool = False,
+    ) -> None:
         self.circuit: QuantumCircuit = gate.parent_circuit
         self.U: np.ndarray = gate.to_matrix(identities=0)
         self.qudit_index: int = gate.target_qudits
@@ -69,7 +74,7 @@ class LogAdaptiveDecomposition:
         self.graph.phase_storing_setup()
         self.cost_limit: tuple[float, float] = cost_limit
         self.dimension: int = dimension
-        self.phase_propagation: bool = Z_prop
+        self.phase_propagation: bool = z_prop
         self.TREE: NAryTree = NAryTree()
 
     def execute(self) -> tuple[list[gates.R | gates.VirtRz], tuple[int, int], LevelGraph]:
@@ -86,8 +91,8 @@ class LogAdaptiveDecomposition:
             [],
         )
         try:
-            self.DFS(self.TREE.root)
-        except SequenceFoundException:
+            self.dfs(self.TREE.root)
+        except SequenceFoundError:
             pass
         finally:
             matrices_decomposed, best_cost, final_graph = self.TREE.retrieve_decomposition(self.TREE.root)
@@ -96,15 +101,15 @@ class LogAdaptiveDecomposition:
                 matrices_decomposed, final_graph = self.z_extraction(
                     matrices_decomposed, final_graph, self.phase_propagation
                 )
-            else:
-                pass
+            # else:
+            #    pass
 
             self.TREE.print_tree(self.TREE.root, "TREE: ")
 
-            return matrices_decomposed, best_cost, final_graph
+            return matrices_decomposed, best_cost, final_graph # noqa: B012
 
-    def z_extraction(self, decomposition: list[TreeNode],
-                     placement: LevelGraph, phase_propagation: bool) -> tuple[list[Gate], LevelGraph]:
+    def z_extraction(
+        self, decomposition: list[TreeNode], placement: LevelGraph) -> tuple[list[Gate], LevelGraph]: # phase_propagation: bool
         matrices = []
 
         for d in decomposition[1:]:
@@ -112,54 +117,54 @@ class LogAdaptiveDecomposition:
             matrices += d.PI_PULSES
             matrices = [*matrices, d.rotation]
 
-        U_ = decomposition[-1].U_of_level  # take U of last elaboration which should be the diagonal matrix found
+        u_ = decomposition[-1].u_of_level  # take U of last elaboration which should be the diagonal matrix found
 
         # check if close to diagonal
-        Ucopy = U_.copy()
+        ucopy = u_.copy()
 
         # check if the diagonal is made only of noise
-        valid_diag = any(abs(np.diag(Ucopy)) > 1.0e-4)  # > 1.0e-4
+        valid_diag = any(abs(np.diag(ucopy)) > 1.0e-4)  # > 1.0e-4
 
         # are the non diagonal entries zeroed-out
-        filtered_Ucopy = abs(Ucopy) > 1.0e-4
-        np.fill_diagonal(filtered_Ucopy, 0)
+        filtered_ucopy = abs(ucopy) > 1.0e-4
+        np.fill_diagonal(filtered_ucopy, 0)
 
-        not_diag = filtered_Ucopy.any()
+        not_diag = filtered_ucopy.any()
 
         if not_diag or not valid_diag:  # if is diagonal enough then somehow signal end of algorithm
-            msg = "Matrix isn't close to diagonal!"
-            raise Exception(msg)
-        diag_U = np.diag(U_)
-        dimension = U_.shape[0]
+            print("Matrix isn't close to diagonal!")
+            raise RuntimeError
+        diag_u = np.diag(u_)
+        dimension = u_.shape[0]
 
         for i in range(dimension):
-            if abs(np.angle(diag_U[i])) > 1.0e-4:
+            if abs(np.angle(diag_u[i])) > 1.0e-4:
                 phase_gate = gates.VirtRz(
-                    self.circuit, "VRz", self.qudit_index, [i, np.angle(diag_U[i])], self.dimension
+                    self.circuit, "VRz", self.qudit_index, [i, np.angle(diag_u[i])], self.dimension
                 )  # old version: VirtRz(np.angle(diag_U[i]), phy_n_i, dimension)
-                U_ = phase_gate.to_matrix(identities=0) @ U_
+                u_ = phase_gate.to_matrix(identities=0) @ u_
                 matrices.append(phase_gate)
 
         return matrices, placement
 
-    def DFS(self, current_root: TreeNode, level: int = 0) -> None:
+    def dfs(self, current_root: TreeNode, level: int = 0) -> None:
         # check if close to diagonal
-        Ucopy = current_root.U_of_level.copy()
+        ucopy = current_root.u_of_level.copy()
 
         # is the diagonal noisy?
-        valid_diag = any(abs(np.diag(Ucopy)) > 1.0e-4)
+        valid_diag = any(abs(np.diag(ucopy)) > 1.0e-4)
 
         # are the non diagonal entries zeroed-out?
-        filtered_Ucopy = abs(Ucopy) > 1.0e-4
-        np.fill_diagonal(filtered_Ucopy, 0)
+        filtered_ucopy = abs(ucopy) > 1.0e-4
+        np.fill_diagonal(filtered_ucopy, 0)
 
-        not_diag = filtered_Ucopy.any()
+        not_diag = filtered_ucopy.any()
 
         # if is diagonal enough then somehow signal end of algorithm
         if (not not_diag) and valid_diag:
             current_root.finished = True
 
-            raise SequenceFoundException(current_root.key)
+            raise SequenceFoundError(current_root.key)
 
         ################################################
         ###############
@@ -167,22 +172,22 @@ class LogAdaptiveDecomposition:
 
         # BEGIN SEARCH
 
-        U_ = current_root.U_of_level
+        u_ = current_root.u_of_level
 
-        dimension = U_.shape[0]
+        dimension = u_.shape[0]
 
         for c in range(dimension):
             for r in range(c, dimension):
                 for r2 in range(r + 1, dimension):
-                    if abs(U_[r2, c]) > 1.0e-8 and (abs(U_[r, c]) > 1.0e-18 or abs(U_[r, c]) == 0):
-                        theta = 2 * np.arctan2(abs(U_[r2, c]), abs(U_[r, c]))
-                        phi = -(np.pi / 2 + np.angle(U_[r, c]) - np.angle(U_[r2, c]))
+                    if abs(u_[r2, c]) > 1.0e-8 and (abs(u_[r, c]) > 1.0e-18 or abs(u_[r, c]) == 0):
+                        theta = 2 * np.arctan2(abs(u_[r2, c]), abs(u_[r, c]))
+                        phi = -(np.pi / 2 + np.angle(u_[r, c]) - np.angle(u_[r2, c]))
 
                         rotation_involved = gates.R(
                             self.circuit, "R", self.qudit_index, [r, r2, theta, phi], self.dimension
                         )  # R(theta, phi, r, r2, dimension)
 
-                        U_temp = rotation_involved.to_matrix(identities=0) @ U_  # matmul(rotation_involved.matrix, U_)
+                        u_temp = rotation_involved.to_matrix(identities=0) @ u_  # matmul(rotation_involved.matrix, U_)
 
                         decomp_next_step_cost = rotation_involved.cost + current_root.current_decomp_cost
 
@@ -197,7 +202,7 @@ class LogAdaptiveDecomposition:
                             current_root.add(
                                 new_key,
                                 rotation_involved,
-                                U_temp,
+                                u_temp,
                                 None,  # new_placement,
                                 0,  # next_step_cost,
                                 decomp_next_step_cost,
@@ -208,7 +213,7 @@ class LogAdaptiveDecomposition:
         # ===============CONTINUE SEARCH ON CHILDREN========================================
         if current_root.children is not None:
             for child in current_root.children:
-                self.DFS(child, level + 1)
+                self.dfs(child, level + 1)
         # ===================================================================================
 
         # END OF RECURSION#

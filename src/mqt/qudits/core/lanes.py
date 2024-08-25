@@ -1,18 +1,23 @@
 from __future__ import annotations
 
 import operator
+import typing
 
 from mqt.qudits.quantum_circuit.components.extensions.gate_types import GateTypes
 
+if typing.TYPE_CHECKING:
+    from mqt.qudits.quantum_circuit import QuantumCircuit
+    from mqt.qudits.quantum_circuit.gate import Gate
+
 
 class Lanes:
-    def __init__(self, circuit) -> None:
-        self.fast_lookup = None
-        self.consecutive_view = None
-        self.circuit = circuit
-        self.instructions = circuit.instructions
+    def __init__(self, circuit: QuantumCircuit) -> None:
+        self.fast_lookup: dict[Gate, tuple[int, int, int]] = None
+        self.consecutive_view: dict[int, list[list[Gate]]] = None
+        self.circuit: QuantumCircuit = circuit
+        self.instructions: list[Gate] = circuit.instructions
         self.pre_process_ops()
-        self.index_dict = self.create_lanes()
+        self.index_dict: dict[int, list[Gate]] = self.create_lanes()
 
     def pre_process_ops(self) -> None:
         gates = []
@@ -26,7 +31,7 @@ class Lanes:
                 gates.append((entanglement_counter, gate))
         self.instructions = gates
 
-    def create_lanes(self):
+    def create_lanes(self) -> dict[int, list[Gate]]:
         self.index_dict = {}
         for gate_tuple in self.instructions:
             gate = gate_tuple[1]
@@ -45,7 +50,7 @@ class Lanes:
         self.consecutive_view = self.find_consecutive_singles()
         return self.index_dict
 
-    def extract_instructions(self):
+    def extract_instructions(self) -> list[Gate]:
         combined_list = []
         seen_ids = set()
 
@@ -64,14 +69,10 @@ class Lanes:
 
         return self.instructions
 
-    def extract_lane(self, qudit_line):
-        lane_gates = []
-        for gate_tuple in self.index_dict[qudit_line]:
-            lane_gates.append(gate_tuple[1])
+    def extract_lane(self, qudit_line: int) -> list[Gate]:
+        return [gate_tuple[1] for gate_tuple in self.index_dict[qudit_line]]
 
-        return lane_gates
-
-    def find_consecutive_singles(self, gates=None):
+    def find_consecutive_singles(self, gates: list[Gate] | None = None) -> dict[int, list[list[Gate]]]:
         if gates is None:
             gates = self.instructions
         from collections import defaultdict
@@ -104,7 +105,7 @@ class Lanes:
 
         return consecutive_groups
 
-    def replace_gates_in_lane(self, line, start_index, end_index, new_gate) -> None:
+    def replace_gates_in_lane(self, line: int, start_index: int, end_index: int, new_gate: Gate) -> None:
         # Find the list associated with the line
         if line in self.index_dict:
             gates_of_line = self.index_dict[line]
@@ -113,10 +114,7 @@ class Lanes:
 
         # Remove objects within the specified interval [start_index, end_index]
         ordering_id = gates_of_line[start_index][0]
-        objects_to_remove = []
-        for i in range(start_index, end_index + 1):
-            if i < len(gates_of_line):
-                objects_to_remove.append(gates_of_line[i])
+        objects_to_remove = [gates_of_line[i] for i in range(start_index, min(end_index + 1, len(gates_of_line)))]
 
         for obj in objects_to_remove:
             gates_of_line.remove(obj)
@@ -124,6 +122,6 @@ class Lanes:
         # Add new_gate at the start_index
         gates_of_line.insert(start_index, (ordering_id, new_gate))
 
-    def next_is_local(self, gate):
+    def next_is_local(self, gate: Gate) -> bool:
         line_number, group_number, gate_number = self.fast_lookup.get(gate)
         return len(self.consecutive_view[line_number][group_number]) - 1 != gate_number

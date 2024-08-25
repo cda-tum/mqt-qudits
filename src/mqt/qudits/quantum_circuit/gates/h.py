@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import itertools
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -22,7 +22,7 @@ class H(Gate):
         name: str,
         target_qudits: int,
         dimensions: int,
-        controls: ControlData | None = None
+        controls: ControlData | None = None,
     ) -> None:
         super().__init__(
             circuit=circuit,
@@ -34,7 +34,7 @@ class H(Gate):
         )
         self.qasm_tag = "h"
 
-    def __array__(self) -> NDArray: # noqa: PLW3201
+    def __array__(self) -> NDArray:  # noqa: PLW3201
         matrix = np.zeros((self._dimensions, self._dimensions), dtype="complex")
         for e0, e1 in itertools.product(range(self._dimensions), repeat=2):
             omega = np.mod(2 / self._dimensions * (e0 * e1), 2)
@@ -47,5 +47,6 @@ class H(Gate):
             matrix += omega * np.outer(array0, array1)
         return matrix * (1 / np.sqrt(self._dimensions))
 
-    def validate_parameter(self, parameter: Any | None = None) -> bool:
+    @staticmethod
+    def validate_parameter() -> bool:
         return True
