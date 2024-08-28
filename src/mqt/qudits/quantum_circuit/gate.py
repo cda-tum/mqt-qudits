@@ -9,17 +9,13 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from mqt.qudits.quantum_circuit.components.extensions.matrix_factory import MatrixFactory
-
 from ..exceptions import CircuitError
 from .components.extensions.controls import ControlData
-from .components.extensions.gate_types import GateTypes
 
 if TYPE_CHECKING:
-    import enum
-
     from numpy.typing import NDArray
-
     from .circuit import QuantumCircuit
+    from .components.extensions.gate_types import GateTypes
 
 
 class Instruction(ABC):
@@ -32,16 +28,15 @@ class Gate(Instruction):
     """Unitary gate_matrix."""
 
     def __init__(
-        self,
-        circuit: QuantumCircuit,
-        name: str,
-        gate_type: enum,
-        target_qudits: list[int] | int,
-        dimensions: list[int] | int,
-        params: list | NDArray | None = None,
-        control_set: ControlData | None = None,
-        label: str | None = None,
-    ) -> None:
+            self,
+            circuit: QuantumCircuit,
+            name: str,
+            gate_type: GateTypes,
+            target_qudits: list[int] | int,
+            dimensions: list[int] | int,
+            params: list | NDArray | None = None,
+            control_set: ControlData | None = None,
+            label: str | None = None) -> None:
         self.dagger = False
         self.parent_circuit = circuit
         self._name = name
@@ -100,7 +95,7 @@ class Gate(Instruction):
         # AT THE MOMENT WE SUPPORT CONTROL OF SINGLE QUDIT GATES
         assert self.gate_type == GateTypes.SINGLE
         if len(indices) > self.parent_circuit.num_qudits or any(
-            idx >= self.parent_circuit.num_qudits for idx in indices
+                idx >= self.parent_circuit.num_qudits for idx in indices
         ):
             msg = "Indices or Number of Controls is beyond the Quantum Circuit Size"
             raise IndexError(msg)
@@ -214,10 +209,10 @@ class Gate(Instruction):
     @property
     def control_info(self) -> dict:
         return {
-            "target": self.target_qudits,
+            "target":           self.target_qudits,
             "dimensions_slice": self._dimensions,
-            "params": self._params,
-            "controls": self._controls_data,
+            "params":           self._params,
+            "controls":         self._controls_data,
         }
 
     def return_custom_data(self) -> str:

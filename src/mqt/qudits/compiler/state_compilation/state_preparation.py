@@ -6,7 +6,8 @@ import typing
 import numpy as np
 
 from mqt.qudits.core.micro_dd import (
-    TreeNode, create_decision_tree,
+    TreeNode,
+    create_decision_tree,
     cut_branches,
     dd_reduction_aggregation,
     dd_reduction_hashing,
@@ -18,9 +19,8 @@ from mqt.qudits.quantum_circuit.gates import R
 if typing.TYPE_CHECKING:
     from numpy.typing import NDArray
 
-    from mqt.qudits.quantum_circuit import QuantumCircuit
-
     from mqt.qudits.core.micro_dd import TreeNode
+    from mqt.qudits.quantum_circuit import QuantumCircuit
 
     complex_array = NDArray[np.complex128]
 
