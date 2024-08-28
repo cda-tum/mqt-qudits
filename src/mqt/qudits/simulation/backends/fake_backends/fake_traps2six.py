@@ -16,9 +16,9 @@ class FakeIonTraps2Six(TNSim):
         return 0
 
     def __init__(
-            self,
-            provider: MQTQuditProvider | None = None,
-            **fields: dict[str, int | bool | NoiseModel | None],
+        self,
+        provider: MQTQuditProvider | None = None,
+        **fields: dict[str, int | bool | NoiseModel | None],
     ) -> None:
         self._options = self._default_options()
         self._provider = provider

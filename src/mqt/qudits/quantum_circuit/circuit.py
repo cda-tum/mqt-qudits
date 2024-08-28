@@ -43,7 +43,7 @@ if TYPE_CHECKING:
 
 def is_not_none_or_empty(variable: Iterable) -> bool:
     return (variable is not None and hasattr(variable, "__iter__") and len(variable) > 0) or (
-            isinstance(variable, np.ndarray) and variable.size > 0
+        isinstance(variable, np.ndarray) and variable.size > 0
     )
 
 

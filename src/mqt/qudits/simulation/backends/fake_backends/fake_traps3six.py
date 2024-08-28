@@ -16,9 +16,9 @@ class FakeIonTraps3Six(TNSim):
         return 0
 
     def __init__(
-            self,
-            provider: MQTQuditProvider | None = None,
-            **fields: dict[str, Any],
+        self,
+        provider: MQTQuditProvider | None = None,
+        **fields: dict[str, Any],
     ) -> None:
         self._options = self._default_options()
         self._provider = provider
@@ -28,7 +28,7 @@ class FakeIonTraps3Six(TNSim):
         self._energy_level_graphs: list[LevelGraph] = []
 
         if fields:
-            self._options.update(fields) # type: ignore[arg-type]
+            self._options.update(fields)  # type: ignore[arg-type]
 
     @property
     def energy_level_graphs(self) -> list[LevelGraph]:

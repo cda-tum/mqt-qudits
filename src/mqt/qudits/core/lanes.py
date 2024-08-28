@@ -72,8 +72,7 @@ class Lanes:
     def extract_lane(self, qudit_line: int) -> list[Gate]:
         return [gate_tuple[1] for gate_tuple in self.index_dict[qudit_line]]
 
-    def find_consecutive_singles(self, gates: list[Gate] | None = None) \
-            -> dict[int, list[list[tuple[int, Gate]]]]:
+    def find_consecutive_singles(self, gates: list[Gate] | None = None) -> dict[int, list[list[tuple[int, Gate]]]]:
         if gates is None:
             gates = self.instructions
         from collections import defaultdict

@@ -13,11 +13,11 @@ if TYPE_CHECKING:
 
 class Backend(ABC):
     def __init__(
-            self,
-            provider: MQTQuditProvider | None = None,
-            name: str | None = None,
-            description: str | None = None,
-            **fields: dict[str, Any],
+        self,
+        provider: MQTQuditProvider | None = None,
+        name: str | None = None,
+        description: str | None = None,
+        **fields: dict[str, Any],
     ) -> None:
         self._provider = provider
         self.name = name
@@ -42,15 +42,9 @@ class Backend(ABC):
         raise NotImplementedError
 
     def _default_options(self) -> dict[str, int | bool | NoiseModel | None]:
-        return {
-            "shots":       50,
-            "memory":      False,
-            "noise_model": self.__noise_model()
-        }
+        return {"shots": 50, "memory": False, "noise_model": self.__noise_model()}
 
-
-
-    def set_options(self, **fields: Any) -> None:  #noqa: ANN401
+    def set_options(self, **fields: Any) -> None:  # noqa: ANN401
         for field in fields:
             if not hasattr(self._options, field):
                 msg = f"Options field '{field}' is not valid for this backend"
@@ -66,5 +60,5 @@ class Backend(ABC):
         return self._provider
 
     @abstractmethod
-    def run(self, circuit: QuantumCircuit, **options: Any) -> Job:  #noqa: ANN401
+    def run(self, circuit: QuantumCircuit, **options: Any) -> Job:  # noqa: ANN401
         pass

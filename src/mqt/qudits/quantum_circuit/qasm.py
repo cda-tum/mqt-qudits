@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 
@@ -40,7 +40,9 @@ class QASM:
         return False, in_comment
 
     @staticmethod
-    def parse_qreg(line: str, rgxs: dict[str, re.Pattern[str]], sitemap: dict[tuple[str, int], tuple[int, int]]) -> bool:
+    def parse_qreg(
+        line: str, rgxs: dict[str, re.Pattern[str]], sitemap: dict[tuple[str, int], tuple[int, int]]
+    ) -> bool:
         match = rgxs["qreg"].match(line)
         if match:
             name, nq, qdims = match.groups()
@@ -155,7 +157,7 @@ class QASM:
         openqasm grammar.
         """
         # define regular expressions for parsing
-        rgxs: Dict[str, re.Pattern[str]] = {
+        rgxs: dict[str, re.Pattern[str]] = {
             "header": re.compile(r"(DITQASM\s+2.0;)|(include\s+\"qelib1.inc\";)"),
             "comment": re.compile(r"^//"),
             "comment_start": re.compile(r"/\*"),

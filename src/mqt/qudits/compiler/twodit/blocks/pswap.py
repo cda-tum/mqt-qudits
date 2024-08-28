@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import typing
 from math import floor
 from typing import TYPE_CHECKING
-from collections.abc import Sequence
 
 import numpy as np
+
 from mqt.qudits.compiler.twodit.blocks.crot import CEX_SEQUENCE
 from mqt.qudits.quantum_circuit import gates
 
 if TYPE_CHECKING:
-    from mqt.qudits.quantum_circuit.gate import Gate
     from mqt.qudits.quantum_circuit import QuantumCircuit
+    from mqt.qudits.quantum_circuit.gate import Gate
 
 
 class PSwapGen:
@@ -20,7 +19,7 @@ class PSwapGen:
         self.circuit: QuantumCircuit = circuit
         self.indices: list[int] = indices
 
-    def pswap_101_as_list_phases(self, theta: float, phi: float) -> typing.List[Gate]:
+    def pswap_101_as_list_phases(self, theta: float, phi: float) -> list[Gate]:
         index_ctrl = self.indices[0]
         dim_ctrl = self.circuit.dimensions[index_ctrl]
         index_target = self.indices[1]
@@ -83,7 +82,7 @@ class PSwapGen:
                 None,
         )
         """
-        compose: typing.List[Gate] = []
+        compose: list[Gate] = []
         # Used to be [on0(ph1, d), on0(h_, d)]
         #################################
 
