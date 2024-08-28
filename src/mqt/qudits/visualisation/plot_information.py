@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 def remap_result(
-        result: NDArray[np.complex128] | list[int] | NDArray[int], circuit: QuantumCircuit
+    result: NDArray[np.complex128] | list[int] | NDArray[int], circuit: QuantumCircuit
 ) -> NDArray[np.complex128] | list[int] | NDArray[int]:
     new_result = np.array(result) if isinstance(result, list) else result.copy()
 

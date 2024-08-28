@@ -19,9 +19,9 @@ if typing.TYPE_CHECKING:
     from mqt.qudits.quantum_circuit.gate import Gate
 
 
-def apply_rotations(m: NDArray[np.complex128, np.complex128],
-                    params_list: list[float],
-                    dims: list[int]) -> NDArray[np.complex128, np.complex128]:
+def apply_rotations(
+    m: NDArray[np.complex128, np.complex128], params_list: list[float], dims: list[int]
+) -> NDArray[np.complex128, np.complex128]:
     params = params_splitter(params_list, dims)
     r1 = gate_expand_to_circuit(generic_sud(params[0], dims[0]), circuits_size=2, target=0, dims=dims)
     r2 = gate_expand_to_circuit(generic_sud(params[1], dims[1]), circuits_size=2, target=1, dims=dims)

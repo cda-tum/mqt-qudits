@@ -17,11 +17,15 @@ if TYPE_CHECKING:
     from ..quantum_circuit import QuantumCircuit
 
 
-def get_density_matrix_from_counts(results: list[int] | NDArray[int], circuit: QuantumCircuit) -> NDArray[np.complex128, np.complex128]:
+def get_density_matrix_from_counts(
+    results: list[int] | NDArray[int], circuit: QuantumCircuit
+) -> NDArray[np.complex128, np.complex128]:
     num_kets = reduce(operator.mul, circuit.dimensions)
     number_counts = Counter(results)
     probabilities = [(number_counts[num] / len(results)) for num in range(num_kets)]
-    kets: list[NDArray[complex]] = [from_dirac_to_basis([int(char) for char in state], circuit.dimensions) for state in state_labels(circuit)]
+    kets: list[NDArray[complex]] = [
+        from_dirac_to_basis([int(char) for char in state], circuit.dimensions) for state in state_labels(circuit)
+    ]
     density_matrix: NDArray[np.complex128] = np.zeros((num_kets, num_kets))
     for k, p in zip(kets, probabilities):
         density_matrix += p * np.outer(k, k.conj())

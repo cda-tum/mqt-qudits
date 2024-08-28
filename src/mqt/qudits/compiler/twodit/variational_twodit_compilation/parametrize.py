@@ -13,9 +13,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
 
 
-def params_splitter(
-    params: list[float] | NDArray[np.float64], dims: list[int]
-) -> list[list[float]]:
+def params_splitter(params: list[float] | NDArray[np.float64], dims: list[int]) -> list[list[float]]:
     """
     Split a list of parameters into sublists based on given dimensions.
 

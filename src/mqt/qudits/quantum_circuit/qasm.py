@@ -40,7 +40,9 @@ class QASM:
         return False, in_comment
 
     @staticmethod
-    def parse_qreg(line: str, rgxs: dict[str, re.Pattern[str]], sitemap: dict[tuple[str, int], tuple[int, int]]) -> bool:
+    def parse_qreg(
+        line: str, rgxs: dict[str, re.Pattern[str]], sitemap: dict[tuple[str, int], tuple[int, int]]
+    ) -> bool:
         match = rgxs["qreg"].match(line)
         if match:
             name, nq, qdims = match.groups()

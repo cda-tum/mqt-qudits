@@ -23,14 +23,14 @@ if TYPE_CHECKING:
 
 
 class TNSim(Backend):
-    def __init__(self, **fields: Any) -> None:  #noqa: ANN401
+    def __init__(self, **fields: Any) -> None:  # noqa: ANN401
         super().__init__()
         self._options.update(**fields)
 
     def __noise_model(self) -> NoiseModel | None:
         return self.noise_model
 
-    def run(self, circuit: QuantumCircuit, **options: Any) -> Job:  #noqa: ANN401
+    def run(self, circuit: QuantumCircuit, **options: Any) -> Job:  # noqa: ANN401
         job = Job(self)
         self._options.update(options)
         self.noise_model: NoiseModel | None = self._options.get("noise_model", None)
@@ -66,8 +66,9 @@ class TNSim(Backend):
             tn.connect(qudit_edges[bit], op[i])
             qudit_edges[bit] = op[i + len(operating_qudits)]
 
-    def __contract_circuit(self, system_sizes: list[int],
-                           operations: Sequence[Gate]) -> tn.network_components.AbstractNode:
+    def __contract_circuit(
+        self, system_sizes: list[int], operations: Sequence[Gate]
+    ) -> tn.network_components.AbstractNode:
         all_nodes: Sequence[tn.network_components.AbstractNode] = []
 
         with tn.NodeCollection(all_nodes):

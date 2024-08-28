@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 
 
 def save_full_states(
-        list_of_vectors_og: list[NDArray[np.complex128]], file_path: str | Path | None = None, file_name: str | None = None
+    list_of_vectors_og: list[NDArray[np.complex128]], file_path: str | Path | None = None, file_name: str | None = None
 ) -> None:
     if file_name is None:
         file_name = "experiment_states.h5"
@@ -31,17 +31,16 @@ def save_full_states(
     vector_names: list[str] = [str(uuid.uuid4()) for _ in range(len(list_of_vectors_og))]
 
     # Combine names and vectors into a list of dictionaries
-    list_of_vectors: \
-        list[dict[str, str | NDArray[np.complex128]]] = [{"name": name, "data": vector} for name, vector
-                                                         in zip(vector_names, list_of_vectors_og)]
+    list_of_vectors: list[dict[str, str | NDArray[np.complex128]]] = [
+        {"name": name, "data": vector} for name, vector in zip(vector_names, list_of_vectors_og)
+    ]
 
     # Open the HDF5 file in write mode
     with h5py.File(full_path, "w") as hdf_file:
         # Create a table dataset within the file to store the vectors
         dtype = [("name", "S36"), ("vector_data", np.complex128, size)]
         table_data = np.array(
-                [(vector_info["name"].encode("utf-8"), vector_info["data"]) for vector_info in list_of_vectors],
-                dtype=dtype
+            [(vector_info["name"].encode("utf-8"), vector_info["data"]) for vector_info in list_of_vectors], dtype=dtype
         )
 
         hdf_file.create_dataset("vectors", data=table_data)
@@ -62,7 +61,7 @@ def save_shots(shots: list[int], file_path: str | Path, file_name: str) -> None:
         # Create a table dataset within the file to store the vectors
         dtype = [("nr", int), ("shot", int)]
         table_data = np.array(
-                [(shot_info["shot_nr"], shot_info["outcome"]) for shot_info in list_of_outcomes], dtype=dtype
+            [(shot_info["shot_nr"], shot_info["outcome"]) for shot_info in list_of_outcomes], dtype=dtype
         )
         hdf_file.create_dataset("shots", data=table_data)
 

@@ -27,8 +27,8 @@ def mini_unitary_sim(circuit: QuantumCircuit, list_of_op: list[Gate]) -> NDArray
 
 def mini_sim(circuit: QuantumCircuit) -> NDArray[np.complex128]:
     size = reduce(operator.mul, circuit.dimensions)
-    state = np.array(size * [0. + 0.j])
-    state[0] = 1. + 0.j
+    state = np.array(size * [0.0 + 0.0j])
+    state[0] = 1.0 + 0.0j
     for gate in circuit.instructions:
         state = gate.to_matrix(identities=2) @ state
     return state
@@ -46,13 +46,13 @@ class UnitaryVerifier:
     """
 
     def __init__(
-            self,
-            sequence: Sequence[Gate | R | Rz | VirtRz],
-            target: Gate,
-            dimensions: list[int],
-            nodes: list[int] | None = None,
-            initial_map: list[int] | None = None,
-            final_map: list[int] | None = None,
+        self,
+        sequence: Sequence[Gate | R | Rz | VirtRz],
+        target: Gate,
+        dimensions: list[int],
+        nodes: list[int] | None = None,
+        initial_map: list[int] | None = None,
+        final_map: list[int] | None = None,
     ) -> None:
         self.decomposition = sequence
         self.target = target.to_matrix().copy()

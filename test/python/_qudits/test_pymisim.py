@@ -114,5 +114,5 @@ class Testpymisim(TestCase):
 
         print("Start execution")
         state_vec = np.array(state_vector_simulation(circ, noise_model))
-        assert len(state_vec) == 5 ** 6
+        assert len(state_vec) == 5**6
         assert is_quantum_state(state_vec)

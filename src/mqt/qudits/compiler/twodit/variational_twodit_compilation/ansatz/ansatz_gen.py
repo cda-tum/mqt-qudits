@@ -16,9 +16,7 @@ if TYPE_CHECKING:
     from mqt.qudits.quantum_circuit.gate import Gate
 
 
-def prepare_ansatz(u: Gate | None,
-                   params: list[list[float]],
-                   dims: list[int]) -> NDArray[np.complex128, np.complex128]:
+def prepare_ansatz(u: Gate | None, params: list[list[float]], dims: list[int]) -> NDArray[np.complex128, np.complex128]:
     counter = 0
     unitary = gate_expand_to_circuit(np.identity(dims[0], dtype=complex), circuits_size=2, target=0, dims=dims)
 
@@ -28,9 +26,10 @@ def prepare_ansatz(u: Gate | None,
 
             unitary = np.matmul(unitary, u)
 
-        unitary = np.matmul(unitary, gate_expand_to_circuit(
-                generic_sud(params[i], dims[counter]), circuits_size=2, target=counter, dims=dims
-        ))
+        unitary = np.matmul(
+            unitary,
+            gate_expand_to_circuit(generic_sud(params[i], dims[counter]), circuits_size=2, target=counter, dims=dims),
+        )
 
         counter += 1
 

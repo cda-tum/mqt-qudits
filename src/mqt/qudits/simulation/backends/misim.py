@@ -19,14 +19,14 @@ if TYPE_CHECKING:
 
 
 class MISim(Backend):
-    def __init__(self, **fields: Any) -> None:  #noqa: ANN401
+    def __init__(self, **fields: Any) -> None:  # noqa: ANN401
         super().__init__()
         self._options.update(**fields)
 
     def __noise_model(self) -> NoiseModel | None:
         return self.noise_model
 
-    def run(self, circuit: QuantumCircuit, **options: Any) -> Job: #noqa: ANN401
+    def run(self, circuit: QuantumCircuit, **options: Any) -> Job:  # noqa: ANN401
         job = Job(self)
 
         self._options.update(options)
