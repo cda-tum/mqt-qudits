@@ -27,7 +27,7 @@ class ZPropagationOptPass(CompilerPass):
         return self.remove_z(circuit, self.back)
 
     @staticmethod
-    def propagate_z(circuit: QuantumCircuit, line: list[Gate], back: bool) -> tuple[list[R], list[VirtRz]]:
+    def propagate_z(circuit: QuantumCircuit, line: list[R | VirtRz], back: bool) -> tuple[list[R], list[VirtRz]]:
         z_angles: dict[int, float] = {}
         list_of_x_yrots: list[R] = []
         qudit_index: tuple[int, ...] = line[0].target_qudits

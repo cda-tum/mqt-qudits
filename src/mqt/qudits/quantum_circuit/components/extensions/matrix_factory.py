@@ -160,7 +160,7 @@ class MatrixFactory:
         return result
 
 
-def from_dirac_to_basis(vec: list[int], d: list[int] | int) -> list[complex]:
+def from_dirac_to_basis(vec: list[int], d: list[int] | int) -> NDArray[np.complex128]:
     # |00> -> [1,0,...,0] -> len() == other_size**2
     if isinstance(d, int):
         d = [d] * len(vec)

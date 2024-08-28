@@ -5,14 +5,14 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 if TYPE_CHECKING:
-    from numpy.typing import NDArray
+    from mqt.qudits.quantum_circuit.gate import Gate
 
 
 class Primitive:
-    CUSTOM_PRIMITIVE: NDArray[np.complex128] | list[list[complex]] | None = None
+    CUSTOM_PRIMITIVE: Gate | None = None
 
     @classmethod
-    def set_class_variables(cls, primitive: NDArray[np.complex128] | list[list[complex]] | None) -> None:
+    def set_class_variables(cls, primitive: Gate | None = None) -> None:
         cls.CUSTOM_PRIMITIVE = primitive
 
 
@@ -20,6 +20,6 @@ def reindex(ir: int, jc: int, num_col: int) -> int:
     return ir * num_col + jc
 
 
-bound_1 = [0, np.pi]
-bound_2 = [0, np.pi / 2]
-bound_3 = [0, 2 * np.pi]
+bound_1 = (0, np.pi)
+bound_2 = (0, np.pi / 2)
+bound_3 = (0, 2 * np.pi)

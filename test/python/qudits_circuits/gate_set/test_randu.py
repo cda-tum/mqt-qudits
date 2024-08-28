@@ -1,15 +1,19 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from unittest import TestCase
 
 import numpy as np
 
 from mqt.qudits.quantum_circuit import QuantumCircuit
 
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
 
 class TestRandU(TestCase):
     @staticmethod
-    def is_unitary(matrix):
+    def is_unitary(matrix: NDArray[np.complex128, np.complex128]) -> bool:
         conjugate_transpose = np.conjugate(matrix.T)
         product = np.dot(matrix, conjugate_transpose)
         identity_matrix = np.eye(matrix.shape[0])

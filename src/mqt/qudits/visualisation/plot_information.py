@@ -3,7 +3,7 @@ from __future__ import annotations
 import itertools
 from typing import TYPE_CHECKING
 
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt  # type: ignore[import-not-found]
 import numpy as np
 
 if TYPE_CHECKING:
@@ -15,9 +15,10 @@ if TYPE_CHECKING:
 
 
 def remap_result(
-    result: NDArray[np.complex128] | list[int] | NDArray[int], circuit: QuantumCircuit
+        result: NDArray[np.complex128] | list[int] | NDArray[int], circuit: QuantumCircuit
 ) -> NDArray[np.complex128] | list[int] | NDArray[int]:
-    new_result = result.copy()
+    new_result = np.array(result) if isinstance(result, list) else result.copy()
+
     if circuit.mappings:
         permutation = np.eye(circuit.dimensions[0])[:, circuit.mappings[0]]
         for i in range(1, len(circuit.mappings)):
@@ -31,7 +32,7 @@ class HistogramWithErrors:
         self,
         labels: Sequence[str],
         counts: Sequence[float],
-        errors: Sequence[float],
+        errors: Sequence[float] | None,
         title: str = "",
         xlabel: str = "Labels",
         ylabel: str = "Counts",

@@ -4,16 +4,14 @@ from __future__ import annotations
 import typing
 from math import floor
 from typing import TYPE_CHECKING
+from collections.abc import Sequence
 
 import numpy as np
-
 from mqt.qudits.compiler.twodit.blocks.crot import CEX_SEQUENCE
 from mqt.qudits.quantum_circuit import gates
 
 if TYPE_CHECKING:
     from mqt.qudits.quantum_circuit.gate import Gate
-
-if typing.TYPE_CHECKING:
     from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
@@ -22,7 +20,7 @@ class PSwapGen:
         self.circuit: QuantumCircuit = circuit
         self.indices: list[int] = indices
 
-    def pswap_101_as_list_phases(self, theta: float, phi: float) -> list[Gate]:
+    def pswap_101_as_list_phases(self, theta: float, phi: float) -> typing.List[Gate]:
         index_ctrl = self.indices[0]
         dim_ctrl = self.circuit.dimensions[index_ctrl]
         index_target = self.indices[1]
@@ -68,7 +66,7 @@ class PSwapGen:
             )
             # Cex().cex_101(d, 0)
         else:
-            cex = CEX_SEQUENCE
+            cex_s = CEX_SEQUENCE
 
         #############################################################################################
         # START THE DECOMPOSITION
@@ -85,7 +83,7 @@ class PSwapGen:
                 None,
         )
         """
-        compose = []
+        compose: typing.List[Gate] = []
         # Used to be [on0(ph1, d), on0(h_, d)]
         #################################
 
@@ -102,7 +100,7 @@ class PSwapGen:
         if CEX_SEQUENCE is None:
             compose.append(cex)
         else:
-            compose += cex
+            compose += cex_s
 
         compose.append(h_0)  # (on0(h_, d))
         compose.append(h_1)  # (on1(h_, d))
@@ -116,14 +114,14 @@ class PSwapGen:
         if CEX_SEQUENCE is None:
             compose.append(cex)
         else:
-            compose += cex
+            compose += cex_s
         compose.append(single_excitation)
         compose.append(tminus)
 
         if CEX_SEQUENCE is None:
             compose.append(cex)
         else:
-            compose += cex
+            compose += cex_s
 
         compose.append(tplus)
         compose.append(single_excitation_back)
@@ -140,7 +138,7 @@ class PSwapGen:
         if CEX_SEQUENCE is None:
             compose.append(cex)
         else:
-            compose += cex
+            compose += cex_s
 
         compose.append(h_0)  # (on0(h_, d))
         compose.append(h_1)  # (on1(h_, d))

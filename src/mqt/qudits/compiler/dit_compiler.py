@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from ..core.lanes import Lanes
 from ..quantum_circuit.components.extensions.gate_types import GateTypes
+from . import CompilerPass
 from .naive_local_resynth import NaiveLocResynthOptPass
 from .onedit import LogLocQRPass, PhyLocAdaPass, PhyLocQRPass, ZPropagationOptPass, ZRemovalOptPass
 from .twodit import LogEntQRCEXPass
@@ -46,7 +47,7 @@ class QuditCompiler:
             elif "Multi" in str(compiler_pass):
                 passes_dict[GateTypes.MULTI] = decomposition
         for gate in circuit.instructions:
-            decomposer = passes_dict.get(gate.gate_type)
+            decomposer = typing.cast(CompilerPass, passes_dict.get(gate.gate_type))
             new_instructions = decomposer.transpile_gate(gate)
             new_instr.extend(new_instructions)
 

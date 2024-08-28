@@ -24,7 +24,7 @@ class Rh(Gate):
         name: str,
         target_qudits: int,
         parameters: list[int],
-        dimensions: list[int],
+        dimensions: int,
         controls: ControlData | None = None,
     ) -> None:
         super().__init__(

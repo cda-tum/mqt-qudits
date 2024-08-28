@@ -9,7 +9,7 @@ import numpy as np
 if TYPE_CHECKING:
     from numpy.typing import NDArray
 
-    complex_array = NDArray[np.complex128]
+    complex_array = NDArray[np.complex128, np.complex128]
 
 
 def verify_normalized_state(quantum_state: complex_array) -> bool:

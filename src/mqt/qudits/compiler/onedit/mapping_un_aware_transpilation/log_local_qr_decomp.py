@@ -14,9 +14,12 @@ from ..local_operation_swap import (
 )
 
 if typing.TYPE_CHECKING:
+    from numpy.random.mtrand import Sequence
+
     from ....core import LevelGraph
     from ....quantum_circuit import QuantumCircuit
     from ....quantum_circuit.gate import Gate
+    from ....quantum_circuit.gates import R, Rz, VirtRz
     from ....simulation.backends.backendv2 import Backend
 
 
@@ -24,7 +27,7 @@ class LogLocQRPass(CompilerPass):
     def __init__(self, backend: Backend) -> None:
         super().__init__(backend)
 
-    def transpile_gate(self, gate: Gate) -> list[Gate]:
+    def transpile_gate(self, gate: Gate) -> list[R | VirtRz | Rz]:
         energy_graph_i = self.backend.energy_level_graphs[gate.target_qudits]
         qr = QrDecomp(gate, energy_graph_i, not_stand_alone=False)
         decomp, _algorithmic_cost, _total_cost = qr.execute()
@@ -56,7 +59,7 @@ class QrDecomp:
         self.phase_propagation: bool = z_prop
         self.not_stand_alone: bool = not_stand_alone
 
-    def execute(self) -> tuple[list[Gate], float, float]:
+    def execute(self) -> tuple[Sequence[R | VirtRz | Rz], float, float]:
         decomp = []
         total_cost = 0
         algorithmic_cost = 0

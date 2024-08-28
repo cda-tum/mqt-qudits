@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import networkx as nx
 import numpy as np
@@ -82,7 +82,7 @@ def graph_rule_ongate(gate: gates.R, graph: LevelGraph) -> gates.R:
     # R(gate_matrix.theta, new_g_phi, g_lev_a, g_lev_b, gate_matrix.dimension)
 
 
-def gate_chain_condition(previous_gates: R, current: R) -> R:
+def gate_chain_condition(previous_gates: list[R], current: R) -> R:
     if not previous_gates:
         return current
 
@@ -138,7 +138,7 @@ def route_states2rotate_basic(gate: R, orig_placement: LevelGraph) -> tuple[floa
         phy_n_ip1 = placement.nodes[path[i + 1]]["lpmap"]
 
         pi_gate_phy = gates.R(
-            gate.parent_circuit, "R", gate.target_qudits, [phy_n_i, phy_n_ip1, np.pi, -np.pi / 2], dimension
+            gate.parent_circuit, "R", cast(int, gate.target_qudits), [phy_n_i, phy_n_ip1, np.pi, -np.pi / 2], dimension
         )  # R(np.pi, -np.pi / 2, phy_n_i, phy_n_ip1, dimension)
 
         pi_gate_phy = gate_chain_condition(pi_pulses_routing, pi_gate_phy)

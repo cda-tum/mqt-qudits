@@ -16,7 +16,7 @@ class TestZRemovalOptPass(TestCase):
     def test_remove_z():
         provider = MQTQuditProvider()
         QuditCompiler()
-        backend_ion = provider.get_backend("faketraps2trits", shots=1000)
+        backend_ion = provider.get_backend("faketraps2trits")
 
         qreg = QuantumRegister("test_reg", 3, [3, 3, 3])
         circ = QuantumCircuit(qreg)

@@ -16,11 +16,11 @@ class MQTQuditProvider:
         return 0
 
     __backends: ClassVar[dict[str, type[Backend]]] = {
-        "tnsim": TNSim,
-        "misim": MISim,
+        "tnsim":           TNSim,
+        "misim":           MISim,
         "faketraps2trits": FakeIonTraps2Trits,
-        "faketraps2six": FakeIonTraps2Six,
-        "faketraps3six": FakeIonTraps3Six,
+        "faketraps2six":   FakeIonTraps2Six,
+        "faketraps3six":   FakeIonTraps3Six,
     }
 
     def get_backend(self, name: str | None = None, **kwargs: dict[str, Any]) -> Backend:
@@ -39,7 +39,7 @@ class MQTQuditProvider:
             msg = f"Multiple backends found matching '{name}': {matching_backends}"
             raise ValueError(msg)
 
-        return self.__backends[matching_backends[0]](**kwargs)
+        return self.__backends[matching_backends[0]](**kwargs)  # type: ignore[arg-type]
 
     def backends(self, name: str | None = None) -> list[str]:
         """Return a list of backend names matching the specified filtering."""

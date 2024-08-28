@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import operator
 from functools import reduce
-from typing import TYPE_CHECKING, Any
+from typing import Optional, TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -19,12 +19,19 @@ if TYPE_CHECKING:
 
 
 class MISim(Backend):
-    def run(self, circuit: QuantumCircuit, **options: dict[str, Any]) -> Job:
+    def __init__(self, **fields: Any) -> None:  #noqa: ANN401
+        super().__init__()
+        self._options.update(**fields)
+
+    def __noise_model(self) -> Optional[NoiseModel]:
+        return self.noise_model
+
+    def run(self, circuit: QuantumCircuit, **options: Any) -> Job: #noqa: ANN401
         job = Job(self)
 
         self._options.update(options)
         self.noise_model = self._options.get("noise_model", None)
-        self.shots = self._options.get("shots", 1 if self.noise_model is None else 50)
+        self.shots = self._options.get("shots", 50)
         self.memory = self._options.get("memory", False)
         self.full_state_memory = self._options.get("full_state_memory", False)
         self.file_path = self._options.get("file_path", None)
@@ -34,7 +41,7 @@ class MISim(Backend):
             assert self.shots >= 50, "Number of shots should be above 50"
             job.set_result(JobResult(state_vector=self.execute(circuit), counts=stochastic_simulation(self, circuit)))
         else:
-            job.set_result(JobResult(state_vector=self.execute(circuit), counts=None))
+            job.set_result(JobResult(state_vector=self.execute(circuit), counts=[]))
 
         return job
 
@@ -56,8 +63,3 @@ class MISim(Backend):
         # Transpose the state array
         state = np.transpose(state, axes_order)
         return state.reshape((1, state_size))
-
-    def __init__(self, **fields: dict[str, Any]) -> None:
-        self.system_sizes = None
-        self.circ_operations = None
-        super().__init__(**fields)

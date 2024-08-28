@@ -9,8 +9,9 @@ import numpy as np
 from ..quantum_circuit.gates.virt_rz import VirtRz
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from ..quantum_circuit import QuantumCircuit
-    from ..quantum_circuit.gate import Gate
 
 
 class LevelGraph(nx.Graph):
@@ -111,8 +112,8 @@ class LevelGraph(nx.Graph):
 
     @staticmethod
     def deep_copy_func(
-        l_n: list[tuple[int, int, dict]] | list[tuple[int, dict]],
-    ) -> list[tuple[int, int, dict]] | list[tuple[int, dict]]:
+        l_n: list[tuple[int, int, dict]] | list[tuple[int, int]],
+    ) -> list[tuple[int, int, dict]] | list[tuple[int, int]]:
         cpy_list = []
         for li in l_n:
             d2 = copy.deepcopy(li)
@@ -121,7 +122,7 @@ class LevelGraph(nx.Graph):
         return cpy_list
 
     @staticmethod
-    def index(lev_graph: list[tuple[int, dict]], node: int) -> int | None:
+    def index(lev_graph: list[tuple[int, int]], node: int) -> int | None:
         for i in range(len(lev_graph)):
             if lev_graph[i][0] == node:
                 return i
@@ -172,7 +173,7 @@ class LevelGraph(nx.Graph):
 
         return new_graph
 
-    def get_vrz_gates(self) -> list[Gate]:
+    def get_vrz_gates(self) -> Sequence[VirtRz]:
         matrices = []
         for node in self.nodes:
             node_dict = self.nodes[node]

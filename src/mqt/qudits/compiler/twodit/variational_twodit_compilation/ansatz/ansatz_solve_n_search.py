@@ -25,8 +25,9 @@ def binary_search_compile(max_num_layer: int, ansatz_type: Literal["MS", "LS", "
     tol = Optimizer.OBJ_FIDELITY
 
     best_layer, best_error, best_xi = (low + (high - low) // 2, np.inf, [])
-    mid, error, xi = (low + (high - low) // 2, np.inf, [])
-
+    mid: int = (low + (high - low)) // 2
+    error: float = np.inf
+    xi: list[float] = []
     # Repeat until the pointers low and high meet each other
     while low <= high:
         mid = low + (high - low) // 2
@@ -49,7 +50,7 @@ def run(num_layer: int, ansatz_type: Literal["MS", "LS", "CU"]) -> tuple[float, 
 
     duration = 3600 * (Optimizer.SINGLE_DIM_0 * Optimizer.SINGLE_DIM_1 / 4)
 
-    result_queue = queue.Queue()
+    result_queue: queue.Queue[tuple[float, list[float]]] = queue.Queue()
 
     thread = threading.Thread(target=Optimizer.solve_anneal, args=(bounds, ansatz_type, result_queue))
     thread.start()

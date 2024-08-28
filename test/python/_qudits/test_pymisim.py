@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import typing
 from unittest import TestCase
 
 import numpy as np
@@ -9,13 +10,16 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
 from mqt.qudits.simulation.noise_tools import Noise, NoiseModel
 
+if typing.TYPE_CHECKING:
+    from numpy.typing import NDArray
 
-def rand_0_5():
+
+def rand_0_5() -> int:
     rng = np.random.default_rng()
     return int(rng.integers(0, 5))
 
 
-def is_quantum_state(state):
+def is_quantum_state(state: NDArray[np.complex128]) -> bool:
     """
     Check if a given NumPy array represents a valid quantum state vector.
     """
@@ -110,5 +114,5 @@ class Testpymisim(TestCase):
 
         print("Start execution")
         state_vec = np.array(state_vector_simulation(circ, noise_model))
-        assert len(state_vec) == 5**6
+        assert len(state_vec) == 5 ** 6
         assert is_quantum_state(state_vec)

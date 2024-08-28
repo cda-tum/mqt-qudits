@@ -6,7 +6,7 @@ import typing
 import numpy as np
 
 from mqt.qudits.core.micro_dd import (
-    create_decision_tree,
+    TreeNode, create_decision_tree,
     cut_branches,
     dd_reduction_aggregation,
     dd_reduction_hashing,
@@ -20,7 +20,7 @@ if typing.TYPE_CHECKING:
 
     from mqt.qudits.quantum_circuit import QuantumCircuit
 
-    from ...core.micro_dd import TreeNode
+    from mqt.qudits.core.micro_dd import TreeNode
 
     complex_array = NDArray[np.complex128]
 
@@ -37,7 +37,7 @@ def find_complex_number(x: complex, c: complex) -> complex:
 
 def get_angles(from_: complex, to_: complex) -> tuple[float, float]:
     theta = 2 * np.arctan2(abs(from_), abs(to_))
-    phi = -(np.pi / 2 + np.angle(to_) - np.angle(from_))
+    phi = typing.cast(float, -(np.pi / 2 + np.angle(to_) - np.angle(from_)))
 
     return theta, phi
 

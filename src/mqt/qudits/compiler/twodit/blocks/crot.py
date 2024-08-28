@@ -53,23 +53,23 @@ class CRotGen:
             )
             # Cex().cex_101(d, 0)
         else:
-            cex = CEX_SEQUENCE
+            cex_s = CEX_SEQUENCE
 
         #############
 
-        compose = [frame_there]
+        compose: list[Gate] = [frame_there]
 
         if CEX_SEQUENCE is None:
             compose.append(cex)
         else:
-            compose += cex
+            compose += cex_s
         compose.append(single_excitation)
         compose.append(tminus)
 
         if CEX_SEQUENCE is None:
             compose.append(cex)
         else:
-            compose += cex
+            compose += cex_s
 
         compose.append(tplus)
         ####################################

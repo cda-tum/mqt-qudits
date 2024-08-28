@@ -24,7 +24,7 @@ if typing.TYPE_CHECKING:
     from mqt.qudits.quantum_circuit.gate import Gate
     from mqt.qudits.simulation.backends.backendv2 import Backend
 
-    complex_array = NDArray[np.complex128]
+    complex_array = NDArray[np.complex128, np.complex128]
 
 
 class LogEntQRCEXPass(CompilerPass):
@@ -62,6 +62,15 @@ class EntangledQRCEX:
         self.u: complex_array = gate.to_matrix(identities=0)
         self.decomposition: list[Gate] = None
 
+    @staticmethod
+    def get_gate_matrix(rotation: Gate, qudit_indices: list[int], dimensions: list[int]) -> complex_array:
+        if rotation.gate_type != GateTypes.SINGLE:
+            return rotation.to_matrix()
+
+        if rotation.target_qudits == qudit_indices[0]:
+            return on0(rotation.to_matrix(), dimensions[1])
+        return on1(rotation.to_matrix(), dimensions[0])
+
     def execute(self) -> tuple[list[Gate], int, int]:
         crot_counter = 0
         pswap_counter = 0
@@ -82,14 +91,11 @@ class EntangledQRCEX:
 
         for c in range(matrix_dimension):
             diag_index = index_iterator.index(c)
-
             for r in index_iterator[:diag_index]:
                 if abs(u_[r, c]) > 1.0e-8:
                     coef_r1 = u_[r - 1, c].round(15)
                     coef_r = u_[r, c].round(15)
-
                     theta = 2 * np.arctan2(abs(coef_r), abs(coef_r1))
-
                     phi = -(np.pi / 2 + np.angle(coef_r1) - np.angle(coef_r))
 
                     phi = pi_mod(phi)
@@ -102,17 +108,9 @@ class EntangledQRCEX:
                         crot_counter += 1
                     ######################
 
-                    for r___ in sequence_rotation_involved:
-                        if r___.gate_type == GateTypes.SINGLE:
-                            if r___.target_qudits == self.qudit_indices[0]:
-                                gate_matrix = on0(r___.to_matrix(), self.dimensions[1])
-                            else:
-                                gate_matrix = on1(r___.to_matrix(), self.dimensions[0])
-                        else:
-                            gate_matrix = r___.to_matrix()
-
+                    for rotation in sequence_rotation_involved:
+                        gate_matrix = self.get_gate_matrix(rotation, self.qudit_indices, self.dimensions)
                         u_ = gate_matrix @ u_
-                    u_.round(3)
 
                     decomp += sequence_rotation_involved
 

@@ -3,12 +3,11 @@ from __future__ import annotations
 import math
 import operator
 import typing
-from typing import TypeAlias
 
 if typing.TYPE_CHECKING:
     from .micro_dd import TreeNode
 
-    NodeContribution: TypeAlias = list[list[tuple[TreeNode, float]]]
+    NodeContribution = list[list[tuple[TreeNode, float]]]
     from numpy.typing import NDArray
 
 

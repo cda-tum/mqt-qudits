@@ -21,9 +21,9 @@ if typing.TYPE_CHECKING:
 def variational_compile(
     target: Gate,
     tolerance: float,
-    ansatz_type: str,
+    ansatz_type: typing.Literal["MS", "LS", "CU"],
     layers: int,
-    custom_primitive: Primitive | None = None,
+    custom_primitive: Gate | None = None,
 ) -> QuantumCircuit:
     dim_0, dim_1 = itemgetter(*target.reference_lines)(target.parent_circuit.dimensions)
     Primitive.set_class_variables(custom_primitive)
@@ -38,6 +38,6 @@ def variational_compile(
     elif ansatz_type == "CU":
         gates = create_cu_instance(circuit, parameters, [dim_0, dim_1])
     else:
-        gates = None
+        raise ValueError
     circuit.set_instructions(gates)
     return circuit

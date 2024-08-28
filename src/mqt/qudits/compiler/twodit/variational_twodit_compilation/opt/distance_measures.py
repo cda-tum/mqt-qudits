@@ -13,11 +13,11 @@ from mqt.qudits.exceptions.circuiterror import ShapeMismatchError
 NDArray = np.ndarray
 
 
-def size_check(a: NDArray[np.complex128], b: NDArray[np.complex128]) -> bool:
+def size_check(a: NDArray[np.complex128, np.complex128], b: NDArray[np.complex128, np.complex128]) -> bool:
     return bool(a.shape == b.shape and a.shape[0] == a.shape[1])
 
 
-def fidelity_on_operator(a: np.ndarray, b: np.ndarray) -> float:
+def fidelity_on_operator(a: NDArray[np.complex128, np.complex128], b: NDArray[np.complex128, np.complex128]) -> float:
     if not size_check(a, b):
         msg = "Input arrays must have the same square shape."
         raise ShapeMismatchError(msg)
@@ -30,7 +30,8 @@ def fidelity_on_operator(a: np.ndarray, b: np.ndarray) -> float:
     return typing.cast(float, (numerator / denominator))
 
 
-def fidelity_on_unitares(a: np.ndarray, b: np.ndarray) -> float:
+def fidelity_on_unitares(a: NDArray[np.complex128, np.complex128],
+                         b: NDArray[np.complex128, np.complex128]) -> float:
     if not size_check(a, b):
         msg = "Input arrays must have the same square shape."
         raise ShapeMismatchError(msg)
@@ -40,7 +41,8 @@ def fidelity_on_unitares(a: np.ndarray, b: np.ndarray) -> float:
     return typing.cast(float, np.abs(np.trace(a.T.conj() @ b)) / dimension)
 
 
-def fidelity_on_density_operator(a: np.ndarray, b: np.ndarray) -> float:
+def fidelity_on_density_operator(a: NDArray[np.complex128, np.complex128],
+                                 b: NDArray[np.complex128, np.complex128]) -> float:
     if not size_check(a, b):
         msg = "Input arrays must have the same square shape."
         raise ShapeMismatchError(msg)
@@ -51,14 +53,14 @@ def fidelity_on_density_operator(a: np.ndarray, b: np.ndarray) -> float:
     return typing.cast(float, (numerator / denominator))
 
 
-def density_operator(state_vector: list[complex] | np.ndarray[np.complex128]) -> np.ndarray[np.complex128]:
+def density_operator(state_vector: np.ndarray[np.complex128]) -> np.ndarray[np.complex128]:
     if isinstance(state_vector, list):
         state_vector = np.array(state_vector)
 
     return np.outer(state_vector, state_vector.conj())
 
 
-def frobenius_dist(x: NDArray[np.complex128], y: NDArray[np.complex128]) -> float:
+def frobenius_dist(x: NDArray[np.complex128, np.complex128], y: NDArray[np.complex128, np.complex128]) -> float:
     a = x - y
     return np.sqrt(np.trace(np.abs(a.T.conj() @ a)))
 

@@ -11,14 +11,18 @@ from mqt.qudits.quantum_circuit import gates
 from mqt.qudits.quantum_circuit.gates import CustomOne
 
 if typing.TYPE_CHECKING:
-    from mqt.qudits.compiler.twodit.variational_twodit_compilation.opt.distance_measures import NDArray
+    from collections.abc import Sequence
+
     from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
 
 
 def ansatz_decompose(
-    circuit: QuantumCircuit, u: Gate, params: list[list[float] | NDArray[np.float64]], dims: list[int]
-) -> list[Gate]:
+    circuit: QuantumCircuit, u: Gate | None, params: list[list[float]], dims: list[int]
+) -> Sequence[Gate]:
+    if u is None:
+        msg = "Custom Gate not set."
+        raise ValueError(msg)
     counter = 0
     decomposition = []
     for i in range(len(params)):
@@ -35,20 +39,20 @@ def ansatz_decompose(
     return decomposition
 
 
-def create_cu_instance(circuit: QuantumCircuit, p: list[float] | NDArray[np.float64], dims: list[int]) -> list[Gate]:
+def create_cu_instance(circuit: QuantumCircuit, p: list[float], dims: list[int]) -> Sequence[Gate]:
     params = params_splitter(p, dims)
     cu = Primitive.CUSTOM_PRIMITIVE
     return ansatz_decompose(circuit, cu, params, dims)
 
 
-def create_ms_instance(circuit: QuantumCircuit, p: list[float], dims: list[int]) -> list[Gate]:
+def create_ms_instance(circuit: QuantumCircuit, p: list[float], dims: list[int]) -> Sequence[Gate]:
     params = params_splitter(p, dims)
     ms = gates.MS(circuit, "MS", [0, 1], [np.pi / 2], dims)  # ms_gate(np.pi / 2, dim)
 
     return ansatz_decompose(circuit, ms, params, dims)
 
 
-def create_ls_instance(circuit: QuantumCircuit, p: list[float] | NDArray[np.float64], dims: list[int]) -> list[Gate]:
+def create_ls_instance(circuit: QuantumCircuit, p: list[float], dims: list[int]) -> Sequence[Gate]:
     params = params_splitter(p, dims)
 
     if 2 in dims:

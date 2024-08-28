@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
-from scipy.linalg import expm
+from scipy.linalg import expm  # type: ignore[import-not-found]
 
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.ansatz.ansatz_gen_utils import reindex
 from mqt.qudits.quantum_circuit.components.extensions.matrix_factory import from_dirac_to_basis
@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 
 
 def params_splitter(
-    params: list[float] | NDArray[np.float64], dims: tuple[int, int]
-) -> list[list[float] | NDArray[np.float64]]:
+    params: list[float] | NDArray[np.float64], dims: list[int]
+) -> list[list[float]]:
     """
     Split a list of parameters into sublists based on given dimensions.
 

@@ -8,9 +8,30 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from numpy.typing import NDArray
 
+    from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
+    from mqt.qudits.quantum_circuit.gates import R, Rz, VirtRz
+
+
+def mini_unitary_sim(circuit: QuantumCircuit, list_of_op: list[Gate]) -> NDArray[np.complex128, np.complex128]:
+    size = reduce(operator.mul, circuit.dimensions)
+    id_mat = np.identity(size)
+    for gate in list_of_op:
+        id_mat = gate.to_matrix(identities=2) @ id_mat
+    return id_mat
+
+
+def mini_sim(circuit: QuantumCircuit) -> NDArray[np.complex128]:
+    size = reduce(operator.mul, circuit.dimensions)
+    state = np.array(size * [0. + 0.j])
+    state[0] = 1. + 0.j
+    for gate in circuit.instructions:
+        state = gate.to_matrix(identities=2) @ state
+    return state
 
 
 class UnitaryVerifier:
@@ -25,13 +46,13 @@ class UnitaryVerifier:
     """
 
     def __init__(
-        self,
-        sequence: list[Gate],
-        target: Gate,
-        dimensions: list[int],
-        nodes: list[int] | None = None,
-        initial_map: list[int] | None = None,
-        final_map: list[int] | None = None,
+            self,
+            sequence: Sequence[Gate | R | Rz | VirtRz],
+            target: Gate,
+            dimensions: list[int],
+            nodes: list[int] | None = None,
+            initial_map: list[int] | None = None,
+            final_map: list[int] | None = None,
     ) -> None:
         self.decomposition = sequence
         self.target = target.to_matrix().copy()

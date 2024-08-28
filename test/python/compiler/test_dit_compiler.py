@@ -14,7 +14,7 @@ class TestQuditCompiler(TestCase):
     @staticmethod
     def test_compile_00():
         provider = MQTQuditProvider()
-        backend_ion = provider.get_backend("faketraps2six", shots=50)
+        backend_ion = provider.get_backend("faketraps2six")
         qudit_compiler = QuditCompiler()
         circuit_33 = QuantumCircuit(2, [3, 3], 0)
         circuit_33.h(0).to_matrix(2).round(2)

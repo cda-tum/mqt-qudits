@@ -10,7 +10,7 @@ from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegist
 from mqt.qudits.simulation.noise_tools import Noise, NoiseModel, NoisyCircuitFactory
 
 
-def rand_0_5():
+def rand_0_5() -> int:
     rng = np.random.default_rng()
     return int(rng.integers(0, 6))
 
@@ -73,8 +73,8 @@ class TestNoisyCircuitFactory(TestCase):
         new_circ = factory.generate_circuit()
         instructions_new = new_circ.instructions
 
-        tag_counts_list1 = defaultdict(int)
-        tag_counts_list2 = defaultdict(int)
+        tag_counts_list1: dict[str, int] = defaultdict(int)
+        tag_counts_list2: dict[str, int] = defaultdict(int)
         insts = 0
         insts_new = 0
         for gate in instructions_og:
@@ -104,7 +104,7 @@ class TestNoisyCircuitFactory(TestCase):
         qreg_example = QuantumRegister("reg", 2, [5, 5])
         circ = QuantumCircuit(qreg_example)
         x = circ.x(0)
-        x = x.control([1], [2])
+        x.control([1], [2])
 
         factory = NoisyCircuitFactory(self.noise_model, circ)
         instructions_og = circ.instructions

@@ -1,23 +1,26 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
-from numpy.typing import NDArray
 
-ComplexArray = NDArray[np.complex128]
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from numpy.typing import NDArray
 
 
-def on1(gate: ComplexArray, other_size: int) -> ComplexArray:
+def on1(gate: NDArray[np.complex128, np.complex128], other_size: int) -> NDArray[np.complex128, np.complex128]:
     return np.kron(np.identity(other_size, dtype=np.complex128), gate)
 
 
-def on0(gate: ComplexArray, other_size: int) -> ComplexArray:
+def on0(gate: NDArray[np.complex128, np.complex128], other_size: int) -> NDArray[np.complex128, np.complex128]:
     return np.kron(gate, np.identity(other_size, dtype=np.complex128))
 
 
 def gate_expand_to_circuit(
-    gate: ComplexArray, circuits_size: int, target: int, dims: list[int] | None = None
-) -> ComplexArray:
+    gate: NDArray[np.complex128, np.complex128], circuits_size: int, target: int, dims: Sequence[int] | None = None
+) -> NDArray[np.complex128]:
     if dims is None:
         dims = [2, 2]
     if circuits_size < 1:
@@ -40,11 +43,11 @@ def gate_expand_to_circuit(
 
 
 def apply_gate_to_tlines(
-    gate_matrix: ComplexArray,
+    gate_matrix: NDArray[np.complex128, np.complex128],
     circuits_size: int = 2,
     targets: int | list[int] | None = None,
     dims: list[int] | None = None,
-) -> ComplexArray:
+) -> NDArray[np.complex128, np.complex128]:
     if dims is None:
         dims = [2, 2]
     if targets is None:

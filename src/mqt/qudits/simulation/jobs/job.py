@@ -10,9 +10,8 @@ from .jobstatus import JobStatus
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from numpy.typing import NDArray
-
     from ..backends.backendv2 import Backend
+    from . import JobResult
 
 
 class Job:
@@ -102,11 +101,11 @@ class Job:
         """Submit the job to the backend for execution."""
         raise NotImplementedError
 
-    def result(self) -> NDArray | list[int]:
+    def result(self) -> JobResult:
         """Return the results of the job."""
         return self._result
 
-    def set_result(self, result: NDArray | list[int]) -> None:
+    def set_result(self, result: JobResult) -> None:
         self._result = result
 
     def cancel(self) -> NoReturn:

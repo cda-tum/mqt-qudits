@@ -13,8 +13,9 @@ class CompilerPass(ABC):
     def __init__(self, backend: Backend) -> None:
         self.backend = backend
 
+    @staticmethod
     @abstractmethod
-    def transpile_gate(self, gate: Gate) -> list[Gate]:
+    def transpile_gate(gate: Gate) -> list[Gate]:
         pass
 
     @abstractmethod

@@ -39,11 +39,11 @@ class TestTNSim(TestCase):
         for d in range(2, 8):
             qreg_example = QuantumRegister("reg", 1, [d])
             circuit = QuantumCircuit(qreg_example)
-            gate = circuit.x(0)
+            x = circuit.x(0)
 
             zero_state = np.zeros(d)
             zero_state[0] = 1
-            test_state = gate.to_matrix() @ zero_state
+            test_state = x.to_matrix() @ zero_state
 
             job = backend.run(circuit)
             result = job.result()
@@ -56,11 +56,11 @@ class TestTNSim(TestCase):
             qreg_example = QuantumRegister("reg", 1, [d])
             circuit = QuantumCircuit(qreg_example)
             h = circuit.h(0)
-            gate = circuit.z(0)
+            z = circuit.z(0)
 
             zero_state = np.zeros(d)
             zero_state[0] = 1
-            test_state = gate.to_matrix() @ h.to_matrix() @ zero_state
+            test_state = z.to_matrix() @ h.to_matrix() @ zero_state
 
             job = backend.run(circuit)
             result = job.result()
@@ -73,11 +73,11 @@ class TestTNSim(TestCase):
             qreg_example = QuantumRegister("reg", 1, [d])
             circuit = QuantumCircuit(qreg_example)
             h = circuit.h(0)
-            gate = circuit.s(0)
+            s = circuit.s(0)
 
             zero_state = np.zeros(d)
             zero_state[0] = 1
-            test_state = gate.to_matrix() @ h.to_matrix() @ zero_state
+            test_state = s.to_matrix() @ h.to_matrix() @ zero_state
 
             job = backend.run(circuit)
             result = job.result()
@@ -93,11 +93,11 @@ class TestTNSim(TestCase):
                     circuit = QuantumCircuit(qreg_example)
                     h = circuit.h(0)
                     angle = rng.uniform(0, 2 * np.pi)
-                    gate = circuit.rz(0, [level_a, level_b, angle])
+                    rz = circuit.rz(0, [level_a, level_b, angle])
 
                     ini_state = np.zeros(d)
                     ini_state[0] = 1
-                    test_state = gate.to_matrix() @ h.to_matrix() @ ini_state
+                    test_state = rz.to_matrix() @ h.to_matrix() @ ini_state
 
                     job = backend.run(circuit)
                     result = job.result()
@@ -112,11 +112,11 @@ class TestTNSim(TestCase):
                 for level_b in range(level_a + 1, d):
                     circuit = QuantumCircuit(qreg_example)
                     h = circuit.h(0)
-                    gate = circuit.rh(0, [level_a, level_b])
+                    rh = circuit.rh(0, [level_a, level_b])
 
                     ini_state = np.zeros(d)
                     ini_state[0] = 1
-                    test_state = gate.to_matrix() @ h.to_matrix() @ ini_state
+                    test_state = rh.to_matrix() @ h.to_matrix() @ ini_state
 
                     job = backend.run(circuit)
                     result = job.result()
@@ -133,11 +133,11 @@ class TestTNSim(TestCase):
                     h = circuit.h(0)
                     angle = rng.uniform(0, 2 * np.pi)
                     phase = rng.uniform(0, 2 * np.pi)
-                    gate = circuit.r(0, [level_a, level_b, angle, phase])
+                    r = circuit.r(0, [level_a, level_b, angle, phase])
 
                     ini_state = np.zeros(d)
                     ini_state[0] = 1
-                    test_state = gate.to_matrix() @ h.to_matrix() @ ini_state
+                    test_state = r.to_matrix() @ h.to_matrix() @ ini_state
 
                     job = backend.run(circuit)
                     result = job.result()
@@ -152,11 +152,11 @@ class TestTNSim(TestCase):
                 circuit = QuantumCircuit(qreg_example)
                 h = circuit.h(0)
                 angle = rng.uniform(0, 2 * np.pi)
-                gate = circuit.virtrz(0, [level, angle])
+                vrz = circuit.virtrz(0, [level, angle])
 
                 ini_state = np.zeros(d)
                 ini_state[0] = 1
-                test_state = gate.to_matrix() @ h.to_matrix() @ ini_state
+                test_state = vrz.to_matrix() @ h.to_matrix() @ ini_state
 
                 job = backend.run(circuit)
                 result = job.result()

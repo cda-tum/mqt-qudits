@@ -35,7 +35,7 @@ def pi_mod(a: float) -> float:
 
 
 def regulate_theta(angle: float) -> float:
-    theta_in_units_of_pi = np.mod(abs(angle / np.pi), 4)
+    theta_in_units_of_pi: float = np.mod(abs(angle / np.pi), 4)
     if angle < 0:
         theta_in_units_of_pi *= -1
     if abs(theta_in_units_of_pi) < 0.2:

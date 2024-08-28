@@ -23,13 +23,13 @@ class Node:
         max_cost: tuple[float, float],
         pi_pulses: list[gates.R],
         parent_key: int,
-        children: Node | None = None,
+        children: Node = None,
     ) -> None:
         self.key = key
-        self.children = children
+        self.children: list[Node] = children
         self.rotation = rotation
         self.u_of_level = u_of_level
-        self.finished = False
+        self.finished: bool = False
         self.current_cost = current_cost
         self.current_decomp_cost = current_decomp_cost
         self.max_cost = max_cost

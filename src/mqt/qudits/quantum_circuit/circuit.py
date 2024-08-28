@@ -34,6 +34,7 @@ from .qasm import QASM
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from numpy.random.mtrand import Sequence
     from numpy.typing import NDArray
 
     from .components.extensions.controls import ControlData
@@ -42,7 +43,7 @@ if TYPE_CHECKING:
 
 def is_not_none_or_empty(variable: Iterable) -> bool:
     return (variable is not None and hasattr(variable, "__iter__") and len(variable) > 0) or (
-        isinstance(variable, np.ndarray) and variable.size > 0
+            isinstance(variable, np.ndarray) and variable.size > 0
     )
 
 
@@ -93,7 +94,7 @@ class QuantumCircuit:
         self.num_cl = 0
         self._num_qudits = 0
         self._dimensions = []
-        self.mappings = None
+        self.mappings: list[list[int]] | None = None
         self.path_save = None
 
         if len(args) == 0:
@@ -289,11 +290,11 @@ class QuantumCircuit:
     def z(self, qudit: int, controls: ControlData | None = None) -> Z:
         return Z(self, "Z" + str(self.dimensions[qudit]), qudit, self.dimensions[qudit], controls)
 
-    def replace_gate(self, gate_index: int, sequence: list[Gate]) -> None:
+    def replace_gate(self, gate_index: int, sequence: Sequence[Gate]) -> None:
         self.instructions[gate_index : gate_index + 1] = sequence
         self.number_gates = (self.number_gates - 1) + len(sequence)
 
-    def set_instructions(self, sequence: list[Gate]) -> QuantumCircuit:
+    def set_instructions(self, sequence: Sequence[Gate]) -> QuantumCircuit:
         self.instructions = []
         self.instructions += sequence
         self.number_gates = len(sequence)

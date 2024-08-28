@@ -17,7 +17,7 @@ class Lanes:
         self.circuit: QuantumCircuit = circuit
         self.instructions: list[Gate] = circuit.instructions
         self.pre_process_ops()
-        self.index_dict: dict[int, list[Gate]] = self.create_lanes()
+        self.index_dict: dict[int, list[tuple[int, Gate]]] = self.create_lanes()
 
     def pre_process_ops(self) -> None:
         gates = []
@@ -31,7 +31,7 @@ class Lanes:
                 gates.append((entanglement_counter, gate))
         self.instructions = gates
 
-    def create_lanes(self) -> dict[int, list[Gate]]:
+    def create_lanes(self) -> dict[int, list[tuple[int, Gate]]]:
         self.index_dict = {}
         for gate_tuple in self.instructions:
             gate = gate_tuple[1]
@@ -72,7 +72,8 @@ class Lanes:
     def extract_lane(self, qudit_line: int) -> list[Gate]:
         return [gate_tuple[1] for gate_tuple in self.index_dict[qudit_line]]
 
-    def find_consecutive_singles(self, gates: list[Gate] | None = None) -> dict[int, list[list[Gate]]]:
+    def find_consecutive_singles(self, gates: list[Gate] | None = None) \
+            -> dict[int, list[list[tuple[int, Gate]]]]:
         if gates is None:
             gates = self.instructions
         from collections import defaultdict

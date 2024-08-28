@@ -4,74 +4,53 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from datetime import datetime
-
     from ...core import LevelGraph
     from ...quantum_circuit import QuantumCircuit
-    from ...quantum_circuit.gate import Gate
+    from .. import MQTQuditProvider
     from ..jobs import Job
-    from ..qudit_provider import QuditProvider as Provider
+    from ..noise_tools import NoiseModel
 
 
 class Backend(ABC):
-    @property
-    def version(self) -> int:
-        return 2
-
     def __init__(
-        self,
-        provider: Provider | None = None,
-        name: str | None = None,
-        description: str | None = None,
-        online_date: datetime | None = None,
-        backend_version: str | None = None,
-        **fields: dict[str, Any],
+            self,
+            provider: MQTQuditProvider | None = None,
+            name: str | None = None,
+            description: str | None = None,
+            **fields: dict[str, Any],
     ) -> None:
-        self._options = self._default_options()
         self._provider = provider
+        self.name = name
+        self.description: str = description
+        self._energy_level_graphs = []
+        self.noise_model: NoiseModel | None = None
+        self.shots: int = 50
+        self.memory: bool = False
+        self.full_state_memory: bool = False
+        self.file_path: str | None = None
+        self.file_name: str | None = None
 
+        self._options: Any = self._default_options()
         if fields:
-            # for field in fields:
-            #    if field not in self._options.data:
-            #        msg = f"Options field '{field}' is not valid for this backend"
-            #        raise AttributeError(msg)
             self._options.update(fields)
 
-        self.name = name
-        self.description = description
-        self.online_date = online_date
-        self.backend_version = backend_version
-        self._coupling_map = None
-        self._energy_level_graphs = None
-
-    @property
-    def instructions(self) -> list[tuple[Gate, tuple[int]]]:
-        return self.target.instructions
-
-    @property
-    def operations(self) -> list[Gate]:
-        return list(self.target.operations)
-
-    @property
-    def operation_names(self) -> list[str]:
-        return list(self.target.operation_names)
-
-    # todo: this has to be defined properly
-    target = Any
-
-    @property
-    def num_qudits(self) -> int:
-        return self.target.num_qudits
+    def __noise_model(self) -> NoiseModel:
+        return self.noise_model
 
     @property
     def energy_level_graphs(self) -> list[LevelGraph, LevelGraph]:
         raise NotImplementedError
 
-    @staticmethod
-    def _default_options() -> dict[int, bool]:
-        return {"shots": 50, "memory": False}
+    def _default_options(self) -> dict[str, int | bool | NoiseModel | None]:
+        return {
+            "shots":       50,
+            "memory":      False,
+            "noise_model": self.__noise_model()
+        }
 
-    def set_options(self, **fields: dict[str, Any]) -> None:
+
+
+    def set_options(self, **fields: Any) -> None:  #noqa: ANN401
         for field in fields:
             if not hasattr(self._options, field):
                 msg = f"Options field '{field}' is not valid for this backend"
@@ -83,9 +62,9 @@ class Backend(ABC):
         return self._options
 
     @property
-    def provider(self) -> Provider:
+    def provider(self) -> MQTQuditProvider:
         return self._provider
 
     @abstractmethod
-    def run(self, circuit: QuantumCircuit, **options: dict[str, Any]) -> Job:
+    def run(self, circuit: QuantumCircuit, **options: Any) -> Job:  #noqa: ANN401
         pass

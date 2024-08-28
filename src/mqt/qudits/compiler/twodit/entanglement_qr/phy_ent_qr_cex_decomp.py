@@ -10,6 +10,8 @@ from mqt.qudits.quantum_circuit.components.extensions.gate_types import GateType
 from mqt.qudits.quantum_circuit.gates import Perm
 
 if typing.TYPE_CHECKING:
+    from numpy.random.mtrand import Sequence
+
     from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
     from mqt.qudits.simulation.backends.backendv2 import Backend
@@ -20,16 +22,20 @@ class PhyEntQRCEXPass(CompilerPass):
         super().__init__(backend)
         self.circuit = None
 
-    def transpile_gate(self, gate: Gate) -> list[Gate]:
-        energy_graph_c = self.backend.energy_level_graphs[gate.target_qudits[0]]
-        energy_graph_t = self.backend.energy_level_graphs[gate.target_qudits[1]]
-        lp_map_0 = [lev for lev in energy_graph_c.log_phy_map if lev < gate.dimensions[gate.target_qudits[0]]]
-        lp_map_1 = [lev for lev in energy_graph_t.log_phy_map if lev < gate.dimensions[gate.target_qudits[1]]]
+    def transpile_gate(self, gate: Gate) -> Sequence[Gate]:
+        target_qudits = typing.cast(typing.List[int], gate.target_qudits)
+        dimensions = typing.cast(typing.List[int], gate.dimensions)
 
-        perm_0 = Perm(gate.parent_circuit, "Pm_ent_0", gate.target_qudits[0], lp_map_0, gate.dimensions[0])
-        perm_1 = Perm(gate.parent_circuit, "Pm_ent_1", gate.target_qudits[1], lp_map_1, gate.dimensions[1])
-        perm_0_dag = Perm(gate.parent_circuit, "Pm_ent_0", gate.target_qudits[0], lp_map_0, gate.dimensions[0]).dag()
-        perm_1_dag = Perm(gate.parent_circuit, "Pm_ent_1", gate.target_qudits[1], lp_map_1, gate.dimensions[1]).dag()
+        energy_graph_c = self.backend.energy_level_graphs[target_qudits[0]]
+        energy_graph_t = self.backend.energy_level_graphs[target_qudits[1]]
+
+        lp_map_0 = [lev for lev in energy_graph_c.log_phy_map if lev < dimensions[target_qudits[0]]]
+        lp_map_1 = [lev for lev in energy_graph_t.log_phy_map if lev < dimensions[target_qudits[1]]]
+
+        perm_0 = Perm(gate.parent_circuit, "Pm_ent_0", target_qudits[0], lp_map_0, dimensions[0])
+        perm_1 = Perm(gate.parent_circuit, "Pm_ent_1", target_qudits[1], lp_map_1, dimensions[1])
+        perm_0_dag = Perm(gate.parent_circuit, "Pm_ent_0", target_qudits[0], lp_map_0, dimensions[0]).dag()
+        perm_1_dag = Perm(gate.parent_circuit, "Pm_ent_1", target_qudits[1], lp_map_1, dimensions[1]).dag()
 
         phyloc = PhyLocAdaPass(self.backend)
         perm_0_seq = phyloc.transpile_gate(perm_0)

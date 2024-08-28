@@ -7,7 +7,7 @@ import numpy as np
 from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
-def omega_s_d(d):
+def omega_s_d(d: int) -> complex:
     return np.e ** (2 * np.pi * 1j / d)
 
 

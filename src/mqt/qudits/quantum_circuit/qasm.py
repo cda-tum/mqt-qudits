@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict
 
 import numpy as np
 
@@ -18,7 +18,7 @@ class QASM:
         self._program = None
 
     @staticmethod
-    def parse_nonspecial_lines(line: str, rgxs: dict[str, re.Pattern], in_comment_flag: bool) -> tuple[bool, bool]:
+    def parse_nonspecial_lines(line: str, rgxs: dict[str, re.Pattern[str]], in_comment_flag: bool) -> tuple[bool, bool]:
         in_comment = in_comment_flag
 
         if not line:
@@ -40,7 +40,7 @@ class QASM:
         return False, in_comment
 
     @staticmethod
-    def parse_qreg(line: str, rgxs: dict[str, re.Pattern], sitemap: dict[tuple[str, int], tuple[int, int]]) -> bool:
+    def parse_qreg(line: str, rgxs: dict[str, re.Pattern[str]], sitemap: dict[tuple[str, int], tuple[int, int]]) -> bool:
         match = rgxs["qreg"].match(line)
         if match:
             name, nq, qdims = match.groups()
@@ -59,7 +59,7 @@ class QASM:
         return False
 
     @staticmethod
-    def parse_creg(line: str, rgxs: dict[str, re.Pattern], sitemap_classic: dict[tuple[str, int], int]) -> bool:
+    def parse_creg(line: str, rgxs: dict[str, re.Pattern[str]], sitemap_classic: dict[tuple[str, int], int]) -> bool:
         match = rgxs["creg"].match(line)
         if match:
             name, nclassics = match.groups()
@@ -82,7 +82,7 @@ class QASM:
     @staticmethod
     def parse_gate(
         line: str,
-        rgxs: dict[str, re.Pattern],
+        rgxs: dict[str, re.Pattern[str]],
         sitemap: dict[tuple[str, int], tuple[int, int]],
         gates: list[dict[str, Any]],
     ) -> bool:
@@ -155,7 +155,7 @@ class QASM:
         openqasm grammar.
         """
         # define regular expressions for parsing
-        rgxs = {
+        rgxs: Dict[str, re.Pattern[str]] = {
             "header": re.compile(r"(DITQASM\s+2.0;)|(include\s+\"qelib1.inc\";)"),
             "comment": re.compile(r"^//"),
             "comment_start": re.compile(r"/\*"),
