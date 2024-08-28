@@ -33,6 +33,7 @@ from .qasm import QASM
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
+
     from numpy.typing import NDArray
 
     from .components.extensions.controls import ControlData
@@ -42,7 +43,10 @@ if TYPE_CHECKING:
 def is_not_none_or_empty(variable: Iterable[int]) -> bool:
     return (variable is not None and len(variable) >= 1) or (isinstance(variable, np.ndarray) and variable.size > 0)
 
+
 G = TypeVar("G", bound="Gate")
+
+
 def add_gate_decorator(func: Callable[..., G]) -> Callable[..., G]:
     def gate_constructor(circ: QuantumCircuit, *args: typing.Any) -> G:  # noqa: ANN401
         gate = func(circ, *args)

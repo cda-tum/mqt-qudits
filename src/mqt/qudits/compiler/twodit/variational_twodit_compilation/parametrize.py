@@ -70,8 +70,8 @@ def generic_sud(params: list[float] | NDArray[np.float64], dimension: int) -> ND
                 np.array(n_vec), np.array(m_vec).T.conj()
             )
 
-            c_unitary = np.matmul(c_unitary,  expm(1j * params[reindex(n, m, dimension)] * zmn))
+            c_unitary = np.matmul(c_unitary, expm(1j * params[reindex(n, m, dimension)] * zmn))
 
-            c_unitary = np.matmul(c_unitary,  expm(1j * params[reindex(m, n, dimension)] * ymn))
+            c_unitary = np.matmul(c_unitary, expm(1j * params[reindex(m, n, dimension)] * ymn))
 
     return c_unitary
