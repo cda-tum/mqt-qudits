@@ -7,7 +7,6 @@ from typing import List, Tuple
 
 
 class MicroDDNode:
-
     def __init__(self, label: int | str) -> None:
         self.id: int | None = None
         self.value: int | str = label
@@ -100,7 +99,7 @@ def unique_weights(root: MicroDDNode) -> set[complex]:
 
 
 def normalize(in_weight: complex, out_weights: list[complex]) -> tuple[complex, list[complex]]:
-    mags_squared = [x.real ** 2 + x.imag ** 2 for x in out_weights]
+    mags_squared = [x.real**2 + x.imag**2 for x in out_weights]
     norm_squared = sum(mags_squared)
     norm = math.sqrt(norm_squared)
     if norm == 0:
@@ -114,7 +113,7 @@ def normalize(in_weight: complex, out_weights: list[complex]) -> tuple[complex, 
 
 
 def create_decision_tree(
-        labels: list[int], cardinalities: list[int], data: NDArray[complex] | list[complex]
+    labels: list[int], cardinalities: list[int], data: NDArray[complex] | list[complex]
 ) -> tuple[MicroDDNode, list[int]]:
     root = MicroDDNode("r")
     root.data = data
@@ -125,12 +124,12 @@ def create_decision_tree(
 
 
 def build_decision_tree(
-        labels: list[int],
-        node: MicroDDNode,
-        cardinalities: list[int],
-        data: NDArray[complex] | list[complex],
-        number_of_nodes: list[int],
-        depth: int = 0,
+    labels: list[int],
+    node: MicroDDNode,
+    cardinalities: list[int],
+    data: NDArray[complex] | list[complex],
+    number_of_nodes: list[int],
+    depth: int = 0,
 ) -> None:
     if depth == len(cardinalities):
         node.weight = data[0]
@@ -149,7 +148,7 @@ def build_decision_tree(
 
     for i in range(cardinalities[depth]):
         # Split the array into two subarrays
-        branch_data = data[i * split_index: (i + 1) * split_index]
+        branch_data = data[i * split_index : (i + 1) * split_index]
 
         child = MicroDDNode(labels[depth])
         number_of_nodes[0] += 1
@@ -164,7 +163,7 @@ def build_decision_tree(
 
     # Managing Probability
     for c in node.children:
-        c.p = c.weight ** 2
+        c.p = c.weight**2
     ####################
 
     node.weight, new_weights = normalize(node.weight, cweights)
@@ -205,7 +204,7 @@ def remove_children(node: MicroDDNode) -> None:
 
 
 def cut_branches(contributions: NodeContribution, tolerance: float) -> None:
-    current = 0.
+    current = 0.0
     for level in reversed(contributions):
         for node, prob in level:
             if current + prob < tolerance and node.available:

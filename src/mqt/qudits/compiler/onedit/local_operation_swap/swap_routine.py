@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING, cast
 
-import networkx as nx  #type: ignore[import-not-found]
+import networkx as nx  # type: ignore[import-not-found]
 import numpy as np
 
 from ....quantum_circuit import gates
@@ -77,7 +77,11 @@ def graph_rule_ongate(gate: gates.R, graph: LevelGraph) -> gates.R:
         new_g_phi += graph.nodes[logic_nodes[1]]["phase_storage"]
 
     return gates.R(
-        gate.parent_circuit, "R", cast(int, gate.target_qudits), [g_lev_a, g_lev_b, gate.theta, new_g_phi], gate.dimensions
+        gate.parent_circuit,
+        "R",
+        cast(int, gate.target_qudits),
+        [g_lev_a, g_lev_b, gate.theta, new_g_phi],
+        gate.dimensions,
     )
     # R(gate_matrix.theta, new_g_phi, g_lev_a, g_lev_b, gate_matrix.dimension)
 
@@ -123,7 +127,7 @@ def route_states2rotate_basic(gate: R, orig_placement: LevelGraph) -> tuple[floa
     placement = orig_placement
     dimension = gate.dimensions
 
-    cost_of_pi_pulses = 0.
+    cost_of_pi_pulses = 0.0
     pi_pulses_routing: list[R] = []
 
     source = gate.original_lev_a  # Original code requires to know the direction of rotations

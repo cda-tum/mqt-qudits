@@ -20,6 +20,7 @@ class PhyEntQRCEXPass(CompilerPass):
     def __init__(self, backend: Backend) -> None:
         super().__init__(backend)
         from mqt.qudits.quantum_circuit import QuantumCircuit
+
         self.circuit = QuantumCircuit()
 
     def transpile_gate(self, gate: Gate) -> list[Gate]:

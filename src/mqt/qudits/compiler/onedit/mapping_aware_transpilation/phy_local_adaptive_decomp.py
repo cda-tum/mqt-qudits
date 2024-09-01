@@ -35,7 +35,7 @@ np.seterr(all="ignore")
 
 
 class PhyLocAdaPass(CompilerPass):
-    def __init__(self, backend: Backend,  vrz_prop: bool = False) -> None:
+    def __init__(self, backend: Backend, vrz_prop: bool = False) -> None:
         super().__init__(backend)
         self.vrz_prop = vrz_prop
 
@@ -110,7 +110,9 @@ class PhyAdaptiveDecomposition:
             matrices_decomposed, best_cost, final_graph = self.TREE.retrieve_decomposition(self.TREE.root)
 
             if matrices_decomposed != []:
-                matrices_decomposed_m, final_graph = self.z_extraction(matrices_decomposed, final_graph, self.phase_propagation)
+                matrices_decomposed_m, final_graph = self.z_extraction(
+                    matrices_decomposed, final_graph, self.phase_propagation
+                )
             else:
                 pass
 
@@ -159,7 +161,7 @@ class PhyAdaptiveDecomposition:
                     phy_n_i = placement.nodes[i]["lpmap"]
 
                     phase_gate = gates.VirtRz(
-                            self.circuit, "VRz", self.qudit_index, [phy_n_i, np.angle(diag_u[i])], self.dimension
+                        self.circuit, "VRz", self.qudit_index, [phy_n_i, np.angle(diag_u[i])], self.dimension
                     )  # old version: VirtRz(np.angle(diag_U[i]), phy_n_i,
                     # dimension)
 

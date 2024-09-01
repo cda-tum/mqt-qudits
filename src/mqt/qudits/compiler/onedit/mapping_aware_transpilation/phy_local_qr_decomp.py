@@ -61,8 +61,8 @@ class PhyQrDecomp:
 
     def execute(self) -> tuple[list[Gate], float, float]:
         decomp: list[Gate] = []
-        total_cost = 0.
-        algorithmic_cost = 0.
+        total_cost = 0.0
+        algorithmic_cost = 0.0
 
         u_ = self.U
         dimension = self.U.shape[0]
@@ -76,11 +76,11 @@ class PhyQrDecomp:
                     theta_z = new_mod(self.graph.nodes[i]["phase_storage"])
                     if abs(theta_z) > 1.0e-4:
                         phase_gate = gates.VirtRz(
-                                self.gate.parent_circuit,
-                                "VRz",
-                                cast(int, self.gate.target_qudits),
-                                [self.graph.nodes[i]["lpmap"], theta_z],
-                                cast(int, self.gate.dimensions),
+                            self.gate.parent_circuit,
+                            "VRz",
+                            cast(int, self.gate.target_qudits),
+                            [self.graph.nodes[i]["lpmap"], theta_z],
+                            cast(int, self.gate.dimensions),
                         )  # (thetaZ, self.graph.nodes[i]['lpmap'], dimension)
                         decomp.append(phase_gate)
                     recover_dict[i] = theta_z

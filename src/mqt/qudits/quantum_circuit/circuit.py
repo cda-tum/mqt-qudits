@@ -44,7 +44,6 @@ if TYPE_CHECKING:
     from .components.classic_register import ClSitemap
 
 
-
 def is_not_none_or_empty(variable: Parameter) -> bool:
     if variable is None:
         return False

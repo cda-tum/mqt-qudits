@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import operator
 from functools import reduce
-from typing import Optional, TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 import numpy as np
 
