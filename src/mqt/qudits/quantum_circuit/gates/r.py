@@ -19,21 +19,21 @@ if TYPE_CHECKING:
 
 class R(Gate):
     def __init__(
-            self,
-            circuit: QuantumCircuit,
-            name: str,
-            target_qudits: int,
-            parameters: list[int | float],
-            dimensions: int,
-            controls: ControlData | None = None,
+        self,
+        circuit: QuantumCircuit,
+        name: str,
+        target_qudits: int,
+        parameters: list[int | float],
+        dimensions: int,
+        controls: ControlData | None = None,
     ) -> None:
         super().__init__(
-                circuit=circuit,
-                name=name,
-                gate_type=GateTypes.SINGLE,
-                target_qudits=target_qudits,
-                dimensions=dimensions,
-                control_set=controls,
+            circuit=circuit,
+            name=name,
+            gate_type=GateTypes.SINGLE,
+            target_qudits=target_qudits,
+            dimensions=dimensions,
+            control_set=controls,
         )
 
         if self.validate_parameter(parameters):
@@ -61,24 +61,10 @@ class R(Gate):
         qudit_targeted = cast(int, self.target_qudits)
 
         return cosine_matrix - 1j * np.sin(theta / 2) * (
-                np.sin(phi)
-                * GellMann(
-                self.parent_circuit,
-                "Gellman_a",
-                qudit_targeted,
-                pa,
-                self.dimensions,
-                None
-        ).to_matrix()
-                + np.cos(phi)
-                * GellMann(
-                self.parent_circuit,
-                "Gellman_s",
-                qudit_targeted,
-                ps,
-                self.dimensions,
-                None
-        ).to_matrix()
+            np.sin(phi)
+            * GellMann(self.parent_circuit, "Gellman_a", qudit_targeted, pa, self.dimensions, None).to_matrix()
+            + np.cos(phi)
+            * GellMann(self.parent_circuit, "Gellman_s", qudit_targeted, ps, self.dimensions, None).to_matrix()
         )
 
     @staticmethod

@@ -42,7 +42,7 @@ def fidelity_on_unitares(a: NDArray[np.complex128, np.complex128], b: NDArray[np
 
 
 def fidelity_on_density_operator(
-        a: NDArray[np.complex128, np.complex128], b: NDArray[np.complex128, np.complex128]
+    a: NDArray[np.complex128, np.complex128], b: NDArray[np.complex128, np.complex128]
 ) -> float:
     if not size_check(a, b):
         msg = "Input arrays must have the same square shape."

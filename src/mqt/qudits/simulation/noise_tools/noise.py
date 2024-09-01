@@ -17,12 +17,7 @@ class NoiseModel:
     def __init__(self) -> None:
         self.quantum_errors: dict[str, dict[str, Noise]] = {}
 
-    def _add_quantum_error(
-            self,
-            noise: Noise,
-            gates: list[str],
-            mode: str
-    ) -> None:
+    def _add_quantum_error(self, noise: Noise, gates: list[str], mode: str) -> None:
         """
         Helper method to add quantum errors to the model.
 

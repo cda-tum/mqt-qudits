@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, cast, List
+from typing import TYPE_CHECKING, cast
 
-import networkx as nx  #type: ignore[import-not-found]
+import networkx as nx  # type: ignore[import-not-found]
 import numpy as np
 
 from ....quantum_circuit import gates
@@ -40,7 +40,7 @@ def graph_rule_update(gate: gates.R, graph: LevelGraph) -> None:
         g_lev_a = gate.lev_a
         g_lev_b = gate.lev_b
 
-        logic_nodes: List[int] = find_logic_from_phys(g_lev_a, g_lev_b, graph)
+        logic_nodes: list[int] = find_logic_from_phys(g_lev_a, g_lev_b, graph)
 
         # only pi pulses can update online the graph
         if logic_nodes[0] != -1 and logic_nodes[1] != -1:
@@ -77,7 +77,11 @@ def graph_rule_ongate(gate: gates.R, graph: LevelGraph) -> gates.R:
         new_g_phi += graph.nodes[logic_nodes[1]]["phase_storage"]
 
     return gates.R(
-        gate.parent_circuit, "R", cast(int, gate.target_qudits), [g_lev_a, g_lev_b, gate.theta, new_g_phi], gate.dimensions
+        gate.parent_circuit,
+        "R",
+        cast(int, gate.target_qudits),
+        [g_lev_a, g_lev_b, gate.theta, new_g_phi],
+        gate.dimensions,
     )
     # R(gate_matrix.theta, new_g_phi, g_lev_a, g_lev_b, gate_matrix.dimension)
 
@@ -123,8 +127,8 @@ def route_states2rotate_basic(gate: R, orig_placement: LevelGraph) -> tuple[floa
     placement = orig_placement
     dimension = gate.dimensions
 
-    cost_of_pi_pulses = 0.
-    pi_pulses_routing: List[R] = []
+    cost_of_pi_pulses = 0.0
+    pi_pulses_routing: list[R] = []
 
     source = gate.original_lev_a  # Original code requires to know the direction of rotations
     target = gate.original_lev_b

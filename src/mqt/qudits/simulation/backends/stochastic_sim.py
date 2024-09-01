@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 def generate_seed() -> int:
     """Generate a random seed for numpy random generator."""
     current_time = int(time.time() * 1000)
-    return hash((os.getpid(), current_time)) % 2 ** 32
+    return hash((os.getpid(), current_time)) % 2**32
 
 
 def measure_state(vector_data: NDArray[np.complex128]) -> int:

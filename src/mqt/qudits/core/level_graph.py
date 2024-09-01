@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import copy
-from typing import Optional, TYPE_CHECKING, Dict, List, Tuple
+from typing import TYPE_CHECKING
 
-import networkx as nx  #type: ignore[import-not-found]
+import networkx as nx  # type: ignore[import-not-found]
 import numpy as np
 
 from ..quantum_circuit.gates.virt_rz import VirtRz
@@ -14,18 +14,18 @@ if TYPE_CHECKING:
     from ..quantum_circuit import QuantumCircuit
 
 
-class LevelGraph(nx.Graph):  #type: ignore[misc]
+class LevelGraph(nx.Graph):  # type: ignore[misc]
     def __init__(
-            self,
-            edges: List[Tuple[int, int, Dict]],
-            nodes: list[int],
-            nodes_physical_mapping: list[int] | None = None,
-            initialization_nodes: list[int] | None = None,
-            qudit_index: int | None = None,
-            og_circuit: Optional[QuantumCircuit] = None
+        self,
+        edges: list[tuple[int, int, dict]],
+        nodes: list[int],
+        nodes_physical_mapping: list[int] | None = None,
+        initialization_nodes: list[int] | None = None,
+        qudit_index: int | None = None,
+        og_circuit: QuantumCircuit | None = None,
     ) -> None:
         super().__init__()
-        self.og_circuit: Optional[QuantumCircuit] = og_circuit
+        self.og_circuit: QuantumCircuit | None = og_circuit
         self.qudit_index: int = qudit_index
         self.logic_nodes: list[int] = nodes
         self.add_nodes_from(self.logic_nodes)
@@ -112,7 +112,7 @@ class LevelGraph(nx.Graph):  #type: ignore[misc]
 
     @staticmethod
     def deep_copy_func(
-            l_n: list[tuple[int, int, dict]] | list[tuple[int, int]],
+        l_n: list[tuple[int, int, dict]] | list[tuple[int, int]],
     ) -> list[tuple[int, int, dict]] | list[tuple[int, int]]:
         cpy_list = []
         for li in l_n:
@@ -178,17 +178,17 @@ class LevelGraph(nx.Graph):  #type: ignore[misc]
         for node in self.nodes:
             node_dict = self.nodes[node]
             if "phase_storage" in node_dict and (
-                    node_dict["phase_storage"] > 1e-3 or np.mod(node_dict["phase_storage"], 2 * np.pi) > 1e-3
+                node_dict["phase_storage"] > 1e-3 or np.mod(node_dict["phase_storage"], 2 * np.pi) > 1e-3
             ):
                 phy_n_i = self.nodes[node]["lpmap"]
 
                 # phase_gate = VirtRz(node_dict["phase_storage"], phy_n_i, len(list(self.nodes)))
                 phase_gate = VirtRz(
-                        self.og_circuit,
-                        "VirtRz_egraph",
-                        self.qudit_index,
-                        [phy_n_i, node_dict["phase_storage"]],
-                        self.og_circuit.dimensions[self.qudit_index],
+                    self.og_circuit,
+                    "VirtRz_egraph",
+                    self.qudit_index,
+                    [phy_n_i, node_dict["phase_storage"]],
+                    self.og_circuit.dimensions[self.qudit_index],
                 )
                 matrices.append(phase_gate)
 

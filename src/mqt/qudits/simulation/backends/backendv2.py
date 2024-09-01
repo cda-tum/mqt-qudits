@@ -65,4 +65,3 @@ class Backend(ABC):
 
     def execute(self, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> None:
         raise NotImplementedError
-

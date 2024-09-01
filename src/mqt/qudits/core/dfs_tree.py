@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import typing
-from typing import Optional
+
 from ..exceptions import NodeNotFoundError
 
 if typing.TYPE_CHECKING:
@@ -23,7 +23,7 @@ class Node:
         max_cost: tuple[float, float],
         pi_pulses: list[gates.R],
         parent_key: int,
-        children: Optional[Node] = None,
+        children: Node | None = None,
     ) -> None:
         self.key = key
         self.children: list[Node] = children
