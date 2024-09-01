@@ -18,7 +18,7 @@ from mqt.qudits.quantum_circuit.gates import R
 if typing.TYPE_CHECKING:
     from numpy.typing import NDArray
 
-    from mqt.qudits.core.micro_dd import TreeNode, NodeContribution  #type: ignore[attr-defined]
+    from mqt.qudits.core.micro_dd import MicroDDNode, NodeContribution
     from mqt.qudits.quantum_circuit import QuantumCircuit
 
     complex_array = NDArray[np.complex128]
@@ -108,10 +108,10 @@ class StatePrep:
         self.approximation = approx
 
     def retrieve_local_sequence(
-            self, fweight: complex, children: list[TreeNode]
+            self, fweight: complex, children: list[MicroDDNode]
     ) -> dict[tuple[int, int], tuple[float, float]]:
         size = len(children)
-        qudit = children[0].value
+        qudit = int(children[0].value)
         aplog = {}
 
         coef = np.array([c.weight for c in children])
@@ -131,7 +131,7 @@ class StatePrep:
             self,
             labels: list[int],
             cardinalities: list[int],
-            node: TreeNode,
+            node: MicroDDNode,
             circuit_meta: list[Operation],
             controls: list[tuple[int, int]] | None = None,
             depth: int = 0,
@@ -140,8 +140,8 @@ class StatePrep:
             controls = []
         if node.terminal:
             return
-
-        rotations = self.retrieve_local_sequence(node.weight, node.children)
+        if node.weight is not None:
+            rotations = self.retrieve_local_sequence(node.weight, node.children)
 
         for key in sorted(rotations.keys()):
             circuit_meta.append(Operation(controls, labels[depth], key, rotations[key]))  # noqa: PERF401
@@ -173,9 +173,9 @@ class StatePrep:
         cardinalities = self.circuit.dimensions
         labels = list(range(len(self.circuit.dimensions)))
         ops: list[Operation] = []
-        decision_tree, _number_of_nodes = create_decision_tree(labels, cardinalities, final_state)  # type: ignore[arg-type]
+        decision_tree, _number_of_nodes = create_decision_tree(labels, cardinalities, final_state)
         if self.approximation:
-            contributions: NodeContribution = get_node_contributions(decision_tree, labels) # type: ignore[arg-type]
+            contributions: NodeContribution = get_node_contributions(decision_tree, labels)
             cut_branches(contributions, 0.01)
             normalize_all(decision_tree, cardinalities)
 

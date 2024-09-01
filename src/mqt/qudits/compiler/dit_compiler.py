@@ -77,7 +77,8 @@ class QuditCompiler:
         for gate in circuit.instructions:
             ins: list[Gate] = []
             if gate.gate_type is GateTypes.SINGLE:
-                ins = phyloc.transpile_gate(gate, lanes.next_is_local(gate))
+                phyloc = PhyLocAdaPass(backend, lanes.next_is_local(gate))
+                ins = phyloc.transpile_gate(gate)
                 new_instructions.extend(ins)
             else:
                 ins = phyent.transpile_gate(gate)

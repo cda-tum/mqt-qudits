@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, cast, List
+from typing import TYPE_CHECKING, cast
 
 import networkx as nx  #type: ignore[import-not-found]
 import numpy as np
@@ -40,7 +40,7 @@ def graph_rule_update(gate: gates.R, graph: LevelGraph) -> None:
         g_lev_a = gate.lev_a
         g_lev_b = gate.lev_b
 
-        logic_nodes: List[int] = find_logic_from_phys(g_lev_a, g_lev_b, graph)
+        logic_nodes: list[int] = find_logic_from_phys(g_lev_a, g_lev_b, graph)
 
         # only pi pulses can update online the graph
         if logic_nodes[0] != -1 and logic_nodes[1] != -1:
@@ -124,7 +124,7 @@ def route_states2rotate_basic(gate: R, orig_placement: LevelGraph) -> tuple[floa
     dimension = gate.dimensions
 
     cost_of_pi_pulses = 0.
-    pi_pulses_routing: List[R] = []
+    pi_pulses_routing: list[R] = []
 
     source = gate.original_lev_a  # Original code requires to know the direction of rotations
     target = gate.original_lev_b

@@ -3,53 +3,56 @@ from __future__ import annotations
 import math
 import operator
 import typing
-
-if typing.TYPE_CHECKING:
-    from .micro_dd import TreeNode
-
-    NodeContribution = list[list[tuple[TreeNode, float]]]
-    from numpy.typing import NDArray
+from typing import List, Tuple
 
 
-class TreeNode:
+class MicroDDNode:
+
     def __init__(self, label: int | str) -> None:
         self.id: int | None = None
         self.value: int | str = label
-        self.children: list[TreeNode] = []
+        self.children: list[MicroDDNode] = []
         self.reduced: bool | None = None
         self.children_index: list[int] = []
-        self.weight: complex | None = None
-        self.p: TreeNode | None = None
+        self.weight: complex = 1
+        self.p: MicroDDNode | None = None
         self.terminal: bool = False
         self.dd_hash: int | None = None
         self.available: bool = True
+        self.data: NDArray[complex] | list[complex] = []
 
-    def __lt__(self, other: TreeNode) -> bool:
+    def __lt__(self, other: MicroDDNode) -> bool:
         # Compare based on the 'value' field
-        return self.value < int(other.value)
+        if isinstance(self.value, int) and isinstance(other.value, int):
+            return self.value < int(other.value)
+        return False
 
-    def __gt__(self, other: TreeNode) -> bool:
+    def __gt__(self, other: MicroDDNode) -> bool:
         # based on the inverse of lt
         return other.__lt__(self)
 
-    def __le__(self, other: TreeNode) -> bool:
+    def __le__(self, other: MicroDDNode) -> bool:
         # based on the other two for efficiency
         return self.__lt__(other) or self.__eq__(other)
 
-    def __ge__(self, other: TreeNode) -> bool:
+    def __ge__(self, other: MicroDDNode) -> bool:
         # based on the other two for efficiency
         return self.__gt__(other) or self.__eq__(other)
 
 
-zero: TreeNode = TreeNode("zero")
+zero: MicroDDNode = MicroDDNode("zero")
 zero.terminal = True
 zero.dd_hash = hash(0)
-one: TreeNode = TreeNode("one")
+one: MicroDDNode = MicroDDNode("one")
 one.terminal = True
 one.dd_hash = hash(1)
 
+if typing.TYPE_CHECKING:
+    NodeContribution = List[List[Tuple[MicroDDNode, float]]]
+    from numpy.typing import NDArray
 
-def get_node_contributions(root: TreeNode, labels: list[int | str]) -> NodeContribution:
+
+def get_node_contributions(root: MicroDDNode, labels: list[int]) -> NodeContribution:
     q = []
     probs = {root: abs(root.weight) ** 2}
 
@@ -68,7 +71,7 @@ def get_node_contributions(root: TreeNode, labels: list[int | str]) -> NodeContr
                 if not c.terminal:
                     q.append(c)
 
-    qq = [[] for _ in range(len(labels))]
+    qq: NodeContribution = [[] for _ in range(len(labels))]
 
     for node, probability in probs.items():
         if node.value not in {"r", "zero", "one"}:
@@ -80,7 +83,7 @@ def get_node_contributions(root: TreeNode, labels: list[int | str]) -> NodeContr
     return qq
 
 
-def unique_weights(root: TreeNode) -> set[complex]:
+def unique_weights(root: MicroDDNode) -> set[complex]:
     set_unique_weights = set()  # To store the unique weights
     stack = [(root, root.weight)]
     while stack:
@@ -97,7 +100,7 @@ def unique_weights(root: TreeNode) -> set[complex]:
 
 
 def normalize(in_weight: complex, out_weights: list[complex]) -> tuple[complex, list[complex]]:
-    mags_squared = [x.real**2 + x.imag**2 for x in out_weights]
+    mags_squared = [x.real ** 2 + x.imag ** 2 for x in out_weights]
     norm_squared = sum(mags_squared)
     norm = math.sqrt(norm_squared)
     if norm == 0:
@@ -111,9 +114,9 @@ def normalize(in_weight: complex, out_weights: list[complex]) -> tuple[complex, 
 
 
 def create_decision_tree(
-    labels: list[int | str], cardinalities: list[int], data: NDArray[complex] | list[complex]
-) -> tuple[TreeNode, list[int]]:
-    root = TreeNode("r")
+        labels: list[int], cardinalities: list[int], data: NDArray[complex] | list[complex]
+) -> tuple[MicroDDNode, list[int]]:
+    root = MicroDDNode("r")
     root.data = data
     number_of_nodes = [1]
     build_decision_tree(labels, root, cardinalities, data, number_of_nodes)
@@ -122,12 +125,12 @@ def create_decision_tree(
 
 
 def build_decision_tree(
-    labels: list[int | str],
-    node: TreeNode,
-    cardinalities: list[int],
-    data: NDArray[complex] | list[complex],
-    number_of_nodes: list[int],
-    depth: int = 0,
+        labels: list[int],
+        node: MicroDDNode,
+        cardinalities: list[int],
+        data: NDArray[complex] | list[complex],
+        number_of_nodes: list[int],
+        depth: int = 0,
 ) -> None:
     if depth == len(cardinalities):
         node.weight = data[0]
@@ -146,9 +149,9 @@ def build_decision_tree(
 
     for i in range(cardinalities[depth]):
         # Split the array into two subarrays
-        branch_data = data[i * split_index : (i + 1) * split_index]
+        branch_data = data[i * split_index: (i + 1) * split_index]
 
-        child = TreeNode(labels[depth])
+        child = MicroDDNode(labels[depth])
         number_of_nodes[0] += 1
         child.data = branch_data
 
@@ -161,7 +164,7 @@ def build_decision_tree(
 
     # Managing Probability
     for c in node.children:
-        c.p = c.weight**2
+        c.p = c.weight ** 2
     ####################
 
     node.weight, new_weights = normalize(node.weight, cweights)
@@ -174,7 +177,7 @@ def build_decision_tree(
         node.children[i].weight = new_weights[i]
 
 
-def dd_approximation(node: TreeNode, cardinalities: list[int], tolerance: float, depth: int = 0) -> None:
+def dd_approximation(node: MicroDDNode, cardinalities: list[int], tolerance: float, depth: int = 0) -> None:
     if depth == len(cardinalities) or node.terminal:
         return
 
@@ -195,14 +198,14 @@ def dd_approximation(node: TreeNode, cardinalities: list[int], tolerance: float,
             node.children[i].weight = new_weights[i]
 
 
-def remove_children(node: TreeNode) -> None:
+def remove_children(node: MicroDDNode) -> None:
     for child in node.children:
         child.available = False
         remove_children(child)
 
 
 def cut_branches(contributions: NodeContribution, tolerance: float) -> None:
-    current = 0
+    current = 0.
     for level in reversed(contributions):
         for node, prob in level:
             if current + prob < tolerance and node.available:
@@ -213,7 +216,7 @@ def cut_branches(contributions: NodeContribution, tolerance: float) -> None:
                 break
 
 
-def normalize_all(node: TreeNode, cardinalities: list[int], depth: int = 0) -> None:
+def normalize_all(node: MicroDDNode, cardinalities: list[int], depth: int = 0) -> None:
     if depth == len(cardinalities) or node.terminal:
         return
 
@@ -232,7 +235,7 @@ def normalize_all(node: TreeNode, cardinalities: list[int], depth: int = 0) -> N
             node.children[i].weight = new_weights[i]
 
 
-def dd_reduction_hashing(node: TreeNode, cardinalities: list[int], depth: int = 0) -> int:
+def dd_reduction_hashing(node: MicroDDNode, cardinalities: list[int], depth: int = 0) -> int:
     collect_hash_data = []
     if depth == len(cardinalities) or node.terminal:
         collect_hash_data.extend((node.children[0].dd_hash, 1))
@@ -249,7 +252,7 @@ def dd_reduction_hashing(node: TreeNode, cardinalities: list[int], depth: int = 
     return node.dd_hash
 
 
-def dd_reduction_aggregation(node: TreeNode, cardinalities: list[int], depth: int = 0) -> None:
+def dd_reduction_aggregation(node: MicroDDNode, cardinalities: list[int], depth: int = 0) -> None:
     if depth == len(cardinalities):
         return
     previous_objects = {}
@@ -288,13 +291,13 @@ def dd_reduction_aggregation(node: TreeNode, cardinalities: list[int], depth: in
                     node.reduced = False
 
 
-def dd_reduction(root: TreeNode, cardinalities: list[int]) -> TreeNode:
+def dd_reduction(root: MicroDDNode, cardinalities: list[int]) -> MicroDDNode:
     dd_reduction_hashing(root, cardinalities)
     dd_reduction_aggregation(root, cardinalities)
     return root
 
 
-def count_nodes_after(node: TreeNode, counter: list[int], cardinalities: list[int], depth: int = 0) -> None:
+def count_nodes_after(node: MicroDDNode, counter: list[int], cardinalities: list[int], depth: int = 0) -> None:
     counter[0] += 1
     if node.terminal:
         return
@@ -305,19 +308,19 @@ def count_nodes_after(node: TreeNode, counter: list[int], cardinalities: list[in
         count_nodes_after(node.children[node.children_index[0]], counter, cardinalities, depth + 1)
 
 
-def print_decision_weights(node: TreeNode, indent: str = "") -> None:
+def print_decision_weights(node: MicroDDNode, indent: str = "") -> None:
     print(indent + "Q " + str(node.value), node.weight)
     for child in node.children:
         print_decision_weights(child, indent + "  ")
 
 
-def print_decision_obj_id(node: TreeNode, indent: str = "") -> None:
+def print_decision_obj_id(node: MicroDDNode, indent: str = "") -> None:
     print(indent + "Q " + str(node.value), id(node))
     for child in node.children:
         print_decision_obj_id(child, indent + "  ")
 
 
-def print_decision_hash(node: TreeNode, indent: str = "") -> None:
+def print_decision_hash(node: MicroDDNode, indent: str = "") -> None:
     print(indent + "Q " + str(node.value), node.dd_hash)
     for child in node.children:
         print_decision_hash(child, indent + "  ")

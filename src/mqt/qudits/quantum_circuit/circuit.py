@@ -41,7 +41,8 @@ if TYPE_CHECKING:
     from .gate import Gate, Parameter
 
     InverseSitemap = Dict[int, Tuple[str, int]]
-    ClSitemap = Dict[Tuple[str, int], Tuple[int]]
+    from .components.classic_register import ClSitemap
+
 
 
 def is_not_none_or_empty(variable: Parameter) -> bool:

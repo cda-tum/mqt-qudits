@@ -4,11 +4,12 @@ import itertools
 import operator
 import typing
 from functools import reduce
-
 import numpy as np
+
 
 if typing.TYPE_CHECKING:
     from numpy.typing import NDArray
+    from mqt.qudits.quantum_circuit.components.extensions.controls import ControlData
 
     from mqt.qudits.quantum_circuit.gate import Gate
 
@@ -23,15 +24,15 @@ class MatrixFactory:
         if self.gate.dagger:
             matrix = matrix.conj().T
 
-        control_info = self.gate.control_info["controls"]
+        control_info = typing.cast(typing.Optional[ControlData], self.gate.control_info["controls"])
         lines = self.gate.reference_lines.copy()
         circuit = self.gate.parent_circuit
         ref_slice = list(range(min(lines), max(lines) + 1))
         dimensions_slice = circuit.dimensions[min(lines) : max(lines) + 1]
 
-        if control_info:
-            controls = control_info.indices
-            ctrl_levs = control_info.ctrl_states
+        if control_info is not None:
+            controls: list[int] = control_info.indices
+            ctrl_levs: list[int] = control_info.ctrl_states
             # preferably only CONTROLLED-One qudit gates to be made as multi-controlled, it is still a low level
             # control library
             matrix = MatrixFactory.apply_identites_and_controls(

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import operator
 from functools import reduce
-from typing import TYPE_CHECKING, Any
+from typing import Optional, TYPE_CHECKING, Any, cast
 
 import numpy as np
 
@@ -24,7 +24,7 @@ class MISim(Backend):
         self._options.update(**fields)
 
     def __noise_model(self) -> NoiseModel | None:
-        return self.noise_model
+        return cast(Optional[NoiseModel], self.noise_model)
 
     def run(self, circuit: QuantumCircuit, **options: Any) -> Job:  # noqa: ANN401
         job = Job(self)

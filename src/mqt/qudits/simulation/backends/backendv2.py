@@ -1,29 +1,30 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import Optional, TYPE_CHECKING, Any, cast
+
+from .. import MQTQuditProvider
+from ..noise_tools import NoiseModel
 
 if TYPE_CHECKING:
     from ...core import LevelGraph
     from ...quantum_circuit import QuantumCircuit
-    from .. import MQTQuditProvider
     from ..jobs import Job
-    from ..noise_tools import NoiseModel
 
 
 class Backend(ABC):
     def __init__(
-        self,
-        provider: MQTQuditProvider | None = None,
-        name: str | None = None,
-        description: str | None = None,
-        **fields: dict[str, Any],
+            self,
+            provider: MQTQuditProvider | None = None,
+            name: str | None = None,
+            description: str | None = None,
+            **fields: dict[str, Any],
     ) -> None:
         self._provider = provider
         self.name = name
-        self.description: str = description
-        self._energy_level_graphs = []
-        self.noise_model: NoiseModel | None = None
+        self.description: str | None = description
+        self._energy_level_graphs: list[LevelGraph] = []
+        self.noise_model: Optional[NoiseModel] = None
         self.shots: int = 50
         self.memory: bool = False
         self.full_state_memory: bool = False
@@ -34,11 +35,11 @@ class Backend(ABC):
         if fields:
             self._options.update(fields)
 
-    def __noise_model(self) -> NoiseModel:
-        return self.noise_model
+    def __noise_model(self) -> Optional[NoiseModel]:
+        return cast(NoiseModel, self.noise_model)
 
     @property
-    def energy_level_graphs(self) -> list[LevelGraph, LevelGraph]:
+    def energy_level_graphs(self) -> list[LevelGraph]:
         raise NotImplementedError
 
     def _default_options(self) -> dict[str, int | bool | NoiseModel | None]:
@@ -53,11 +54,11 @@ class Backend(ABC):
 
     @property
     def options(self) -> dict[str, Any]:
-        return self._options
+        return cast(dict[str, Any], self._options)
 
     @property
     def provider(self) -> MQTQuditProvider:
-        return self._provider
+        return cast(MQTQuditProvider, self._provider)
 
     @abstractmethod
     def run(self, circuit: QuantumCircuit, **options: Any) -> Job:  # noqa: ANN401

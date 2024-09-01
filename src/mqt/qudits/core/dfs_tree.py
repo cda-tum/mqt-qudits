@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import typing
-from typing import Optional
+
 from ..exceptions import NodeNotFoundError
 
 if typing.TYPE_CHECKING:
     from numpy.typing import NDArray
 
     from ..quantum_circuit import gates
+    from ..quantum_circuit.gates import CustomOne
     from . import LevelGraph
 
 
@@ -23,7 +24,7 @@ class Node:
         max_cost: tuple[float, float],
         pi_pulses: list[gates.R],
         parent_key: int,
-        children: Optional[Node] = None,
+        children: Node | None = None,
     ) -> None:
         self.key = key
         self.children: list[Node] = children
@@ -84,7 +85,7 @@ class NAryTree:
     def add(
         self,
         new_key: int,
-        rotation: gates.R,
+        rotation: gates.R | CustomOne,
         u_of_level: NDArray,
         graph_current: LevelGraph,
         current_cost: float,
@@ -193,8 +194,6 @@ class NAryTree:
         return self.size + 1
 
     def print_tree(self, node: Node, str_aux: str) -> str:
-        if node is None:
-            return "Empty tree"
         f = ""
         if node.finished:
             f = "-Finished-"

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import gc
 import typing
+from typing import cast
 
 import numpy as np
 
@@ -14,12 +15,11 @@ from ..local_operation_swap import (
 )
 
 if typing.TYPE_CHECKING:
-    from numpy.random.mtrand import Sequence
+    from numpy.typing import NDArray
 
     from ....core import LevelGraph
     from ....quantum_circuit import QuantumCircuit
     from ....quantum_circuit.gate import Gate
-    from ....quantum_circuit.gates import R, Rz, VirtRz
     from ....simulation.backends.backendv2 import Backend
 
 
@@ -27,8 +27,8 @@ class LogLocQRPass(CompilerPass):
     def __init__(self, backend: Backend) -> None:
         super().__init__(backend)
 
-    def transpile_gate(self, gate: Gate) -> list[R | VirtRz | Rz]:
-        energy_graph_i = self.backend.energy_level_graphs[gate.target_qudits]
+    def transpile_gate(self, gate: Gate) -> list[Gate]:
+        energy_graph_i = self.backend.energy_level_graphs[cast(int, gate.target_qudits)]
         qr = QrDecomp(gate, energy_graph_i, not_stand_alone=False)
         decomp, _algorithmic_cost, _total_cost = qr.execute()
         return decomp
@@ -52,17 +52,17 @@ class QrDecomp:
     def __init__(self, gate: Gate, graph_orig: LevelGraph, z_prop: bool = False, not_stand_alone: bool = True) -> None:
         self.gate: Gate = gate
         self.circuit: QuantumCircuit = gate.parent_circuit
-        self.dimension: int = gate.dimensions
-        self.qudit_index: int = gate.target_qudits
-        self.U: np.ndarray = gate.to_matrix(identities=0)
+        self.dimension: int = cast(int, gate.dimensions)
+        self.qudit_index: int = cast(int, gate.target_qudits)
+        self.U: NDArray = gate.to_matrix(identities=0)
         self.graph: LevelGraph = graph_orig
         self.phase_propagation: bool = z_prop
         self.not_stand_alone: bool = not_stand_alone
 
-    def execute(self) -> tuple[Sequence[R | VirtRz | Rz], float, float]:
-        decomp = []
-        total_cost = 0
-        algorithmic_cost = 0
+    def execute(self) -> tuple[list[Gate], float, float]:
+        decomp:list[Gate] = []
+        total_cost = 0.
+        algorithmic_cost = 0.
 
         u_ = self.U
         dimension = self.U.shape[0]
@@ -78,9 +78,9 @@ class QrDecomp:
                         phase_gate = gates.VirtRz(
                             self.gate.parent_circuit,
                             "VRz",
-                            self.gate.target_qudits,
+                            cast(int, self.gate.target_qudits),
                             [self.graph.nodes[i], theta_z],
-                            self.gate.dimension,
+                            cast(int, self.gate.dimensions),
                         )  # (thetaZ, self.graph.nodes[i]['lpmap'], dimension) # [self.graph.nodes[i]["lpmap"], thetaZ],
                         decomp.append(phase_gate)
                     recover_dict[i] = theta_z
@@ -155,9 +155,9 @@ class QrDecomp:
                 phase_gate = gates.VirtRz(
                     self.gate.parent_circuit,
                     "VRz",
-                    self.gate.target_qudits,
+                    cast(int, self.gate.target_qudits),
                     [i, np.angle(diag_u[i])],
-                    self.gate.dimensions,
+                    cast(int, self.gate.dimensions),
                 )  # Rz(np.angle(diag_U[i]), phy_n_i, dimension)
 
                 decomp.append(phase_gate)

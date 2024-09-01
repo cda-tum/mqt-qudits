@@ -1,33 +1,34 @@
 from __future__ import annotations
 
 import copy
-from typing import Optional, TYPE_CHECKING, Dict, List, Tuple
+from typing import Dict, List, Optional, TYPE_CHECKING, Tuple, Union, cast
 
 import networkx as nx  #type: ignore[import-not-found]
 import numpy as np
 
 from ..quantum_circuit.gates.virt_rz import VirtRz
 
-if TYPE_CHECKING:
-    from collections.abc import Sequence
+NodeAttributes = Dict[str, Union[str, int, float]]
+NodesWithAttributes = List[Tuple[int, NodeAttributes]]
 
+if TYPE_CHECKING:
     from ..quantum_circuit import QuantumCircuit
 
 
 class LevelGraph(nx.Graph):  #type: ignore[misc]
     def __init__(
             self,
-            edges: List[Tuple[int, int, Dict]],
-            nodes: list[int],
+            edges: list[tuple[int, int, dict[str, int]]],
+            nodes: Union[list[int], NodesWithAttributes],
             nodes_physical_mapping: list[int] | None = None,
             initialization_nodes: list[int] | None = None,
             qudit_index: int | None = None,
-            og_circuit: Optional[QuantumCircuit] = None
+            og_circuit: QuantumCircuit | None = None
     ) -> None:
         super().__init__()
-        self.og_circuit: Optional[QuantumCircuit] = og_circuit
-        self.qudit_index: int = qudit_index
-        self.logic_nodes: list[int] = nodes
+        self.og_circuit = og_circuit
+        self.qudit_index: int = cast(int, qudit_index)
+        self.logic_nodes: Union[list[int], NodesWithAttributes] = nodes
         self.add_nodes_from(self.logic_nodes)
 
         if nodes_physical_mapping:
@@ -35,8 +36,8 @@ class LevelGraph(nx.Graph):  #type: ignore[misc]
 
         self.add_edges_from(edges)
 
-        if initialization_nodes:
-            inreach_nodes: list[int] = [x for x in nodes if x not in initialization_nodes]
+        if initialization_nodes is not None:
+            inreach_nodes: List[int] = [x for x in nodes if x not in initialization_nodes]
             self.define__states(initialization_nodes, inreach_nodes)
 
     def phase_storing_setup(self) -> None:
@@ -76,7 +77,7 @@ class LevelGraph(nx.Graph):  #type: ignore[misc]
 
     @staticmethod
     def update_list(lst_: list[tuple[int, int]], num_a: int, num_b: int) -> list[tuple[int, int]]:
-        new_lst = []
+        new_lst: list[tuple[int, int]] = []
 
         mod_index = []
         for t in lst_:
@@ -94,8 +95,7 @@ class LevelGraph(nx.Graph):  #type: ignore[misc]
             mod_index.append(tupla)
 
         for i, t in enumerate(lst_):
-            substituter = list(t)
-
+            substituter: list[int] = list(t)
             if mod_index[i][0] == 1:
                 substituter[0] = num_b
             elif mod_index[i][0] == 2:
@@ -105,16 +105,15 @@ class LevelGraph(nx.Graph):  #type: ignore[misc]
                 substituter[1] = num_b
             elif mod_index[i][1] == 2:
                 substituter[1] = num_a
-
-            new_lst.append(tuple(substituter))
+            save_substituer: tuple[int, int] = tuple(substituter)
+            new_lst.append(save_substituer)
 
         return new_lst
 
     @staticmethod
-    def deep_copy_func(
-            l_n: list[tuple[int, int, dict]] | list[tuple[int, int]],
-    ) -> list[tuple[int, int, dict]] | list[tuple[int, int]]:
-        cpy_list = []
+    def deep_copy_func(l_n: NodesWithAttributes | list[tuple[int, int]]
+                       ) -> NodesWithAttributes | list[tuple[int, int]]:
+        cpy_list: NodesWithAttributes | list[tuple[int, int]] = []
         for li in l_n:
             d2 = copy.deepcopy(li)
             cpy_list.append(d2)
@@ -122,23 +121,25 @@ class LevelGraph(nx.Graph):  #type: ignore[misc]
         return cpy_list
 
     @staticmethod
-    def index(lev_graph: list[tuple[int, int]], node: int) -> int | None:
+    def index(lev_graph: Union[list[tuple[int, int]], NodesWithAttributes], node: int) -> int:
         for i in range(len(lev_graph)):
             if lev_graph[i][0] == node:
                 return i
-        return None
+        raise ValueError("Node not in graph.")
 
-    def swap_node_attributes(self, node_a: int, node_b: int) -> list[tuple[int, dict]]:
-        nodelistcopy = self.deep_copy_func(list(self.nodes(data=True)))
-        node_a = self.index(nodelistcopy, node_a)
-        node_b = self.index(nodelistcopy, node_b)
+    def swap_node_attributes(self, node_a: int, node_b: int) -> NodesWithAttributes:
+        nodelistcopy = cast(NodesWithAttributes, self.deep_copy_func(list(self.nodes(data=True))))
+        node_a_index = self.index(nodelistcopy, node_a)
+        node_b_index = self.index(nodelistcopy, node_b)
 
-        dict_attr_inode = nodelistcopy[0][1]
+        dict_attr_inode: NodeAttributes = nodelistcopy[0][1]
         for attr in list(dict_attr_inode.keys()):
-            attr_a = nodelistcopy[node_a][1][attr]
-            attr_b = nodelistcopy[node_b][1][attr]
-            nodelistcopy[node_a][1][attr] = attr_b
-            nodelistcopy[node_b][1][attr] = attr_a
+            dict_a: NodeAttributes = nodelistcopy[node_a_index][1]
+            dict_b: NodeAttributes = nodelistcopy[node_b_index][1]
+            attr_a = dict_a[attr]
+            attr_b = dict_b[attr]
+            nodelistcopy[node_a_index][1][attr] = attr_b
+            nodelistcopy[node_b_index][1][attr] = attr_a
 
         return nodelistcopy
 
@@ -163,7 +164,7 @@ class LevelGraph(nx.Graph):  #type: ignore[misc]
 
         attribute_list = [self.get_edge_data(*e).copy() for e in edges]
 
-        swapped_nodes_edges = self.update_list(edges, node_a, node_b)
+        swapped_nodes_edges: List[Tuple[int, int]] = self.update_list(edges, node_a, node_b)
 
         new_edge_list = []
         for i, e in enumerate(swapped_nodes_edges):
@@ -173,24 +174,25 @@ class LevelGraph(nx.Graph):  #type: ignore[misc]
 
         return new_graph
 
-    def get_vrz_gates(self) -> Sequence[VirtRz]:
+    def get_vrz_gates(self) -> list[VirtRz]:
         matrices = []
-        for node in self.nodes:
-            node_dict = self.nodes[node]
-            if "phase_storage" in node_dict and (
-                    node_dict["phase_storage"] > 1e-3 or np.mod(node_dict["phase_storage"], 2 * np.pi) > 1e-3
-            ):
-                phy_n_i = self.nodes[node]["lpmap"]
+        if self.og_circuit is not None:
+            for node in self.nodes:
+                node_dict = self.nodes[node]
+                if "phase_storage" in node_dict and (
+                        node_dict["phase_storage"] > 1e-3 or np.mod(node_dict["phase_storage"], 2 * np.pi) > 1e-3
+                ):
+                    phy_n_i = self.nodes[node]["lpmap"]
 
-                # phase_gate = VirtRz(node_dict["phase_storage"], phy_n_i, len(list(self.nodes)))
-                phase_gate = VirtRz(
-                        self.og_circuit,
-                        "VirtRz_egraph",
-                        self.qudit_index,
-                        [phy_n_i, node_dict["phase_storage"]],
-                        self.og_circuit.dimensions[self.qudit_index],
-                )
-                matrices.append(phase_gate)
+                    # phase_gate = VirtRz(node_dict["phase_storage"], phy_n_i, len(list(self.nodes)))
+                    phase_gate = VirtRz(
+                            self.og_circuit,
+                            "VirtRz_egraph",
+                            self.qudit_index,
+                            [phy_n_i, node_dict["phase_storage"]],
+                            self.og_circuit.dimensions[self.qudit_index],
+                    )
+                    matrices.append(phase_gate)
 
         return matrices
 
@@ -204,17 +206,19 @@ class LevelGraph(nx.Graph):  #type: ignore[misc]
         return total_sensibility
 
     def get_edge_sensitivity(self, node_a: int, node_b: int) -> float | int:
-        return self[node_a][node_b]["sensitivity"]
+        if isinstance(self[node_a][node_b]["sensitivity"], float):
+            return float(self[node_a][node_b]["sensitivity"])
+        return int(self[node_a][node_b]["sensitivity"])
 
     @property
     def fst_rnode(self) -> int:
         r_node = [x for x, y in self.nodes(data=True) if y["level"] == "r"]
-        return r_node[0]
+        return int(r_node[0])
 
     @property
     def fst_inode(self) -> int:
         inode = [x for x, y in self.nodes(data=True) if y["level"] == "i"]
-        return inode[0]
+        return int(inode[0])
 
     def is_irnode(self, node: int) -> bool:
         irnodes = [x for x, y in self.nodes(data=True) if y["level"] == "r"]

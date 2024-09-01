@@ -37,7 +37,7 @@ class Job:
         """
         if job_id == "auto":
             current_time = int(time.time() * 1000)
-            self._job_id = hash((os.getpid(), current_time))
+            self._job_id = str(hash((os.getpid(), current_time)))
         else:
             self._job_id = job_id
         self._backend = backend
@@ -68,11 +68,9 @@ class Job:
 
     def in_final_state(self) -> bool:
         """Return whether the job is in a final job state such as DONE or ERROR."""
-        return self.status() in JobStatus.JOB_FINAL_STATES
+        return self.status() in {JobStatus.DONE, JobStatus.ERROR}
 
-    def wait_for_final_state(
-        self, timeout: float | None = None, wait: float = 5, callback: Callable | None = None
-    ) -> None:
+    def wait_for_final_state(self, timeout: float | None = None, wait: float = 5, callback: Callable | None = None) -> None: #type: ignore[type-arg]
         """Poll the job status until it progresses to a final state such as DONE or ERROR.
 
         Args:
@@ -87,7 +85,7 @@ class Job:
             return
         start_time = time.time()
         status = self.status()
-        while status not in JobStatus.JOB_FINAL_STATES:
+        while status not in {JobStatus.DONE, JobStatus.ERROR}:
             elapsed_time = time.time() - start_time
             if timeout is not None and elapsed_time >= timeout:
                 msg = f"Timeout while waiting for job {self.job_id()}."

@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from typing import Any, Dict, cast
+import typing
+from typing import Any, Dict, Tuple, cast
+
+if typing.TYPE_CHECKING:
+    ClSitemap = Dict[Tuple[str, int], Tuple[int]]
 
 
 class ClassicRegister:

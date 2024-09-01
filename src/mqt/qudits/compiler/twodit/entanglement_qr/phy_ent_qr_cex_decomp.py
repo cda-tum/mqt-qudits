@@ -19,7 +19,8 @@ if typing.TYPE_CHECKING:
 class PhyEntQRCEXPass(CompilerPass):
     def __init__(self, backend: Backend) -> None:
         super().__init__(backend)
-        self.circuit = None
+        from mqt.qudits.quantum_circuit import QuantumCircuit
+        self.circuit = QuantumCircuit()
 
     def transpile_gate(self, gate: Gate) -> list[Gate]:
         target_qudits = cast(List[int], gate.target_qudits)
@@ -52,7 +53,7 @@ class PhyEntQRCEXPass(CompilerPass):
         return [op.dag() for op in reversed(decomp)]
 
     def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:
-        self.circuit: QuantumCircuit = circuit
+        self.circuit = circuit
         instructions = circuit.instructions
         new_instructions = []
 

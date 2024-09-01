@@ -1,12 +1,17 @@
 from __future__ import annotations
 
 import re
+import typing
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 
 from .components.extensions.controls import ControlData
+
+if typing.TYPE_CHECKING:
+    from .components.classic_register import ClSitemap
+    from .components.quantum_register import SiteMap
 
 
 class QASM:
@@ -45,8 +50,9 @@ class QASM:
     ) -> bool:
         match = rgxs["qreg"].match(line)
         if match:
-            name, nq, qdims = match.groups()
-            nq = int(*re.search(r"\[(\d+)\]", nq).groups())
+            name, nqu, qdims = match.groups()
+            if nqu is not None:
+                nq = int(*re.search(r"\[(\d+)\]", nqu).groups())
 
             if qdims:
                 qdims = qdims.split(",") if qdims else []
@@ -178,12 +184,12 @@ class QASM:
         }
 
         # initialise number of qubits to zero and an empty list for instructions
-        sitemap = {}
-        sitemap_classic = {}
+        sitemap: SiteMap = {}
+        sitemap_classic: ClSitemap = {}
 
         gates = []
         # only want to warn once about each ignored instruction
-        warned = {}
+        warned: dict[str, bool] = {}
 
         # Process each line
         in_comment = False

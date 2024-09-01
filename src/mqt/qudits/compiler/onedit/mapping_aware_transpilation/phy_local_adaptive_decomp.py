@@ -3,6 +3,7 @@ from __future__ import annotations
 import gc
 import itertools
 import typing
+from typing import cast
 
 import numpy as np
 
@@ -21,11 +22,12 @@ from ..local_operation_swap import (
 from ..mapping_aware_transpilation.phy_local_qr_decomp import PhyQrDecomp
 
 if typing.TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from ....core import LevelGraph
     from ....core.dfs_tree import Node as TreeNode
     from ....quantum_circuit import QuantumCircuit
     from ....quantum_circuit.gate import Gate
-    from ....quantum_circuit.gates import R, Rz, VirtRz
     from ....simulation.backends.backendv2 import Backend
 
 
@@ -33,22 +35,23 @@ np.seterr(all="ignore")
 
 
 class PhyLocAdaPass(CompilerPass):
-    def __init__(self, backend: Backend) -> None:
+    def __init__(self, backend: Backend,  vrz_prop: bool = False) -> None:
         super().__init__(backend)
+        self.vrz_prop = vrz_prop
 
-    def transpile_gate(self, gate: Gate, vrz_prop: bool = False) -> list[Gate]:
-        energy_graph_i = self.backend.energy_level_graphs[gate.target_qudits]
+    def transpile_gate(self, gate: Gate) -> list[Gate]:
+        energy_graph_i = self.backend.energy_level_graphs[cast(int, gate.target_qudits)]
 
         qr = PhyQrDecomp(gate, energy_graph_i)
 
         _decomp, algorithmic_cost, total_cost = qr.execute()
 
         adaptive = PhyAdaptiveDecomposition(
-            gate, energy_graph_i, (algorithmic_cost, total_cost), gate.dimensions, Z_prop=vrz_prop
+            gate, energy_graph_i, (algorithmic_cost, total_cost), cast(int, gate.dimensions), z_prop=self.vrz_prop
         )
         (matrices_decomposed, _best_cost, new_energy_level_graph) = adaptive.execute()
 
-        self.backend.energy_level_graphs[gate.target_qudits] = new_energy_level_graph
+        self.backend.energy_level_graphs[cast(int, gate.target_qudits)] = new_energy_level_graph
         return [op.dag() for op in reversed(matrices_decomposed)]
 
     def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:
@@ -77,16 +80,16 @@ class PhyAdaptiveDecomposition:
         z_prop: bool | None = False,
     ) -> None:
         self.circuit: QuantumCircuit = gate.parent_circuit
-        self.U: np.ndarray = gate.to_matrix(identities=0)
-        self.qudit_index: int = gate.target_qudits
+        self.U: NDArray = gate.to_matrix(identities=0)
+        self.qudit_index: int = cast(int, gate.target_qudits)
         self.graph: LevelGraph = graph_orig
         self.graph.phase_storing_setup()
-        self.cost_limit: tuple[float, float] = cost_limit
-        self.dimension: int = dimension
-        self.phase_propagation: bool = z_prop
+        self.cost_limit: tuple[float, float] = cast(tuple[float, float], cost_limit)
+        self.dimension: int = cast(int, dimension)
+        self.phase_propagation: bool = cast(bool, z_prop)
         self.TREE: NAryTree = NAryTree()
 
-    def execute(self) -> tuple[list[R | VirtRz | Rz], tuple[int, int], LevelGraph]:
+    def execute(self) -> tuple[list[Gate], tuple[float, float], LevelGraph]:
         self.TREE.add(
             0,
             gates.CustomOne(
@@ -107,20 +110,18 @@ class PhyAdaptiveDecomposition:
             matrices_decomposed, best_cost, final_graph = self.TREE.retrieve_decomposition(self.TREE.root)
 
             if matrices_decomposed != []:
-                matrices_decomposed, final_graph = self.z_extraction(
-                    matrices_decomposed, final_graph, self.phase_propagation
-                )
+                matrices_decomposed_m, final_graph = self.z_extraction(matrices_decomposed, final_graph, self.phase_propagation)
             else:
                 pass
 
             self.TREE.print_tree(self.TREE.root, "TREE: ")
 
-            return matrices_decomposed, best_cost, final_graph  # noqa: B012
+            return matrices_decomposed_m, best_cost, final_graph  # noqa: B012
 
     def z_extraction(
         self, decomposition: list[TreeNode], placement: LevelGraph, phase_propagation: bool
     ) -> tuple[list[Gate], LevelGraph]:
-        matrices = []
+        matrices: list[Gate] = []
 
         for d in decomposition[1:]:
             # exclude the identity matrix coming from the root of the tree of solutions which is just for correctness
@@ -158,7 +159,7 @@ class PhyAdaptiveDecomposition:
                     phy_n_i = placement.nodes[i]["lpmap"]
 
                     phase_gate = gates.VirtRz(
-                        self.circuit, "VRz", self.qudit_index, [phy_n_i, np.angle(diag_u[i])], self.dimension
+                            self.circuit, "VRz", self.qudit_index, [phy_n_i, np.angle(diag_u[i])], self.dimension
                     )  # old version: VirtRz(np.angle(diag_U[i]), phy_n_i,
                     # dimension)
 

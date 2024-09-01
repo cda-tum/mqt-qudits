@@ -24,7 +24,7 @@ if typing.TYPE_CHECKING:
     from mqt.qudits.quantum_circuit.gate import Gate
     from mqt.qudits.simulation.backends.backendv2 import Backend
 
-    complex_array = NDArray[np.complex128, np.complex128]
+
 
 
 class LogEntQRCEXPass(CompilerPass):
@@ -59,11 +59,11 @@ class EntangledQRCEX:
         self.circuit: QuantumCircuit = gate.parent_circuit
         self.dimensions: list[int] = itemgetter(*gate.reference_lines)(self.circuit.dimensions)
         self.qudit_indices: list[int] = gate.reference_lines
-        self.u: complex_array = gate.to_matrix(identities=0)
-        self.decomposition: list[Gate] = None
+        self.u: NDArray = gate.to_matrix(identities=0)
+        self.decomposition: list[Gate] = []
 
     @staticmethod
-    def get_gate_matrix(rotation: Gate, qudit_indices: list[int], dimensions: list[int]) -> complex_array:
+    def get_gate_matrix(rotation: Gate, qudit_indices: list[int], dimensions: list[int]) -> NDArray:
         if rotation.gate_type != GateTypes.SINGLE:
             return rotation.to_matrix()
 

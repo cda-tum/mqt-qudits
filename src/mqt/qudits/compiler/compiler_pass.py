@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, overload
 
 if TYPE_CHECKING:
     from mqt.qudits.quantum_circuit import QuantumCircuit
@@ -13,10 +13,13 @@ class CompilerPass(ABC):
     def __init__(self, backend: Backend) -> None:
         self.backend = backend
 
-    @staticmethod
-    @abstractmethod
+    @staticmethod  #type: ignore[misc]
     def transpile_gate(gate: Gate) -> list[Gate]:
-        pass
+        raise NotImplementedError
+
+    @overload
+    def transpile_gate(self, gate: Gate) -> list[Gate]:  #noqa: F811
+        raise NotImplementedError
 
     @abstractmethod
     def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:
