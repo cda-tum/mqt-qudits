@@ -23,7 +23,7 @@ class MatrixFactory:
         matrix = self.gate.__array__()
         if self.gate.dagger:
             matrix = matrix.conj().T
-
+        from mqt.qudits.quantum_circuit.components.extensions.controls import ControlData
         control_info = typing.cast(typing.Optional[ControlData], self.gate.control_info["controls"])
         lines = self.gate.reference_lines.copy()
         circuit = self.gate.parent_circuit
@@ -35,6 +35,7 @@ class MatrixFactory:
             ctrl_levs: list[int] = control_info.ctrl_states
             # preferably only CONTROLLED-One qudit gates to be made as multi-controlled, it is still a low level
             # control library
+
             matrix = MatrixFactory.apply_identites_and_controls(
                 matrix, self.gate.target_qudits, dimensions_slice, ref_slice, controls, ctrl_levs
             )
