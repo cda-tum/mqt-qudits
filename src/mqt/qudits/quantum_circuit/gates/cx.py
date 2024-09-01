@@ -20,21 +20,21 @@ if TYPE_CHECKING:
 
 class CEx(Gate):
     def __init__(
-            self,
-            circuit: QuantumCircuit,
-            name: str,
-            target_qudits: list[int],
-            parameters: list[int | float] | None,
-            dimensions: list[int],
-            controls: ControlData | None = None,
+        self,
+        circuit: QuantumCircuit,
+        name: str,
+        target_qudits: list[int],
+        parameters: list[int | float] | None,
+        dimensions: list[int],
+        controls: ControlData | None = None,
     ) -> None:
         super().__init__(
-                circuit=circuit,
-                name=name,
-                gate_type=GateTypes.TWO,
-                target_qudits=target_qudits,
-                dimensions=dimensions,
-                control_set=controls,
+            circuit=circuit,
+            name=name,
+            gate_type=GateTypes.TWO,
+            target_qudits=target_qudits,
+            dimensions=dimensions,
+            control_set=controls,
         )
         # if customized
         if parameters is not None and self.validate_parameter(parameters):
@@ -64,8 +64,7 @@ class CEx(Gate):
         for i in range(dimension_ctrl):
             temp = np.zeros((dimension_ctrl, dimension_ctrl), dtype="complex")
             mapmat = temp + np.outer(
-                    np.array(from_dirac_to_basis([i], dimension_ctrl)),
-                    np.array(from_dirac_to_basis([i], dimension_ctrl))
+                np.array(from_dirac_to_basis([i], dimension_ctrl)), np.array(from_dirac_to_basis([i], dimension_ctrl))
             )
 
             if i == ctrl_level:  # apply control on 1 rotation on levels 01
@@ -96,7 +95,7 @@ class CEx(Gate):
             assert isinstance(parameter[2], int)
             assert isinstance(parameter[3], float)
             assert (
-                    0 <= parameter[0] < parameter[1]
+                0 <= parameter[0] < parameter[1]
             ), f"lev_a and lev_b are out of range or in wrong order: {parameter[0]}, {parameter[1]}"
             assert 0 <= parameter[3] <= 2 * np.pi, f"Angle should be in the range [0, 2*pi]: {parameter[2]}"
 

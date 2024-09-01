@@ -48,7 +48,7 @@ class TNSim(Backend):
 
         return job
 
-    def execute(self, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> NDArray[np.complex128]: #noqa: ARG002
+    def execute(self, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> NDArray[np.complex128]:  # noqa: ARG002
         self.system_sizes = circuit.dimensions
         self.circ_operations = circuit.instructions
 
@@ -67,7 +67,7 @@ class TNSim(Backend):
             qudit_edges[bit] = op[i + len(operating_qudits)]
 
     def __contract_circuit(
-            self, system_sizes: list[int], operations: Sequence[Gate]
+        self, system_sizes: list[int], operations: Sequence[Gate]
     ) -> tn.network_components.AbstractNode:
         all_nodes: Sequence[tn.network_components.AbstractNode] = []
 

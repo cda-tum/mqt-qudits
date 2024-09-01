@@ -51,44 +51,16 @@ class MS(Gate):
 
         gate_part_1 = np.kron(
             np.identity(dimension_0, dtype="complex"),
-            GellMann(
-                self.parent_circuit,
-                "Gellman_s",
-                qudit_targeted_1,
-                ps,
-                dimension_1,
-                None
-            ).to_matrix(),
+            GellMann(self.parent_circuit, "Gellman_s", qudit_targeted_1, ps, dimension_1, None).to_matrix(),
         ) + np.kron(
-            GellMann(
-                self.parent_circuit,
-                "Gellman_s",
-                qudit_targeted_0,
-                ps,
-                dimension_0,
-                None
-            ).to_matrix(),
+            GellMann(self.parent_circuit, "Gellman_s", qudit_targeted_0, ps, dimension_0, None).to_matrix(),
             np.identity(dimension_1, dtype="complex"),
         )
         gate_part_2 = np.kron(
             np.identity(dimension_0, dtype="complex"),
-            GellMann(
-                self.parent_circuit,
-                "Gellman_s",
-                qudit_targeted_1,
-                ps,
-                dimension_1,
-                None
-            ).to_matrix(),
+            GellMann(self.parent_circuit, "Gellman_s", qudit_targeted_1, ps, dimension_1, None).to_matrix(),
         ) + np.kron(
-            GellMann(
-                self.parent_circuit,
-                "Gellman_s",
-                qudit_targeted_0,
-                ps,
-                dimension_0,
-                None
-            ).to_matrix(),
+            GellMann(self.parent_circuit, "Gellman_s", qudit_targeted_0, ps, dimension_0, None).to_matrix(),
             np.identity(dimension_1, dtype="complex"),
         )
         return expm(-1j * theta * gate_part_1 @ gate_part_2 / 4)
@@ -99,7 +71,9 @@ class MS(Gate):
             return False
 
         if isinstance(parameter, list):
-            assert 0 <= cast(float, parameter[0]) <= 2 * np.pi, f"Angle should be in the range [0, 2*pi]: {parameter[0]}"
+            assert (
+                0 <= cast(float, parameter[0]) <= 2 * np.pi
+            ), f"Angle should be in the range [0, 2*pi]: {parameter[0]}"
             return True
         if isinstance(parameter, np.ndarray):
             # Add validation for numpy array if needed

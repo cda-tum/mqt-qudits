@@ -18,8 +18,10 @@ class QuantumRegister:
             extracted_local_line_indexing: int = line_info[0]
             dimensionality_extracted: int = line_info[1]
             if reg_name not in registers_map:
-                registers_map[reg_name] = [{inreg_line_index: extracted_local_line_indexing},
-                                           [dimensionality_extracted]]
+                registers_map[reg_name] = [
+                    {inreg_line_index: extracted_local_line_indexing},
+                    [dimensionality_extracted],
+                ]
             else:
                 mapping: dict[int, int] = cast(Dict[int, int], registers_map[reg_name][0])
                 mapping[inreg_line_index] = line_info[0]

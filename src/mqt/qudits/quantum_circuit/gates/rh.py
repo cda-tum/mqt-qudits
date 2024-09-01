@@ -48,15 +48,13 @@ class Rh(Gate):
         dimension = self.dimensions
         qudit_targeted: int = cast(int, self.target_qudits)
 
-        pi_x = R(
-            self.parent_circuit, "R", qudit_targeted, [self.lev_a, self.lev_b, -np.pi, 0.0], dimension
-        ).to_matrix()
+        pi_x = R(self.parent_circuit, "R", qudit_targeted, [self.lev_a, self.lev_b, -np.pi, 0.0], dimension).to_matrix()
         rotate = R(
-                self.parent_circuit,
-                "R",
-                qudit_targeted,
-                [self.lev_a, self.lev_b, np.pi / 2, np.pi / 2],
-                dimension,
+            self.parent_circuit,
+            "R",
+            qudit_targeted,
+            [self.lev_a, self.lev_b, np.pi / 2, np.pi / 2],
+            dimension,
         ).to_matrix()
 
         return np.matmul(pi_x, rotate)

@@ -3,13 +3,14 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Optional, TYPE_CHECKING, Any, cast
 
-from .. import MQTQuditProvider
+
 from ..noise_tools import NoiseModel
 
 if TYPE_CHECKING:
     from ...core import LevelGraph
     from ...quantum_circuit import QuantumCircuit
     from ..jobs import Job
+    from .. import MQTQuditProvider
 
 
 class Backend(ABC):
@@ -66,4 +67,3 @@ class Backend(ABC):
 
     def execute(self, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> None:
         raise NotImplementedError
-

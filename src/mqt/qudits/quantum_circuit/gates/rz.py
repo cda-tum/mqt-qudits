@@ -56,10 +56,10 @@ class Rz(Gate):
             self.parent_circuit, "R", qudit_targeted, [self.lev_a, self.lev_b, phi, np.pi / 2], dimension
         ).to_matrix()
         pi_back = R(
-                self.parent_circuit, "R", qudit_targeted, [self.lev_a, self.lev_b, np.pi / 2, 0.0], dimension
+            self.parent_circuit, "R", qudit_targeted, [self.lev_a, self.lev_b, np.pi / 2, 0.0], dimension
         ).to_matrix()
 
-        return np.matmul(np.matmul(pi_back, rotate), pi_there) # pi_back @ rotate @ pi_there
+        return np.matmul(np.matmul(pi_back, rotate), pi_there)  # pi_back @ rotate @ pi_there
 
     @staticmethod
     def levels_setter(la: int, lb: int) -> tuple[int, int]:

@@ -50,7 +50,7 @@ class Perm(Gate):
             dims = self.dimensions
             p = cast(list[int], parameter)
             assert all(
-                    (0 <= num < len(parameter) and num < dims) for num in p
+                (0 <= num < len(parameter) and num < dims) for num in p
             ), "Numbers are not within the range of the list length"
 
             return True
