@@ -1,25 +1,37 @@
 from __future__ import annotations
 
-from typing import Any
+import typing
+from typing import Dict, List, Tuple, Union, cast
+
+if typing.TYPE_CHECKING:
+    RegisterMap = Dict[str, List[Union[Dict[int, int], List[int]]]]
+    SiteMap = Dict[Tuple[str, int], Tuple[int, int]]
 
 
 class QuantumRegister:
     @classmethod
-    def from_map(cls, sitemap: dict[tuple[str, int], Any]) -> list[QuantumRegister]:
-        registers_map = {}
+    def from_map(cls, sitemap: SiteMap) -> list[QuantumRegister]:
+        registers_map: RegisterMap = {}
 
         for qreg_with_index, line_info in sitemap.items():
             reg_name, inreg_line_index = qreg_with_index
+            extracted_local_line_indexing: int = line_info[0]
+            dimensionality_extracted: int = line_info[1]
             if reg_name not in registers_map:
-                registers_map[reg_name] = [{inreg_line_index: line_info[0]}, [line_info[1]]]
+                registers_map[reg_name] = [{inreg_line_index: extracted_local_line_indexing},
+                                           [dimensionality_extracted]]
             else:
-                registers_map[reg_name][0][inreg_line_index] = line_info[0]
-                registers_map[reg_name][1].append(line_info[1])
+                mapping: dict[int, int] = cast(Dict[int, int], registers_map[reg_name][0])
+                mapping[inreg_line_index] = line_info[0]
+                dimensions_mapped: list[int] = cast(List[int], registers_map[reg_name][1])
+                dimensions_mapped.append(line_info[1])
         # print(registers_map)
         registers_from_qasm = []
         for label, data in registers_map.items():
-            temp = QuantumRegister(label, len(data[0]), data[1])
-            temp.local_sitemap = data[0]
+            global_indexing_dict: dict[int, int] = cast(Dict[int, int], data[0])
+            global_dimensions_list: list[int] = cast(List[int], data[1])
+            temp = QuantumRegister(label, len(global_indexing_dict), global_dimensions_list)
+            temp.local_sitemap = global_indexing_dict
             registers_from_qasm.append(temp)
         # print(registers_from_qasm)
         return registers_from_qasm

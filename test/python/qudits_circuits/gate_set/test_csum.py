@@ -176,9 +176,3 @@ class TestCSum(TestCase):
             matrix.conj().T,
             matrix_dag,
         )
-
-    @staticmethod
-    def test_validate_parameter():
-        circuit_33 = QuantumCircuit(2, [3, 3], 0)
-        csum = circuit_33.csum([1, 0])
-        assert csum.validate_parameter()

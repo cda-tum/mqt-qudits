@@ -21,7 +21,7 @@ class TestQASM(TestCase):
                 cx (1, 2, 0, pi ) field[2], matter[1];
                 rxy (0, 1, pi, pi/2) field[3];
                 csum field[2], matter[1];
-                pm ([1, 0, 2, 3]) matter[0], matter[1];
+                pm ([1, 0]) matter[0];
                 rh (0, 1) field[3];
                 ls (pi/3) field[2], matter[0];
                 ms (pi/3) field[5], matter[1];

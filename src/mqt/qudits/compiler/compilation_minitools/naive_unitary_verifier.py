@@ -92,4 +92,4 @@ class UnitaryVerifier:
 
         target /= target[0][0]
 
-        return (abs(target - np.identity(self.dimension, dtype="complex")) < 1e-4).all()
+        return bool((abs(target - np.identity(self.dimension, dtype="complex")) < 1e-4).all())

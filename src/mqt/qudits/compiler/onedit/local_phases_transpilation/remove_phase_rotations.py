@@ -7,7 +7,8 @@ from ....quantum_circuit import gates
 from ... import CompilerPass
 
 if typing.TYPE_CHECKING:
-    from ....quantum_circuit.gate import Gate, QuantumCircuit
+    from ....quantum_circuit import QuantumCircuit
+    from ....quantum_circuit.gate import Gate
     from ....simulation.backends.backendv2 import Backend
 
 
@@ -16,8 +17,8 @@ class ZRemovalOptPass(CompilerPass):
         super().__init__(backend)
 
     @staticmethod
-    def transpile_gate(gate: Gate) -> Gate:
-        return gate
+    def transpile_gate(gate: Gate) -> list[Gate]:
+        return [gate]
 
     def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:
         circuit = self.remove_initial_rz(circuit)
@@ -29,7 +30,7 @@ class ZRemovalOptPass(CompilerPass):
         circuit = original_circuit.copy()
         new_instructions = copy.deepcopy(circuit.instructions)
 
-        seen_target_qudits = set()
+        seen_target_qudits: set[int] = set()
         indices = range(len(circuit.instructions)) if not reverse else range(len(circuit.instructions) - 1, -1, -1)
 
         for i in indices:

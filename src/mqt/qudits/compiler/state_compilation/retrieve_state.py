@@ -7,21 +7,19 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 if TYPE_CHECKING:
-    from numpy.typing import NDArray
-
-    complex_array = NDArray[np.complex128, np.complex128]
+    from numpy.typing import ArrayLike
 
 
-def verify_normalized_state(quantum_state: complex_array) -> bool:
+def verify_normalized_state(quantum_state: ArrayLike) -> bool:
     squared_magnitudes = np.abs(quantum_state) ** 2
-    sum_squared_magnitudes = np.sum(squared_magnitudes)
+    sum_squared_magnitudes = float(np.sum(squared_magnitudes))
 
     # Check if the sum is approximately equal to one
     tolerance = 1e-6
-    return np.isclose(sum_squared_magnitudes, 1.0, atol=tolerance)
+    return bool(np.isclose(sum_squared_magnitudes, 1.0, atol=tolerance))
 
 
-def generate_random_quantum_state(cardinalities: list[int]) -> complex_array:
+def generate_random_quantum_state(cardinalities: list[int]) -> ArrayLike:
     length = reduce(operator.mul, cardinalities)
     # Generate random complex numbers with real and imaginary parts
     rng = np.random.default_rng()
@@ -101,7 +99,7 @@ def find_entries_indices(input_list: list[list[int]], sublist: list[list[int]]) 
     return indices
 
 
-def generate_uniform_state(dimensions: list[int], state: str) -> complex_array:
+def generate_uniform_state(dimensions: list[int], state: str) -> ArrayLike:
     all_entries = generate_all_combinations(dimensions)
 
     if state == "qudit-w-state":

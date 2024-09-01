@@ -10,7 +10,8 @@ import numpy as np
 
 from mqt.qudits.exceptions.circuiterror import ShapeMismatchError
 
-NDArray = np.ndarray
+if typing.TYPE_CHECKING:
+    from numpy.typing import ArrayLike, NDArray
 
 
 def size_check(a: NDArray[np.complex128, np.complex128], b: NDArray[np.complex128, np.complex128]) -> bool:
@@ -41,7 +42,7 @@ def fidelity_on_unitares(a: NDArray[np.complex128, np.complex128], b: NDArray[np
 
 
 def fidelity_on_density_operator(
-    a: NDArray[np.complex128, np.complex128], b: NDArray[np.complex128, np.complex128]
+        a: NDArray[np.complex128, np.complex128], b: NDArray[np.complex128, np.complex128]
 ) -> float:
     if not size_check(a, b):
         msg = "Input arrays must have the same square shape."
@@ -53,19 +54,7 @@ def fidelity_on_density_operator(
     return typing.cast(float, (numerator / denominator))
 
 
-def density_operator(state_vector: np.ndarray[np.complex128]) -> np.ndarray[np.complex128]:
-    if isinstance(state_vector, list):
-        state_vector = np.array(state_vector)
-
-    return np.outer(state_vector, state_vector.conj())
-
-
-def frobenius_dist(x: NDArray[np.complex128, np.complex128], y: NDArray[np.complex128, np.complex128]) -> float:
-    a = x - y
-    return np.sqrt(np.trace(np.abs(a.T.conj() @ a)))
-
-
-def naive_state_fidelity(state1: NDArray[np.complex128], state2: NDArray[np.complex128]) -> float:
+def naive_state_fidelity(state1: ArrayLike, state2: ArrayLike) -> float:
     """
     Calculates fidelity between two state vectors.
     """
@@ -78,4 +67,4 @@ def naive_state_fidelity(state1: NDArray[np.complex128], state2: NDArray[np.comp
     inner_product = np.conj(state1).dot(state2)
 
     # Fidelity calculation
-    return np.abs(inner_product) ** 2
+    return float(np.abs(inner_product) ** 2)

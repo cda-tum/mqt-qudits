@@ -14,13 +14,14 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
 
     from ...quantum_circuit import QuantumCircuit
+    from . import MISim, TNSim
     from .backendv2 import Backend
 
 
 def generate_seed() -> int:
     """Generate a random seed for numpy random generator."""
     current_time = int(time.time() * 1000)
-    return hash((os.getpid(), current_time)) % 2**32
+    return hash((os.getpid(), current_time)) % 2 ** 32
 
 
 def measure_state(vector_data: NDArray[np.complex128]) -> int:
@@ -32,36 +33,45 @@ def measure_state(vector_data: NDArray[np.complex128]) -> int:
 
 def save_results(backend: Backend, results: list[int | NDArray[np.complex128]]) -> None:
     """Save the simulation results based on backend configuration."""
-    if backend.full_state_memory or backend.memory:
-        save_function = save_full_states if backend.full_state_memory else save_shots
-        save_function(results, backend.file_path, backend.file_name)
+    if backend.full_state_memory and backend.file_path and backend.file_name:
+        save_full_states(results, backend.file_path, backend.file_name)
+    elif backend.memory and backend.file_path and backend.file_name:
+        save_shots(results, backend.file_path, backend.file_name)
 
 
 def stochastic_simulation(backend: Backend, circuit: QuantumCircuit) -> NDArray | list[int]:
-    shots = backend.shots
-    num_processes = mp.cpu_count()
+    noise_model: NoiseModel = NoiseModel()
+    if backend.noise_model is not None:
+        noise_model = backend.noise_model
+
+    shots: int = backend.shots
+    num_processes: int = mp.cpu_count()
     from . import MISim, TNSim
 
-    if isinstance(backend, TNSim):
-        factory = NoisyCircuitFactory(backend.noise_model, circuit)
-        args = [(backend, factory) for _ in range(shots)]
-    elif isinstance(backend, MISim):
-        args = [(backend, (circuit, backend.noise_model)) for _ in range(shots)]
-
     with mp.Pool(processes=num_processes) as pool:
-        results = pool.map(stochastic_execution, args)
+        if isinstance(backend, TNSim):
+            factory = NoisyCircuitFactory(noise_model, circuit)
+            args_tn = [(backend, factory) for _ in range(shots)]
+            results = pool.map(stochastic_execution_tn, args_tn)
+        elif isinstance(backend, MISim):
+            args_mis = [(backend, circuit, noise_model) for _ in range(shots)]
+            results = pool.map(stochastic_execution_mi, args_mis)
+        else:
+            msg = "Unsupported backend type"
+            raise TypeError(msg)
 
     save_results(backend, results)
     return results
 
 
-def stochastic_execution(args: tuple[Backend, tuple[QuantumCircuit, NoiseModel | None]]) -> NDArray | list[int]:
-    backend, pack = args
-    if isinstance(pack, NoisyCircuitFactory):
-        circuit = pack.generate_circuit()
-        vector_data = backend.execute(circuit)
-    else:
-        circuit, noise_model = pack
-        vector_data = backend.execute(circuit, noise_model)
+def stochastic_execution_tn(args: tuple[TNSim, NoisyCircuitFactory]) -> NDArray | int:
+    backend, factory = args
+    circuit = factory.generate_circuit()
+    vector_data = backend.execute(circuit)
+    return vector_data if backend.full_state_memory else measure_state(vector_data)
 
+
+def stochastic_execution_mi(args: tuple[MISim, QuantumCircuit, NoiseModel]) -> NDArray | int:
+    backend, circuit, noise_model = args
+    vector_data = backend.execute(circuit, noise_model)
     return vector_data if backend.full_state_memory else measure_state(vector_data)

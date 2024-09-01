@@ -32,9 +32,3 @@ class TestH(TestCase):
         compare = compare.round(8)
         h_m = h.to_matrix(identities=0)
         assert np.allclose(h_m, compare)
-
-    @staticmethod
-    def test_validate_parameter():
-        circuit = QuantumCircuit(1, [3], 0)
-        h = circuit.h(0)
-        assert h.validate_parameter()

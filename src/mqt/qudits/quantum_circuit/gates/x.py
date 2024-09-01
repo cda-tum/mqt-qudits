@@ -34,16 +34,17 @@ class X(Gate):
         self.qasm_tag = "x"
 
     def __array__(self) -> NDArray:  # noqa: PLW3201
-        matrix = np.zeros((self._dimensions, self._dimensions), dtype="complex")
-        for i in range(self._dimensions):
-            i_plus_1 = np.mod(i + 1, self._dimensions)
-            array1 = np.zeros(self._dimensions, dtype="complex")
-            array2 = np.zeros(self._dimensions, dtype="complex")
+        matrix = np.zeros((self.dimensions, self.dimensions), dtype="complex")
+        for i in range(self.dimensions):
+            i_plus_1 = np.mod(i + 1, self.dimensions)
+            array1 = np.zeros(self.dimensions, dtype="complex")
+            array2 = np.zeros(self.dimensions, dtype="complex")
             array1[i_plus_1] = 1
             array2[i] = 1
             matrix += np.outer(array1, array2)
         return matrix
 
-    @staticmethod
-    def validate_parameter() -> bool:
-        return True
+    @property
+    def dimensions(self) -> int:
+        assert isinstance(self._dimensions, int), "Dimensions must be an integer"
+        return self._dimensions

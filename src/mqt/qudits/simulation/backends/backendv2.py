@@ -62,3 +62,7 @@ class Backend(ABC):
     @abstractmethod
     def run(self, circuit: QuantumCircuit, **options: Any) -> Job:  # noqa: ANN401
         pass
+
+    def execute(self, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> None:
+        raise NotImplementedError
+

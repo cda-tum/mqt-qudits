@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import gc
 import typing
+from typing import List, cast
 
 from mqt.qudits.compiler import CompilerPass
 from mqt.qudits.compiler.onedit import PhyLocAdaPass
@@ -10,8 +11,6 @@ from mqt.qudits.quantum_circuit.components.extensions.gate_types import GateType
 from mqt.qudits.quantum_circuit.gates import Perm
 
 if typing.TYPE_CHECKING:
-    from numpy.random.mtrand import Sequence
-
     from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
     from mqt.qudits.simulation.backends.backendv2 import Backend
@@ -22,9 +21,9 @@ class PhyEntQRCEXPass(CompilerPass):
         super().__init__(backend)
         self.circuit = None
 
-    def transpile_gate(self, gate: Gate) -> Sequence[Gate]:
-        target_qudits = typing.cast(typing.List[int], gate.target_qudits)
-        dimensions = typing.cast(typing.List[int], gate.dimensions)
+    def transpile_gate(self, gate: Gate) -> list[Gate]:
+        target_qudits = cast(List[int], gate.target_qudits)
+        dimensions = cast(List[int], gate.dimensions)
 
         energy_graph_c = self.backend.energy_level_graphs[target_qudits[0]]
         energy_graph_t = self.backend.energy_level_graphs[target_qudits[1]]
@@ -53,7 +52,7 @@ class PhyEntQRCEXPass(CompilerPass):
         return [op.dag() for op in reversed(decomp)]
 
     def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:
-        self.circuit = circuit
+        self.circuit: QuantumCircuit = circuit
         instructions = circuit.instructions
         new_instructions = []
 

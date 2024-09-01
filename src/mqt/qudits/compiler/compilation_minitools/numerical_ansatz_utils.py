@@ -44,20 +44,19 @@ def gate_expand_to_circuit(
 
 
 def apply_gate_to_tlines(
-    gate_matrix: NDArray[np.complex128, np.complex128],
+    gate_matrix: NDArray[np.complex128],
     circuits_size: int = 2,
     targets: int | list[int] | None = None,
     dims: list[int] | None = None,
-) -> NDArray[np.complex128, np.complex128]:
+) -> NDArray[np.complex128]:
     if dims is None:
-        dims = [2, 2]
+        dims = [2] * circuits_size
     if targets is None:
-        targets = range(circuits_size)
-
-    if isinstance(targets, int):
+        targets = list(range(circuits_size))
+    elif isinstance(targets, int):
         targets = [targets]
 
-    subset_gate = 0
+    subset_gate = np.zeros((2**circuits_size, 2**circuits_size), dtype=np.complex128)
     for i in targets:
         subset_gate += gate_expand_to_circuit(gate_matrix, circuits_size, i, dims)
     return subset_gate

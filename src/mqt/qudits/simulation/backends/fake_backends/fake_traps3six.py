@@ -112,7 +112,6 @@ class FakeIonTraps3Six(TNSim):
         noise_model = NoiseModel()  # We know that the architecture is only two qudits
         # Very noisy gate_matrix
         noise_model.add_all_qudit_quantum_error(local_error, ["csum"])
-        noise_model.add_recurrent_quantum_error_locally(local_error, ["csum"], [0])
         # Entangling gates
         noise_model.add_nonlocal_quantum_error(entangling_error, ["cx", "ls", "ms"])
         noise_model.add_nonlocal_quantum_error_on_target(entangling_error_on_target, ["cx", "ls", "ms"])

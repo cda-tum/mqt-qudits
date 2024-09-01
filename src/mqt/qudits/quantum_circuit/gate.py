@@ -4,18 +4,21 @@ import random
 import string
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional, Union
 
 import numpy as np
 
 from mqt.qudits.quantum_circuit.components.extensions.matrix_factory import MatrixFactory
+
 from ..exceptions import CircuitError
 from .components.extensions.controls import ControlData
+from .components.extensions.gate_types import GateTypes
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
+
+    Parameter = Optional[Union[List[Union[int, float]], List[Union[int, str]], NDArray[np.complex128, np.complex128]]]
     from .circuit import QuantumCircuit
-    from .components.extensions.gate_types import GateTypes
 
 
 class Instruction(ABC):
@@ -34,21 +37,28 @@ class Gate(Instruction):
             gate_type: GateTypes,
             target_qudits: list[int] | int,
             dimensions: list[int] | int,
-            params: list | NDArray | None = None,
+            params: Parameter = None,
             control_set: ControlData | None = None,
-            label: str | None = None) -> None:
+            label: str | None = None,
+    ) -> None:
         self.dagger = False
         self.parent_circuit = circuit
         self._name = name
         self.gate_type = gate_type
         self._target_qudits = target_qudits
         self._dimensions = dimensions
-        self._params = params
+        self._params: Parameter = params
         self._label = label
-        self._controls_data = None
-        self.is_long_range = self.check_long_range()
+        self._controls_data: ControlData | None = None
         if control_set:
             self.control(**vars(control_set))
+
+        self.is_long_range = self.check_long_range()
+        # inheritable parameters
+        self.lev_a: int = 0
+        self.lev_b: int = 0
+        self.theta: float = 0.
+        self.phi: float = 0.
         self.qasm_tag = ""
 
     @property
@@ -87,7 +97,7 @@ class Gate(Instruction):
             matrix_factory = MatrixFactory(self, identities)
             return matrix_factory.generate_matrix()
         msg = "to_matrix not defined for this "
-        raise CircuitError(msg, {type(self)})
+        raise CircuitError(msg)
 
     def control(self, indices: list[int], ctrl_states: list[int]) -> Gate:
         if len(indices) == 0 or len(ctrl_states) == 0:
@@ -120,16 +130,15 @@ class Gate(Instruction):
         self.check_long_range()
         return self
 
-    @abstractmethod
-    def validate_parameter(self, parameter: list | NDArray | None = None) -> bool:
-        pass
+    def validate_parameter(self, param: Parameter) -> bool:  #noqa: PLR6301 ARG002
+        return False
 
     @property
     def dimensions(self) -> list[int] | int:
         return self._dimensions
 
     @property
-    def target_qudits(self) -> list[int]:
+    def target_qudits(self) -> list[int] | int:
         """
         Get the target qudits.
 
@@ -140,20 +149,7 @@ class Gate(Instruction):
 
     @target_qudits.setter
     def target_qudits(self, value: list[int] | int) -> None:
-        """
-        Set the target qudits.
-
-        Args:
-            value (Union[List[int], int]): The new target qudits.
-
-        Raises:
-            ValueError: If the input is not a list of integers or a single integer.
-        """
-        if isinstance(value, int) or (isinstance(value, list) and all(isinstance(x, int) for x in value)):
-            self._target_qudits = value
-        else:
-            msg = "target_qudits must be a list of integers or a single integer"
-            raise ValueError(msg)
+        self._target_qudits = value
 
     def __qasm__(self) -> str:  # noqa: PLW3201
         """Generate QASM for Gate export"""
@@ -175,7 +171,7 @@ class Gate(Instruction):
                 f"{self.parent_circuit.inverse_sitemap[qudit][0]}[{self.parent_circuit.inverse_sitemap[qudit][1]}], "
             )
         string = string[:-2]
-        if self._controls_data:
+        if self._controls_data is not None:
             string += " ctl "
             for _ctrl in self._controls_data.indices:
                 string += (
@@ -186,10 +182,10 @@ class Gate(Instruction):
         return string + ";\n"
 
     def check_long_range(self) -> bool:
-        target_qudits = self.reference_lines
-        if isinstance(target_qudits, list) and len(target_qudits) > 0:
-            self.is_long_range = any((b - a) > 1 for a, b in zip(sorted(target_qudits)[:-1], sorted(target_qudits)[1:]))
-        return self.is_long_range
+        target_qudits: list[int] = self.reference_lines
+        if len(target_qudits) > 1:
+            return any((b - a) > 1 for a, b in zip(sorted(target_qudits)[:-1], sorted(target_qudits)[1:]))
+        return False
 
     def set_gate_type_single(self) -> None:
         self.gate_type = GateTypes.SINGLE
@@ -207,7 +203,7 @@ class Gate(Instruction):
         return []
 
     @property
-    def control_info(self) -> dict:
+    def control_info(self) -> dict[str, int | list[int] | Parameter | ControlData]:
         return {
             "target":           self.target_qudits,
             "dimensions_slice": self._dimensions,

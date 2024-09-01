@@ -36,7 +36,7 @@ class PhyLocAdaPass(CompilerPass):
     def __init__(self, backend: Backend) -> None:
         super().__init__(backend)
 
-    def transpile_gate(self, gate: Gate, vrz_prop: bool = False) -> list[R | VirtRz | Rz]:
+    def transpile_gate(self, gate: Gate, vrz_prop: bool = False) -> list[Gate]:
         energy_graph_i = self.backend.energy_level_graphs[gate.target_qudits]
 
         qr = PhyQrDecomp(gate, energy_graph_i)

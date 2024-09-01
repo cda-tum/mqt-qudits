@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import operator
 import typing
+from typing import Dict, List, Tuple, cast
 
 from mqt.qudits.quantum_circuit.components.extensions.gate_types import GateTypes
 
@@ -9,39 +10,44 @@ if typing.TYPE_CHECKING:
     from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
 
+    LaneLookUp = Dict[Gate, Tuple[int, int, int]]
+    CircuitGroupView = Dict[int, List[List[Tuple[int, Gate]]]]
+    LineView = List[Tuple[int, Gate]]
+    CircuitView = Dict[int, LineView]
+
 
 class Lanes:
     def __init__(self, circuit: QuantumCircuit) -> None:
-        self.fast_lookup: dict[Gate, tuple[int, int, int]] = None
-        self.consecutive_view: dict[int, list[list[Gate]]] = None
+        self.fast_lookup: LaneLookUp = {}
+        self.consecutive_view: CircuitGroupView = {}
         self.circuit: QuantumCircuit = circuit
-        self.instructions: list[Gate] = circuit.instructions
-        self.pre_process_ops()
-        self.index_dict: dict[int, list[tuple[int, Gate]]] = self.create_lanes()
+        self.instructions: LineView = self.pre_process_ops(circuit.instructions)
+        self.index_dict: CircuitView = self.create_lanes()
 
-    def pre_process_ops(self) -> None:
-        gates = []
+    @staticmethod
+    def pre_process_ops(instructions: list[Gate]) -> LineView:
+        gates: LineView = []
         entanglement_counter = 0
-        for gate in self.instructions:
+        for gate in instructions:
             if gate.gate_type != GateTypes.SINGLE:
                 entanglement_counter += 1
                 gates.append((entanglement_counter, gate))
                 # entanglement_counter += 1
             else:
                 gates.append((entanglement_counter, gate))
-        self.instructions = gates
+        return gates
 
-    def create_lanes(self) -> dict[int, list[tuple[int, Gate]]]:
+    def create_lanes(self) -> CircuitView:
         self.index_dict = {}
         for gate_tuple in self.instructions:
             gate = gate_tuple[1]
             if gate.gate_type == GateTypes.SINGLE:
-                index = gate.target_qudits
+                index: int = cast(int, gate.target_qudits)
                 if index not in self.index_dict:
                     self.index_dict[index] = []
                 self.index_dict[index].append(gate_tuple)
             elif gate.gate_type in {GateTypes.TWO, GateTypes.MULTI}:
-                indices = gate.target_qudits
+                indices: list[int] = cast(List[int], gate.target_qudits)
                 for index in indices:
                     if index not in self.index_dict:
                         self.index_dict[index] = []
@@ -63,39 +69,36 @@ class Lanes:
                     seen_ids.add(obj_id)
 
         sorted_list = sorted(combined_list, key=operator.itemgetter(0))
-        self.instructions = []
-        for gate_tuple in sorted_list:
-            self.instructions.append(gate_tuple[1])
+        instructions_as_circuit: list[Gate] = [gate_tuple[1] for gate_tuple in sorted_list]
 
-        return self.instructions
+        return instructions_as_circuit
 
     def extract_lane(self, qudit_line: int) -> list[Gate]:
         return [gate_tuple[1] for gate_tuple in self.index_dict[qudit_line]]
 
-    def find_consecutive_singles(self, gates: list[Gate] | None = None) -> dict[int, list[list[tuple[int, Gate]]]]:
+    def find_consecutive_singles(self, gates: LineView | None = None) -> CircuitGroupView:
         if gates is None:
             gates = self.instructions
         from collections import defaultdict
 
-        consecutive_groups = defaultdict(list)
+        consecutive_groups: CircuitGroupView = defaultdict(list)
         for gate_tuple in gates:
             gate = gate_tuple[1]
             if gate.gate_type == GateTypes.SINGLE:
-                if consecutive_groups[gate.target_qudits]:
-                    consecutive_groups[gate.target_qudits][-1].append(gate_tuple)
+                target_qudits = cast(int, gate.target_qudits)
+                if consecutive_groups[target_qudits]:
+                    consecutive_groups[target_qudits][-1].append(gate_tuple)
                 else:
-                    consecutive_groups[gate.target_qudits] = [[gate_tuple]]
+                    consecutive_groups[target_qudits] = [[gate_tuple]]
             else:
-                for qudit in gate.target_qudits:
+                qudits_targeted: list[int] = cast(List[int], gate.target_qudits)
+                for qudit in qudits_targeted:
                     consecutive_groups[qudit].append([gate_tuple])
                     consecutive_groups[qudit].append([])
         consecutive_groups = {
             key: [sublist for sublist in value if sublist] for key, value in consecutive_groups.items()
         }
 
-        self.consecutive_view = consecutive_groups
-
-        self.fast_lookup = {}
         # Build the index
         for line_number, line_groups in consecutive_groups.items():
             for group_number, group in enumerate(line_groups):
@@ -123,5 +126,9 @@ class Lanes:
         gates_of_line.insert(start_index, (ordering_id, new_gate))
 
     def next_is_local(self, gate: Gate) -> bool:
-        line_number, group_number, gate_number = self.fast_lookup.get(gate)
-        return len(self.consecutive_view[line_number][group_number]) - 1 != gate_number
+        try:
+            line_number, group_number, gate_number = self.fast_lookup[gate]
+            return len(self.consecutive_view[line_number][group_number]) - 1 != gate_number
+        except KeyError as err:
+            msg = f"Gate {gate} not found in fast_lookup"
+            raise KeyError(msg) from err

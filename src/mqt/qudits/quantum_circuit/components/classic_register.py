@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Dict, cast
 
 
 class ClassicRegister:
@@ -8,17 +8,18 @@ class ClassicRegister:
     def from_map(cls, sitemap: dict[tuple[str, int], Any]) -> list[ClassicRegister]:
         registers_map = {}
 
-        for creg_with_index, line_info in sitemap.items():
+        for creg_with_index, extracted_local_line_indexing in sitemap.items():
             reg_name, inreg_line_index = creg_with_index
             if reg_name not in registers_map:
-                registers_map[reg_name] = [{inreg_line_index: creg_with_index[0]}, line_info]
+                registers_map[reg_name] = [{inreg_line_index: creg_with_index[0]}, extracted_local_line_indexing]
             else:
-                registers_map[reg_name][0][inreg_line_index] = line_info
+                registers_map[reg_name][0][inreg_line_index] = extracted_local_line_indexing
 
         registers_from_qasm = []
         for label, data in registers_map.items():
-            temp = ClassicRegister(label, len(data[0]))
-            temp.local_sitemap = data[0]
+            global_indexing_dict: dict[int, int] = cast(Dict[int, int], data[0])
+            temp = ClassicRegister(label, len(global_indexing_dict))
+            temp.local_sitemap = global_indexing_dict
             registers_from_qasm.append(temp)
 
         return registers_from_qasm

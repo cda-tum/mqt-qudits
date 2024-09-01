@@ -14,7 +14,8 @@ from mqt.qudits.compiler.twodit.variational_twodit_compilation.parametrize impor
 from mqt.qudits.quantum_circuit.gates import CustomOne
 
 if typing.TYPE_CHECKING:
-    from mqt.qudits.compiler.twodit.variational_twodit_compilation.opt.distance_measures import NDArray
+    from numpy.typing import NDArray
+
     from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
 

@@ -45,7 +45,7 @@ class MISim(Backend):
 
         return job
 
-    def execute(self, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> NDArray:
+    def execute(self, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> NDArray[np.complex128]:
         self.system_sizes = circuit.dimensions
         self.circ_operations = circuit.instructions
         if noise_model is None:

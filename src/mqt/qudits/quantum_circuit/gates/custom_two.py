@@ -22,7 +22,7 @@ class CustomTwo(Gate):
         circuit: QuantumCircuit,
         name: str,
         target_qudits: list[int],
-        parameters: np.ndarray,
+        parameters: NDArray[np.complex128, np.complex128],
         dimensions: list[int],
         controls: ControlData | None = None,
     ) -> None:

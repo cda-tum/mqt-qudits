@@ -26,9 +26,3 @@ class TestRandU(TestCase):
         assert self.is_unitary(ru1.to_matrix())
         assert self.is_unitary(ru2.to_matrix())
         assert not np.allclose(ru1.to_matrix(), ru2.to_matrix())
-
-    @staticmethod
-    def test_validate_parameter():
-        circuit = QuantumCircuit(1, [3], 0)
-        ru = circuit.randu([0])
-        assert ru.validate_parameter()

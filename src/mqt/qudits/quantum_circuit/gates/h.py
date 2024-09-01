@@ -35,18 +35,19 @@ class H(Gate):
         self.qasm_tag = "h"
 
     def __array__(self) -> NDArray:  # noqa: PLW3201
-        matrix = np.zeros((self._dimensions, self._dimensions), dtype="complex")
-        for e0, e1 in itertools.product(range(self._dimensions), repeat=2):
-            omega = np.mod(2 / self._dimensions * (e0 * e1), 2)
+        matrix = np.zeros((self.dimensions, self.dimensions), dtype="complex")
+        for e0, e1 in itertools.product(range(self.dimensions), repeat=2):
+            omega = np.mod(2 / self.dimensions * (e0 * e1), 2)
             omega = omega * np.pi * 1j
             omega = np.e**omega
-            array0 = np.zeros(self._dimensions, dtype="complex")
-            array1 = np.zeros(self._dimensions, dtype="complex")
+            array0 = np.zeros(self.dimensions, dtype="complex")
+            array1 = np.zeros(self.dimensions, dtype="complex")
             array0[e0] = 1
             array1[e1] = 1
             matrix += omega * np.outer(array0, array1)
-        return matrix * (1 / np.sqrt(self._dimensions))
+        return matrix * (1 / np.sqrt(self.dimensions))
 
-    @staticmethod
-    def validate_parameter() -> bool:
-        return True
+    @property
+    def dimensions(self) -> int:
+        assert isinstance(self._dimensions, int), "Dimensions must be an integer"
+        return self._dimensions

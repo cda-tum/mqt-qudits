@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal
 
 
 @dataclass
@@ -16,15 +15,13 @@ class NoiseModel:
     """Represents a quantum noise model for various gates and qudit configurations."""
 
     def __init__(self) -> None:
-        self.quantum_errors: dict[
-            str, dict[tuple[int, ...] | Literal["local", "all", "nonlocal", "target", "control"], Noise]
-        ] = {}
+        self.quantum_errors: dict[str, dict[str, Noise]] = {}
 
     def _add_quantum_error(
-        self,
-        noise: Noise,
-        gates: list[str],
-        mode: tuple[int, ...] | Literal["local", "all", "nonlocal", "target", "control"],
+            self,
+            noise: Noise,
+            gates: list[str],
+            mode: str
     ) -> None:
         """
         Helper method to add quantum errors to the model.
@@ -38,10 +35,6 @@ class NoiseModel:
             if gate not in self.quantum_errors:
                 self.quantum_errors[gate] = {}
             self.quantum_errors[gate][mode] = noise
-
-    def add_recurrent_quantum_error_locally(self, noise: Noise, gates: list[str], qudits: list[int]) -> None:
-        """Add a recurrent quantum error locally to specific qudits."""
-        self._add_quantum_error(noise, gates, tuple(sorted(qudits)))
 
     def add_quantum_error_locally(self, noise: Noise, gates: list[str]) -> None:
         """Add a quantum error locally to all qudits for specified gates."""

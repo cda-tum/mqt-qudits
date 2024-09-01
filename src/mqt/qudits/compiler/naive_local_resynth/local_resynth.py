@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, NoReturn
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -21,31 +21,33 @@ class NaiveLocResynthOptPass(CompilerPass):
         self.circuit: QuantumCircuit | None = None  # Replace 'Any' with the actual circuit type
         self.lanes: Lanes | None = None
 
-    def transpile_gate(self, gate: Gate) -> NoReturn:
-        raise NotImplementedError
+    @staticmethod
+    def transpile_gate(gate: Gate) -> list[Gate]:
+        if gate is not None:
+            msg = "transpile_gate method not implemented"
+            raise NotImplementedError(msg)
 
     def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:
         self.circuit = circuit
         self.lanes = Lanes(self.circuit)
 
         for line in sorted(self.lanes.index_dict.keys()):
-            grouped_line: dict[int, list[list[tuple[int, Gate]]]] = self.lanes.find_consecutive_singles(
-                self.lanes.index_dict[line]
-            )
-            new_line = []
+            extracted_line: list[tuple[int, Gate]] = self.lanes.index_dict[line]
+            grouped_line: dict[int, list[list[tuple[int, Gate]]]] = self.lanes.find_consecutive_singles(extracted_line)
+            new_line: list[tuple[int, Gate]] = []
             for group in grouped_line[line]:
                 if group[0][1].gate_type == GateTypes.SINGLE:
                     matrix = np.identity(self.circuit.dimensions[line])
                     for gate_tuple in group:
                         gate = gate_tuple[1]
                         gm = gate.to_matrix()
-                        matrix = gm @ matrix
+                        matrix = np.matmul(gm, matrix)
                     new_line.append((
                         group[0][0],
                         CustomOne(self.circuit, "CUm", line, matrix, self.circuit.dimensions[line]),
                     ))
                 else:
-                    new_line.append(group[0])  # type: ignore[unreachable]
+                    new_line.append(group[0])
 
             self.lanes.index_dict[line] = new_line
 

@@ -48,7 +48,7 @@ class TNSim(Backend):
 
         return job
 
-    def execute(self, circuit: QuantumCircuit) -> NDArray[np.complex128]:
+    def execute(self, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> NDArray[np.complex128]: #noqa: ARG002
         self.system_sizes = circuit.dimensions
         self.circ_operations = circuit.instructions
 
@@ -67,7 +67,7 @@ class TNSim(Backend):
             qudit_edges[bit] = op[i + len(operating_qudits)]
 
     def __contract_circuit(
-        self, system_sizes: list[int], operations: Sequence[Gate]
+            self, system_sizes: list[int], operations: Sequence[Gate]
     ) -> tn.network_components.AbstractNode:
         all_nodes: Sequence[tn.network_components.AbstractNode] = []
 
@@ -92,7 +92,7 @@ class TNSim(Backend):
                     op_matrix = op_matrix.T
                     # op_matrix = op_matrix.reshape((system_sizes[lines[0]], system_sizes[lines[0]]))
 
-                elif op.gate_type == GateTypes.TWO and not op.is_long_range:  # type: ignore[unreachable]
+                elif op.gate_type == GateTypes.TWO and not op.is_long_range:
                     op_matrix = op_matrix.T
                     lines = lines.copy()
                     lines.sort()

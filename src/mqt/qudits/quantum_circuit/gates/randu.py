@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from functools import reduce
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, cast
 
 from ..components.extensions.gate_types import GateTypes
 from ..gate import Gate
 
 if TYPE_CHECKING:
+    import numpy as np
     from numpy.typing import NDArray
 
     from ..circuit import QuantumCircuit
@@ -14,7 +15,7 @@ if TYPE_CHECKING:
 
 import operator
 
-from scipy.stats import unitary_group
+from scipy.stats import unitary_group  # type: ignore[import-not-found]
 
 
 class RandU(Gate):
@@ -36,10 +37,10 @@ class RandU(Gate):
         )
         self.qasm_tag = "rdu"
 
-    def __array__(self) -> NDArray:  # noqa: PLW3201
-        dim = reduce(operator.mul, self._dimensions)
+    def __array__(self) -> NDArray[np.complex128, np.complex128]:  # noqa: PLW3201
+        dim = reduce(operator.mul, self.dimensions)
         return unitary_group.rvs(dim)
 
-    @staticmethod
-    def validate_parameter() -> bool:
-        return True
+    @property
+    def dimensions(self) -> list[int]:
+        return cast(List[int], self._dimensions)

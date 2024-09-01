@@ -22,7 +22,7 @@ def swap_elements(list_nodes: list[T], i: int, j: int) -> list[T]:
 
 def new_mod(a: float, b: float = 2 * np.pi) -> float:
     res = np.mod(a, b)
-    return res if not res else res - b if a < 0 else res
+    return float(res if not res else res - b if a < 0 else res)
 
 
 def pi_mod(a: float) -> float:
@@ -52,7 +52,7 @@ def phi_cost(theta: float) -> float:
 
 def theta_cost(theta: float) -> float:
     theta_on_units = theta / np.pi
-    return (4 * abs(theta_on_units) + abs(np.mod(abs(theta_on_units) + 0.25, 0.5) - 0.25)) * 1e-04
+    return float(4 * abs(theta_on_units) + abs(np.mod(abs(theta_on_units) + 0.25, 0.5) - 0.25)) * 1e-04
 
 
 def rotation_cost_calc(gate: R, placement: LevelGraph) -> float:

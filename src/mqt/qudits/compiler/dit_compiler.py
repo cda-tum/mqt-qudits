@@ -13,6 +13,7 @@ from .twodit.entanglement_qr.phy_ent_qr_cex_decomp import PhyEntQRCEXPass
 
 if TYPE_CHECKING:
     from ..quantum_circuit import QuantumCircuit
+    from ..quantum_circuit.gate import Gate
     from ..simulation.backends.backendv2 import Backend
 
 
@@ -74,6 +75,7 @@ class QuditCompiler:
         lanes = Lanes(circuit)
         new_instructions = []
         for gate in circuit.instructions:
+            ins: list[Gate] = []
             if gate.gate_type is GateTypes.SINGLE:
                 ins = phyloc.transpile_gate(gate, lanes.next_is_local(gate))
                 new_instructions.extend(ins)

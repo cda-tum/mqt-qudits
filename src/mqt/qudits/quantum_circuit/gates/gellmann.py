@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union, cast
 
 import numpy as np
 
@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 
     from ..circuit import QuantumCircuit
     from ..components.extensions.controls import ControlData
+    from ..gate import Parameter
 
 
 class GellMann(Gate):
@@ -24,7 +25,7 @@ class GellMann(Gate):
         circuit: QuantumCircuit,
         name: str,
         target_qudits: int,
-        parameters: list,
+        parameters: list[int | str],
         dimensions: int,
         controls: ControlData | None = None,
     ) -> None:
@@ -37,7 +38,9 @@ class GellMann(Gate):
             control_set=controls,
         )
         if self.validate_parameter(parameters):
-            self.lev_a, self.lev_b, self.type_m = parameters
+            self.lev_a = cast(int, parameters[0])
+            self.lev_b = cast(int, parameters[1])
+            self.type_m = cast(str, parameters[2])
             self._params = parameters
         self.qasm_tag = "gell"
 
@@ -68,13 +71,24 @@ class GellMann(Gate):
         return matrix
 
     @staticmethod
-    def validate_parameter(parameter: list[int, int, str]) -> bool:
-        assert isinstance(parameter[0], int)
-        assert isinstance(parameter[1], int)
-        assert isinstance(parameter[2], str)
-        assert (
-            0 <= parameter[0] < parameter[1]
-        ), f"lev_a and lev_b are out of range or in wrong order: {parameter[0]}, {parameter[1]}"
-        assert isinstance(parameter[2], str), "type parameter should be a string"
+    def validate_parameter(param: Parameter) -> bool:
+        if param is None:
+            return False
 
-        return True
+        if isinstance(param, list):
+            parameter = cast(list[Union[int, str]], param)
+            assert isinstance(parameter[0], int)
+            assert isinstance(parameter[1], int)
+            assert isinstance(parameter[2], str)
+            assert (
+                    0 <= parameter[0] < parameter[1]
+            ), f"lev_a and lev_b are out of range or in wrong order: {parameter[0]}, {parameter[1]}"
+            assert isinstance(parameter[2], str), "type parameter should be a string"
+
+            return True
+
+        if isinstance(param, np.ndarray):
+            # Add validation for numpy array if needed
+            return False
+
+        return False
