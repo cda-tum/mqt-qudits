@@ -70,7 +70,9 @@ class Job:
         """Return whether the job is in a final job state such as DONE or ERROR."""
         return self.status() in {JobStatus.DONE, JobStatus.ERROR}
 
-    def wait_for_final_state(self, timeout: float | None = None, wait: float = 5, callback: Callable | None = None) -> None: #type: ignore[type-arg]
+    def wait_for_final_state(
+        self, timeout: float | None = None, wait: float = 5, callback: Callable[[str, str, Job], None] | None = None
+    ) -> None:
         """Poll the job status until it progresses to a final state such as DONE or ERROR.
 
         Args:

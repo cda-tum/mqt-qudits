@@ -1,15 +1,14 @@
 from __future__ import annotations
 
 import re
-import typing
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 
 from .components.extensions.controls import ControlData
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from .components.classic_register import ClSitemap
     from .components.quantum_register import SiteMap
 
@@ -20,7 +19,7 @@ class QASM:
     """
 
     def __init__(self) -> None:
-        self._program = None
+        self.program: dict[str, Any] = {}
 
     @staticmethod
     def parse_nonspecial_lines(line: str, rgxs: dict[str, re.Pattern[str]], in_comment_flag: bool) -> tuple[bool, bool]:
@@ -52,7 +51,9 @@ class QASM:
         if match:
             name, nqu, qdims = match.groups()
             if nqu is not None:
-                nq = int(*re.search(r"\[(\d+)\]", nqu).groups())
+                int_matchings = re.search(r"\[(\d+)\]", nqu)
+                if int_matchings is not None:
+                    nq = int(int_matchings.group(1))
 
             if qdims:
                 qdims = qdims.split(",") if qdims else []
@@ -67,12 +68,12 @@ class QASM:
         return False
 
     @staticmethod
-    def parse_creg(line: str, rgxs: dict[str, re.Pattern[str]], sitemap_classic: dict[tuple[str, int], int]) -> bool:
+    def parse_creg(line: str, rgxs: dict[str, re.Pattern[str]], sitemap_classic: ClSitemap) -> bool:
         match = rgxs["creg"].match(line)
         if match:
             name, nclassics = match.groups()
             for i in range(int(nclassics)):
-                sitemap_classic[str(name), i] = len(sitemap_classic)
+                sitemap_classic[str(name), i] = (len(sitemap_classic),)
             return True
         return False
 
@@ -118,18 +119,26 @@ class QASM:
                 match = rgxs["qreg_indexing"].match(str(dit))
                 if match:
                     name, reg_qudit_index = match.groups()
-                    reg_qudit_index = int(*re.search(r"\[(\d+)\]", reg_qudit_index).groups())
-                    qudit = tuple(sitemap[name, reg_qudit_index])
-                    qudits_list.append(qudit)
+                    if reg_qudit_index:
+                        extracted_reg = re.search(r"\[(\d+)\]", reg_qudit_index)
+                        if extracted_reg:
+                            reg_qudit_index = int(extracted_reg.groups()[0])
+                            qudit = tuple(sitemap[name, reg_qudit_index])
+                            qudits_list.append(qudit)
 
             qudits_control_list = []
             if ctl_pattern is not None:
                 matches = rgxs["qreg_indexing"].findall(ctl_qudits)
                 for match in matches:
-                    name, reg_qudit_index = match
-                    reg_qudit_index = int(*re.search(r"\[(\d+)\]", reg_qudit_index).groups())
-                    qudit = tuple(sitemap[name, reg_qudit_index])
-                    qudits_control_list.append(qudit[0])
+                    if match:
+                        namectl = match[0]
+                        reg_qudit_indexctl = cast(str, match[1])
+                        number = re.search(r"\[(\d+)\]", reg_qudit_indexctl)
+                        if number:
+                            extracted = number.groups()
+                            reg_qudit_index_i = int(extracted[0])
+                            qudit = tuple(sitemap[namectl, reg_qudit_index_i])
+                            qudits_control_list.append(qudit[0])
 
             numbers = re.compile(r"\d+")
             qudits_levels_list = [int(level) for level in numbers.findall(ctl_levels)] if ctl_levels is not None else []
@@ -157,7 +166,7 @@ class QASM:
             return True
         return False
 
-    def parse_ditqasm2_str(self, contents: str) -> dict:
+    def parse_ditqasm2_str(self, contents: str) -> dict[str, Any]:
         """Parse the string contents of an OpenQASM 2.0 file. This parser only
         supports basic gate_matrix definitions, and is not guaranteed to check the full
         openqasm grammar.
@@ -187,7 +196,7 @@ class QASM:
         sitemap: SiteMap = {}
         sitemap_classic: ClSitemap = {}
 
-        gates = []
+        gates: list[dict[str, Any]] = []
         # only want to warn once about each ignored instruction
         warned: dict[str, bool] = {}
 
@@ -220,16 +229,16 @@ class QASM:
             # if not covered by previous checks, simply raise
             msg = f"{line}"
             raise SyntaxError(msg)
-        self._program = {
+        self.program = {
             "circuits_size": len(sitemap),
             "sitemap": sitemap,
             "sitemap_classic": sitemap_classic,
             "instructions": gates,
             "n_gates": len(gates),
         }
-        return self._program
+        return self.program
 
-    def parse_ditqasm2_file(self, fname: str) -> dict:
+    def parse_ditqasm2_file(self, fname: str) -> dict[str, Any]:
         """Parse an OpenQASM 2.0 file."""
         path = Path(fname)
         with path.open() as f:

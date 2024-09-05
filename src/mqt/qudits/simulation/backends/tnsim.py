@@ -19,12 +19,13 @@ if TYPE_CHECKING:
 
     from ...quantum_circuit import QuantumCircuit
     from ...quantum_circuit.gate import Gate
+    from .. import MQTQuditProvider
     from ..noise_tools import NoiseModel
 
 
 class TNSim(Backend):
-    def __init__(self, **fields: Any) -> None:  # noqa: ANN401
-        super().__init__()
+    def __init__(self, provider: MQTQuditProvider, **fields: Any) -> None:  # noqa: ANN401
+        super().__init__(provider)
         self._options.update(**fields)
 
     def __noise_model(self) -> NoiseModel | None:

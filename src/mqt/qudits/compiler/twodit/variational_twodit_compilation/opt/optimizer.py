@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import typing
-from typing import TYPE_CHECKING
 
 import numpy as np
 from scipy.optimize import dual_annealing  # type: ignore[import-not-found]
@@ -13,7 +12,7 @@ from mqt.qudits.exceptions import FidelityReachError
 from ..ansatz.ansatz_gen_utils import bound_1, bound_2, bound_3
 from .distance_measures import fidelity_on_unitares
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     import multiprocessing
 
     from numpy.typing import NDArray

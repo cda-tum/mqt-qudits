@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import typing
+from typing import TYPE_CHECKING
 
 from ..exceptions import NodeNotFoundError
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from numpy.typing import NDArray
 
     from ..quantum_circuit import gates
@@ -16,16 +16,18 @@ class Node:
     def __init__(
         self,
         key: int,
-        rotation: gates.R,
+        rotation: gates.R | CustomOne,
         u_of_level: NDArray,
         graph_current: LevelGraph,
         current_cost: float,
         current_decomp_cost: float,
         max_cost: tuple[float, float],
         pi_pulses: list[gates.R],
-        parent_key: int,
-        children: Node | None = None,
+        parent_key: int | None = None,
+        children: list[Node] | None = None,
     ) -> None:
+        if children is None:
+            children = []
         self.key = key
         self.children: list[Node] = children
         self.rotation = rotation
@@ -42,7 +44,7 @@ class Node:
     def add(
         self,
         new_key: int,
-        rotation: gates.R,
+        rotation: gates.R | CustomOne,
         u_of_level: NDArray,
         graph_current: LevelGraph,
         current_cost: float,
@@ -63,7 +65,7 @@ class Node:
             pi_pulses,
             self.key,
         )
-        if self.children is None:
+        if self.size == 0:
             self.children = []
 
         self.children.append(new_node)
@@ -73,12 +75,14 @@ class Node:
     def __str__(self) -> str:
         return str(self.key)
 
+    def __bool__(self) -> bool:
+        return True
+
 
 class NAryTree:
     # todo put method to refresh size when algorithm has finished
 
     def __init__(self) -> None:
-        self.root: Node = None
         self.size: int = 0
         self.global_id_counter: int = 0
 
@@ -117,8 +121,8 @@ class NAryTree:
             )
             self.size += 1
 
-    def find_node(self, node: Node, key: int) -> Node:
-        if node is None or node.key is key:
+    def find_node(self, node: Node, key: int) -> Node | None:
+        if node.key == key or node is None:
             return node
 
         if node.children is not None:
@@ -131,7 +135,7 @@ class NAryTree:
     def depth(self, key: int) -> int:
         # GIVES DEPTH FROM THE KEY NODE to LEAVES
         node = self.find_node(self.root, key)
-        if not (node):
+        if not node:
             msg = "No element was found with the informed parent key."
             raise NodeNotFoundError(msg)
         return self.max_depth(node)
@@ -143,7 +147,7 @@ class NAryTree:
         return 1 + max(children_max_depth)
 
     def size_refresh(self, node: Node) -> int:
-        if node.children is None or len(node.children) == 0:
+        if len(node.children) == 0:
             return 0
         children_size = len(node.children)
         for child in node.children:
@@ -175,10 +179,10 @@ class NAryTree:
         self.found_checker(node)
 
         if not node.finished:
-            decomp_nodes = []
+            decomp_nodes: list[Node] = []
             from numpy import inf
 
-            best_cost = inf
+            best_cost = (inf, inf)
             final_graph = node.graph
         else:
             decomp_nodes, best_cost, final_graph = self.min_cost_decomp(node)
@@ -198,7 +202,7 @@ class NAryTree:
         if node.finished:
             f = "-Finished-"
         str_aux += "N" + str(node) + f + "("
-        if node.children is not None:
+        if node.size > 0:
             str_aux += "\n\t"
             for i in range(len(node.children)):
                 child = node.children[i]

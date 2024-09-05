@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import typing
-from typing import Any, Dict, Tuple, cast
+from typing import TYPE_CHECKING, Any, Dict, Tuple, cast
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     ClSitemap = Dict[Tuple[str, int], Tuple[int]]
 
 

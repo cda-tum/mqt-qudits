@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import typing
-from typing import Dict, List, Tuple, Union, cast
+from typing import TYPE_CHECKING, Dict, List, Tuple, Union, cast
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     RegisterMap = Dict[str, List[Union[Dict[int, int], List[int]]]]
     SiteMap = Dict[Tuple[str, int], Tuple[int, int]]
 

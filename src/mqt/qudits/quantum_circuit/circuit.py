@@ -2,9 +2,8 @@ from __future__ import annotations
 
 import copy
 import locale
-import typing
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Tuple, TypeVar, cast
+from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Tuple, TypeVar, cast
 
 import numpy as np
 
@@ -44,7 +43,6 @@ if TYPE_CHECKING:
     from .components.classic_register import ClSitemap
 
 
-
 def is_not_none_or_empty(variable: Parameter) -> bool:
     if variable is None:
         return False
@@ -57,7 +55,7 @@ G = TypeVar("G", bound="Gate")
 
 
 def add_gate_decorator(func: Callable[..., G]) -> Callable[..., G]:
-    def gate_constructor(circ: QuantumCircuit, *args: typing.Any) -> G:  # noqa: ANN401
+    def gate_constructor(circ: QuantumCircuit, *args: Any) -> G:  # noqa: ANN401
         gate = func(circ, *args)
         circ.number_gates += 1
         circ.instructions.append(gate)
@@ -67,7 +65,7 @@ def add_gate_decorator(func: Callable[..., G]) -> Callable[..., G]:
 
 
 class QuantumCircuit:
-    qasm_to_gate_set_dict: typing.ClassVar = {
+    qasm_to_gate_set_dict: ClassVar = {
         "csum": "csum",
         "cuone": "cu_one",
         "cutwo": "cu_two",

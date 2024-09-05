@@ -13,12 +13,12 @@ class CompilerPass(ABC):
     def __init__(self, backend: Backend) -> None:
         self.backend = backend
 
-    @staticmethod  #type: ignore[misc]
+    @staticmethod  # type: ignore[misc]
     def transpile_gate(gate: Gate) -> list[Gate]:
         raise NotImplementedError
 
     @overload
-    def transpile_gate(self, gate: Gate) -> list[Gate]:  #noqa: F811
+    def transpile_gate(self, gate: Gate) -> list[Gate]:  # noqa: F811
         raise NotImplementedError
 
     @abstractmethod

@@ -2,12 +2,10 @@ from __future__ import annotations
 
 import math
 import operator
-import typing
-from typing import List, Tuple
+from typing import TYPE_CHECKING, List, Tuple, cast
 
 
 class MicroDDNode:
-
     def __init__(self, label: int | str) -> None:
         self.id: int | None = None
         self.value: int | str = label
@@ -15,7 +13,7 @@ class MicroDDNode:
         self.reduced: bool | None = None
         self.children_index: list[int] = []
         self.weight: complex = 1
-        self.p: MicroDDNode | None = None
+        self.p: complex | None = None
         self.terminal: bool = False
         self.dd_hash: int | None = None
         self.available: bool = True
@@ -47,7 +45,7 @@ one: MicroDDNode = MicroDDNode("one")
 one.terminal = True
 one.dd_hash = hash(1)
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     NodeContribution = List[List[Tuple[MicroDDNode, float]]]
     from numpy.typing import NDArray
 
@@ -75,7 +73,7 @@ def get_node_contributions(root: MicroDDNode, labels: list[int]) -> NodeContribu
 
     for node, probability in probs.items():
         if node.value not in {"r", "zero", "one"}:
-            qq[node.value].append((node, probability))
+            qq[cast(int, node.value)].append((node, probability))
 
     for i in range(len(qq)):
         qq[i] = sorted(qq[i], key=operator.itemgetter(1))
@@ -100,7 +98,7 @@ def unique_weights(root: MicroDDNode) -> set[complex]:
 
 
 def normalize(in_weight: complex, out_weights: list[complex]) -> tuple[complex, list[complex]]:
-    mags_squared = [x.real ** 2 + x.imag ** 2 for x in out_weights]
+    mags_squared = [x.real**2 + x.imag**2 for x in out_weights]
     norm_squared = sum(mags_squared)
     norm = math.sqrt(norm_squared)
     if norm == 0:
@@ -114,7 +112,7 @@ def normalize(in_weight: complex, out_weights: list[complex]) -> tuple[complex, 
 
 
 def create_decision_tree(
-        labels: list[int], cardinalities: list[int], data: NDArray[complex] | list[complex]
+    labels: list[int], cardinalities: list[int], data: NDArray[complex] | list[complex]
 ) -> tuple[MicroDDNode, list[int]]:
     root = MicroDDNode("r")
     root.data = data
@@ -125,12 +123,12 @@ def create_decision_tree(
 
 
 def build_decision_tree(
-        labels: list[int],
-        node: MicroDDNode,
-        cardinalities: list[int],
-        data: NDArray[complex] | list[complex],
-        number_of_nodes: list[int],
-        depth: int = 0,
+    labels: list[int],
+    node: MicroDDNode,
+    cardinalities: list[int],
+    data: NDArray[complex] | list[complex],
+    number_of_nodes: list[int],
+    depth: int = 0,
 ) -> None:
     if depth == len(cardinalities):
         node.weight = data[0]
@@ -149,7 +147,7 @@ def build_decision_tree(
 
     for i in range(cardinalities[depth]):
         # Split the array into two subarrays
-        branch_data = data[i * split_index: (i + 1) * split_index]
+        branch_data = data[i * split_index : (i + 1) * split_index]
 
         child = MicroDDNode(labels[depth])
         number_of_nodes[0] += 1
@@ -164,7 +162,7 @@ def build_decision_tree(
 
     # Managing Probability
     for c in node.children:
-        c.p = c.weight ** 2
+        c.p = c.weight**2
     ####################
 
     node.weight, new_weights = normalize(node.weight, cweights)
@@ -205,7 +203,7 @@ def remove_children(node: MicroDDNode) -> None:
 
 
 def cut_branches(contributions: NodeContribution, tolerance: float) -> None:
-    current = 0.
+    current = 0.0
     for level in reversed(contributions):
         for node, prob in level:
             if current + prob < tolerance and node.available:
@@ -236,18 +234,17 @@ def normalize_all(node: MicroDDNode, cardinalities: list[int], depth: int = 0) -
 
 
 def dd_reduction_hashing(node: MicroDDNode, cardinalities: list[int], depth: int = 0) -> int:
-    collect_hash_data = []
+    collect_hash_data: list[tuple[int | None, complex]] = []
     if depth == len(cardinalities) or node.terminal:
-        collect_hash_data.extend((node.children[0].dd_hash, 1))
+        collect_hash_data.append((node.children[0].dd_hash, 1))
     else:
-        for i in range(cardinalities[depth]):
-            collect_hash_data.extend((
-                dd_reduction_hashing(node.children[i], cardinalities, depth + 1),
-                node.children[i].weight,
-            ))
+        collect_hash_data = [
+            (dd_reduction_hashing(node.children[i], cardinalities, depth + 1), node.children[i].weight)
+            for i in range(cardinalities[depth])
+        ]
 
-    collect_hash_data = tuple(collect_hash_data)
-    node.dd_hash = hash(collect_hash_data)
+    collect_hash_data_t = tuple(collect_hash_data)
+    node.dd_hash = hash(collect_hash_data_t)
 
     return node.dd_hash
 
@@ -255,8 +252,8 @@ def dd_reduction_hashing(node: MicroDDNode, cardinalities: list[int], depth: int
 def dd_reduction_aggregation(node: MicroDDNode, cardinalities: list[int], depth: int = 0) -> None:
     if depth == len(cardinalities):
         return
-    previous_objects = {}
-    previous_objects_index = {}
+    previous_objects: dict[int | None, MicroDDNode] = {}
+    previous_objects_index: dict[int | None, int] = {}
 
     for i, obj in enumerate(node.children):
         if obj.dd_hash in previous_objects:

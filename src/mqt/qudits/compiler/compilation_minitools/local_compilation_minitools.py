@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-import typing
-from typing import TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 import numpy as np
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from mqt.qudits.core import LevelGraph
     from mqt.qudits.quantum_circuit.gates import R
 

@@ -1,31 +1,30 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional, TYPE_CHECKING, Any, cast
-
+from typing import TYPE_CHECKING, Any, cast
 
 from ..noise_tools import NoiseModel
 
 if TYPE_CHECKING:
     from ...core import LevelGraph
     from ...quantum_circuit import QuantumCircuit
-    from ..jobs import Job
     from .. import MQTQuditProvider
+    from ..jobs import Job
 
 
 class Backend(ABC):
     def __init__(
-            self,
-            provider: MQTQuditProvider | None = None,
-            name: str | None = None,
-            description: str | None = None,
-            **fields: dict[str, Any],
+        self,
+        provider: MQTQuditProvider,
+        name: str | None = None,
+        description: str | None = None,
+        **fields: dict[str, Any],
     ) -> None:
-        self._provider = provider
+        self._provider: MQTQuditProvider = provider
         self.name = name
         self.description: str | None = description
         self._energy_level_graphs: list[LevelGraph] = []
-        self.noise_model: Optional[NoiseModel] = None
+        self.noise_model: NoiseModel | None = None
         self.shots: int = 50
         self.memory: bool = False
         self.full_state_memory: bool = False
@@ -36,7 +35,7 @@ class Backend(ABC):
         if fields:
             self._options.update(fields)
 
-    def __noise_model(self) -> Optional[NoiseModel]:
+    def __noise_model(self) -> NoiseModel | None:
         return cast(NoiseModel, self.noise_model)
 
     @property
@@ -59,7 +58,7 @@ class Backend(ABC):
 
     @property
     def provider(self) -> MQTQuditProvider:
-        return cast(MQTQuditProvider, self._provider)
+        return self._provider
 
     @abstractmethod
     def run(self, circuit: QuantumCircuit, **options: Any) -> Job:  # noqa: ANN401

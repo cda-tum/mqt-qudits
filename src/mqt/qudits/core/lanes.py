@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import operator
-import typing
-from typing import Dict, List, Tuple, cast
+from typing import TYPE_CHECKING, Dict, List, Tuple, cast
 
 from mqt.qudits.quantum_circuit.components.extensions.gate_types import GateTypes
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
 

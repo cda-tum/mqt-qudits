@@ -39,7 +39,7 @@ class MQTQuditProvider:
             msg = f"Multiple backends found matching '{name}': {matching_backends}"
             raise ValueError(msg)
 
-        return self.__backends[matching_backends[0]](**kwargs)  # type: ignore[arg-type]
+        return self.__backends[matching_backends[0]](provider=self, **kwargs)  # type: ignore[arg-type]
 
     def backends(self, name: str | None = None) -> list[str]:
         """Return a list of backend names matching the specified filtering."""

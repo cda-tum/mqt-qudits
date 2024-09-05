@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import gc
 import itertools
-import typing
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 
@@ -21,7 +20,7 @@ from ..local_operation_swap import (
 )
 from ..mapping_aware_transpilation.phy_local_qr_decomp import PhyQrDecomp
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from numpy.typing import NDArray
 
     from ....core import LevelGraph
@@ -35,7 +34,7 @@ np.seterr(all="ignore")
 
 
 class PhyLocAdaPass(CompilerPass):
-    def __init__(self, backend: Backend,  vrz_prop: bool = False) -> None:
+    def __init__(self, backend: Backend, vrz_prop: bool = False) -> None:
         super().__init__(backend)
         self.vrz_prop = vrz_prop
 
@@ -108,9 +107,11 @@ class PhyAdaptiveDecomposition:
             pass
         finally:
             matrices_decomposed, best_cost, final_graph = self.TREE.retrieve_decomposition(self.TREE.root)
-
+            matrices_decomposed_m: list[Gate] = []
             if matrices_decomposed != []:
-                matrices_decomposed_m, final_graph = self.z_extraction(matrices_decomposed, final_graph, self.phase_propagation)
+                matrices_decomposed_m, final_graph = self.z_extraction(
+                    matrices_decomposed, final_graph, self.phase_propagation
+                )
             else:
                 pass
 
@@ -159,7 +160,7 @@ class PhyAdaptiveDecomposition:
                     phy_n_i = placement.nodes[i]["lpmap"]
 
                     phase_gate = gates.VirtRz(
-                            self.circuit, "VRz", self.qudit_index, [phy_n_i, np.angle(diag_u[i])], self.dimension
+                        self.circuit, "VRz", self.qudit_index, [phy_n_i, np.angle(diag_u[i])], self.dimension
                     )  # old version: VirtRz(np.angle(diag_U[i]), phy_n_i,
                     # dimension)
 

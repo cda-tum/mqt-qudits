@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import typing
-from typing import TYPE_CHECKING
 
 from ..core.lanes import Lanes
 from ..quantum_circuit.components.extensions.gate_types import GateTypes
@@ -11,7 +10,7 @@ from .onedit import LogLocQRPass, PhyLocAdaPass, PhyLocQRPass, ZPropagationOptPa
 from .twodit import LogEntQRCEXPass
 from .twodit.entanglement_qr.phy_ent_qr_cex_decomp import PhyEntQRCEXPass
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     from ..quantum_circuit import QuantumCircuit
     from ..quantum_circuit.gate import Gate
     from ..simulation.backends.backendv2 import Backend

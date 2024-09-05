@@ -35,8 +35,9 @@ class LogLocAdaPass(CompilerPass):
 
         _decomp, algorithmic_cost, total_cost = qr.execute()
 
-        adaptive = LogAdaptiveDecomposition(gate, energy_graph_i, (algorithmic_cost, total_cost),
-                                            cast(int, gate.dimensions))
+        adaptive = LogAdaptiveDecomposition(
+            gate, energy_graph_i, (algorithmic_cost, total_cost), cast(int, gate.dimensions)
+        )
 
         (
             matrices_decomposed,
@@ -63,12 +64,12 @@ class LogLocAdaPass(CompilerPass):
 
 class LogAdaptiveDecomposition:
     def __init__(
-            self,
-            gate: Gate,
-            graph_orig: LevelGraph,
-            cost_limit: tuple[float, float] = (0, 0),
-            dimension: int = -1,
-            z_prop: bool = False,
+        self,
+        gate: Gate,
+        graph_orig: LevelGraph,
+        cost_limit: tuple[float, float] = (0, 0),
+        dimension: int = -1,
+        z_prop: bool = False,
     ) -> None:
         self.circuit: QuantumCircuit = gate.parent_circuit
         self.U: NDArray = gate.to_matrix(identities=0)
@@ -82,17 +83,16 @@ class LogAdaptiveDecomposition:
 
     def execute(self) -> tuple[list[Gate], tuple[float, float], LevelGraph]:
         self.TREE.add(
-                0,
-                gates.CustomOne(
-                        self.circuit, "CUo", self.qudit_index, np.identity(self.dimension, dtype="complex"),
-                        self.dimension
-                ),
-                self.U,
-                self.graph,
-                0,
-                0,
-                self.cost_limit,
-                [],
+            0,
+            gates.CustomOne(
+                self.circuit, "CUo", self.qudit_index, np.identity(self.dimension, dtype="complex"), self.dimension
+            ),
+            self.U,
+            self.graph,
+            0,
+            0,
+            self.cost_limit,
+            [],
         )
         try:
             self.dfs(self.TREE.root)
@@ -100,7 +100,7 @@ class LogAdaptiveDecomposition:
             pass
         finally:
             matrices_decomposed, best_cost, final_graph = self.TREE.retrieve_decomposition(self.TREE.root)
-
+            matrices_decomposed_m: list[Gate] = []
             if matrices_decomposed != []:
                 matrices_decomposed_m, final_graph = self.z_extraction(matrices_decomposed, final_graph)
 
@@ -109,7 +109,7 @@ class LogAdaptiveDecomposition:
             return matrices_decomposed_m, best_cost, final_graph  # noqa: B012
 
     def z_extraction(
-            self, decomposition: list[TreeNode], placement: LevelGraph
+        self, decomposition: list[TreeNode], placement: LevelGraph
     ) -> tuple[list[Gate], LevelGraph]:  # phase_propagation: bool
         matrices: list[Gate] = []
 
@@ -141,7 +141,7 @@ class LogAdaptiveDecomposition:
         for i in range(dimension):
             if abs(np.angle(diag_u[i])) > 1.0e-4:
                 phase_gate = gates.VirtRz(
-                        self.circuit, "VRz", self.qudit_index, [i, np.angle(diag_u[i])], self.dimension
+                    self.circuit, "VRz", self.qudit_index, [i, np.angle(diag_u[i])], self.dimension
                 )  # old version: VirtRz(np.angle(diag_U[i]), phy_n_i, dimension)
                 u_ = phase_gate.to_matrix(identities=0) @ u_
                 matrices.append(phase_gate)
@@ -185,7 +185,7 @@ class LogAdaptiveDecomposition:
                         phi = -(np.pi / 2 + np.angle(u_[r, c]) - np.angle(u_[r2, c]))
 
                         rotation_involved = gates.R(
-                                self.circuit, "R", self.qudit_index, [r, r2, theta, phi], self.dimension
+                            self.circuit, "R", self.qudit_index, [r, r2, theta, phi], self.dimension
                         )  # R(theta, phi, r, r2, dimension)
 
                         u_temp = rotation_involved.to_matrix(identities=0) @ u_  # matmul(rotation_involved.matrix, U_)
@@ -201,14 +201,14 @@ class LogAdaptiveDecomposition:
                             new_key = self.TREE.global_id_counter
 
                             current_root.add(
-                                    new_key,
-                                    rotation_involved,
-                                    u_temp,
-                                    None,  #type: ignore[arg-type]
-                                    0,  # next_step_cost,
-                                    decomp_next_step_cost,
-                                    current_root.max_cost,
-                                    [],
+                                new_key,
+                                rotation_involved,
+                                u_temp,
+                                None,  # type: ignore[arg-type]
+                                0,  # next_step_cost,
+                                decomp_next_step_cost,
+                                current_root.max_cost,
+                                [],
                             )
 
         # ===============CONTINUE SEARCH ON CHILDREN========================================

@@ -17,7 +17,7 @@ class FakeIonTraps2Trits(TNSim):
 
     def __init__(
         self,
-        provider: MQTQuditProvider | None = None,
+        provider: MQTQuditProvider,
         **fields: dict[str, Any],
     ) -> None:
         self._options = self._default_options()

@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 import gc
-import typing
-from typing import List, cast
+from typing import TYPE_CHECKING, List, cast
 
 from mqt.qudits.compiler import CompilerPass
 from mqt.qudits.compiler.onedit import PhyLocAdaPass
@@ -10,7 +9,7 @@ from mqt.qudits.compiler.twodit.entanglement_qr import EntangledQRCEX
 from mqt.qudits.quantum_circuit.components.extensions.gate_types import GateTypes
 from mqt.qudits.quantum_circuit.gates import Perm
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
     from mqt.qudits.simulation.backends.backendv2 import Backend
@@ -20,6 +19,7 @@ class PhyEntQRCEXPass(CompilerPass):
     def __init__(self, backend: Backend) -> None:
         super().__init__(backend)
         from mqt.qudits.quantum_circuit import QuantumCircuit
+
         self.circuit = QuantumCircuit()
 
     def transpile_gate(self, gate: Gate) -> list[Gate]:

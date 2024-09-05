@@ -25,8 +25,6 @@ if typing.TYPE_CHECKING:
     from mqt.qudits.simulation.backends.backendv2 import Backend
 
 
-
-
 class LogEntQRCEXPass(CompilerPass):
     def __init__(self, backend: Backend) -> None:
         super().__init__(backend)

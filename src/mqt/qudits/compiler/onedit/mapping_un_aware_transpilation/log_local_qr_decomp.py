@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 import gc
-import typing
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 
@@ -14,7 +13,7 @@ from ..local_operation_swap import (
     cost_calculator,
 )
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from numpy.typing import NDArray
 
     from ....core import LevelGraph
@@ -60,9 +59,9 @@ class QrDecomp:
         self.not_stand_alone: bool = not_stand_alone
 
     def execute(self) -> tuple[list[Gate], float, float]:
-        decomp:list[Gate] = []
-        total_cost = 0.
-        algorithmic_cost = 0.
+        decomp: list[Gate] = []
+        total_cost = 0.0
+        algorithmic_cost = 0.0
 
         u_ = self.U
         dimension = self.U.shape[0]

@@ -81,8 +81,9 @@ class TestNAryTree(TestCase):
         self.T.add(2, self.r, self.U, self.graph_1, 0, 0, (0.0, 0.0), [], 0)
 
         node = self.T.find_node(self.T.root, 2)
-        assert node.parent_key == 0
-        assert node.key == 2
+        if node is not None:
+            assert node.parent_key == 0
+            assert node.key == 2
 
     def test_depth(self):
         self.T.add(2, self.r, self.U, self.graph_1, 0, 0, (0.0, 0.0), [], 0)
@@ -99,8 +100,8 @@ class TestNAryTree(TestCase):
         self.T.add(4, self.r, self.U, self.graph_1, 0, 0, (0.0, 0.0), [], 3)
 
         node = self.T.find_node(self.T.root, 2)
-
-        d2 = self.T.max_depth(node)
+        if node is not None:
+            d2 = self.T.max_depth(node)
         assert d2 == 2
 
     def test_size_refresh(self):

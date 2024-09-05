@@ -42,7 +42,7 @@ class ZPropagationOptPass(CompilerPass):
         from ....quantum_circuit.gates import R, VirtRz
 
         for gate_index in range(len(line)):
-            if isinstance(line[gate_index], R):  # try:
+            if isinstance(line[gate_index], R):
                 # line[gate_index].lev_b
                 # object is R
                 if back:
@@ -62,15 +62,8 @@ class ZPropagationOptPass(CompilerPass):
                         dimension,
                     )
                 )
-                # list_of_XYrots.append(R(line[gate_index].theta, new_phi,
-                # line[gate_index].lev_a, line[gate_index].lev_b, line[gate_index].dimension))
             elif isinstance(line[gate_index], VirtRz):  # except AttributeError:
-                # try:
-                #    line[gate_index].lev_a
-                # object is VirtRz
                 z_angles[line[gate_index].lev_a] = pi_mod(z_angles[line[gate_index].lev_a] + line[gate_index].phi)
-                # except AttributeError:
-                #     pass
         if back:
             list_of_x_yrots.reverse()
 
@@ -124,10 +117,7 @@ class ZPropagationOptPass(CompilerPass):
                 fixed_seq: list[R] = []
                 z_tail: list[VirtRz] = []
                 fixed_seq, z_tail = self.propagate_z(circuit, sequence, back)
-                """if back:
-                    new_instructions[interval[0]: interval[-1] + 1] = z_tail + fixed_seq
-                else:
-                    new_instructions[interval[0]: interval[-1] + 1] = fixed_seq + z_tail"""
+
                 combined_seq = z_tail + fixed_seq if back else fixed_seq + z_tail
                 new_instructions[interval[0] : interval[-1] + 1] = []
                 new_instructions.extend(combined_seq)

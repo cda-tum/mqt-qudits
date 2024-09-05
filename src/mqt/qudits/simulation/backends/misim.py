@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import operator
 from functools import reduce
-from typing import Optional, TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -16,15 +16,16 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
 
     from ...quantum_circuit import QuantumCircuit
+    from .. import MQTQuditProvider
 
 
 class MISim(Backend):
-    def __init__(self, **fields: Any) -> None:  # noqa: ANN401
-        super().__init__()
+    def __init__(self, provider: MQTQuditProvider, **fields: Any) -> None:  # noqa: ANN401
+        super().__init__(provider)
         self._options.update(**fields)
 
     def __noise_model(self) -> NoiseModel | None:
-        return cast(Optional[NoiseModel], self.noise_model)
+        return self.noise_model
 
     def run(self, circuit: QuantumCircuit, **options: Any) -> Job:  # noqa: ANN401
         job = Job(self)
