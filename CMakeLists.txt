@@ -7,11 +7,6 @@ project(
   LANGUAGES CXX
   DESCRIPTION "MQT Qudits - A Framework For Mixed-Dimensional Qudit Quantum Computing")
 
-include(cmake/StandardProjectSettings.cmake)
-include(cmake/PreventInSourceBuilds.cmake)
-include(cmake/PackageAddTest.cmake)
-include(cmake/Cache.cmake)
-
 option(BUILD_MQT_QUDITS_BINDINGS "Build the MQT Qudits Python bindings" OFF)
 if(BUILD_MQT_QUDITS_BINDINGS)
   # ensure that the BINDINGS option is set
@@ -28,6 +23,11 @@ if(BUILD_MQT_QUDITS_BINDINGS)
   set(Python_ARTIFACTS_INTERACTIVE
       ON
       CACHE BOOL "Prevent multiple searches for Python and instead cache the results.")
+
+  if(DISABLE_GIL)
+    message(STATUS "Disabling Python GIL")
+    add_compile_definitions(Py_GIL_DISABLED)
+  endif()
 
   # top-level call to find Python
   find_package(
