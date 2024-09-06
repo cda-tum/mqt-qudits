@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import operator
 from functools import reduce
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
+from typing_extensions import Unpack
 
 from ..._qudits.misim import state_vector_simulation
 from ..jobs import Job, JobResult
@@ -20,14 +21,19 @@ if TYPE_CHECKING:
 
 
 class MISim(Backend):
-    def __init__(self, provider: MQTQuditProvider, **fields: Any) -> None:  # noqa: ANN401
-        super().__init__(provider)
-        self._options.update(**fields)
+    def __init__(
+        self,
+        provider: MQTQuditProvider,
+        name: str | None = None,
+        description: str | None = None,
+        **fields: Unpack[Backend.DefaultOptions],
+    ) -> None:
+        super().__init__(provider, name=name, description=description, **fields)
 
     def __noise_model(self) -> NoiseModel | None:
         return self.noise_model
 
-    def run(self, circuit: QuantumCircuit, **options: Any) -> Job:  # noqa: ANN401
+    def run(self, circuit: QuantumCircuit, **options: Unpack[Backend.DefaultOptions]) -> Job:
         job = Job(self)
 
         self._options.update(options)

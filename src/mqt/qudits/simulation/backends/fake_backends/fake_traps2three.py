@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
+
+from typing_extensions import Unpack
 
 from ....core import LevelGraph
 from ...noise_tools import Noise, NoiseModel
@@ -8,6 +10,7 @@ from ..tnsim import TNSim
 
 if TYPE_CHECKING:
     from ... import MQTQuditProvider
+    from ..backendv2 import Backend
 
 
 class FakeIonTraps2Trits(TNSim):
@@ -18,7 +21,7 @@ class FakeIonTraps2Trits(TNSim):
     def __init__(
         self,
         provider: MQTQuditProvider,
-        **fields: dict[str, Any],
+        **fields: Unpack[Backend.DefaultOptions],
     ) -> None:
         super().__init__(
             provider=provider,
@@ -26,6 +29,7 @@ class FakeIonTraps2Trits(TNSim):
             description="A Fake backend of an ion trap qudit machine",
             **fields,
         )
+        self.options["noise_model"] = self.__noise_model()
         self.author = "<Kevin Mato>"
         self._energy_level_graphs: list[LevelGraph] = []
 
@@ -92,6 +96,3 @@ class FakeIonTraps2Trits(TNSim):
 
         self.noise_model = noise_model
         return noise_model
-
-    def _default_options(self) -> dict[str, int | bool | NoiseModel | None]:
-        return {"shots": 50, "memory": False, "noise_model": self.__noise_model()}
