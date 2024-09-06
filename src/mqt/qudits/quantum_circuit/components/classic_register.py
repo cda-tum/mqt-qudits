@@ -41,3 +41,6 @@ class ClassicRegister:
             return [self.local_sitemap[i] for i in range(start, stop)]
 
         return self.local_sitemap[key]
+
+
+__all__ = ["ClSitemap", "ClassicRegister"]

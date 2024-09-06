@@ -31,8 +31,8 @@ class H(Gate):
             target_qudits=target_qudits,
             dimensions=dimensions,
             control_set=controls,
+            qasm_tag="h",
         )
-        self.qasm_tag = "h"
 
     def __array__(self) -> NDArray:  # noqa: PLW3201
         matrix = np.zeros((self.dimensions, self.dimensions), dtype="complex")

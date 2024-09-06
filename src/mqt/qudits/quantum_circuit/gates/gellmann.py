@@ -27,6 +27,7 @@ class GellMann(Gate):
         dimensions: int,
         controls: ControlData | None = None,
     ) -> None:
+        assert self.validate_parameter(parameters), "Invalid parameters"
         super().__init__(
             circuit=circuit,
             name=name,
@@ -34,13 +35,12 @@ class GellMann(Gate):
             target_qudits=target_qudits,
             dimensions=dimensions,
             control_set=controls,
+            qasm_tag="gell",
+            lev_a=cast(int, parameters[0]),
+            lev_b=cast(int, parameters[1]),
+            params=parameters,
         )
-        if self.validate_parameter(parameters):
-            self.lev_a = cast(int, parameters[0])
-            self.lev_b = cast(int, parameters[1])
-            self.type_m = cast(str, parameters[2])
-            self._params = parameters
-        self.qasm_tag = "gell"
+        self.type_m = cast(str, parameters[2])
 
     def __array__(self) -> NDArray:  # noqa: PLW3201
         d = self._dimensions

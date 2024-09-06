@@ -20,15 +20,14 @@ class FakeIonTraps3Six(TNSim):
         provider: MQTQuditProvider,
         **fields: dict[str, Any],
     ) -> None:
-        self._options = self._default_options()
-        self._provider = provider
-        self.name = "FakeTrap3Six"
-        self.description = "A Fake backend of an ion trap qudit machine"
+        super().__init__(
+            provider=provider,
+            name="FakeTrap3Six",
+            description="A Fake backend of an ion trap qudit machine",
+            **fields,
+        )
         self.author = "<Kevin Mato>"
         self._energy_level_graphs: list[LevelGraph] = []
-
-        if fields:
-            self._options.update(fields)  # type: ignore[arg-type]
 
     @property
     def energy_level_graphs(self) -> list[LevelGraph]:

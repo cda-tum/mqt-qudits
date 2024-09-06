@@ -34,11 +34,11 @@ class CustomOne(Gate):
             dimensions=dimensions,
             control_set=controls,
             params=parameters,
+            qasm_tag="cuone",
         )
         self.__array_storage: NDArray = None
         if self.validate_parameter(parameters):
             self.__array_storage = parameters
-        self.qasm_tag = "cuone"
 
     def __array__(self) -> NDArray:  # noqa: PLW3201
         return self.__array_storage

@@ -34,6 +34,7 @@ class Rz(Gate):
             target_qudits=target_qudits,
             dimensions=dimensions,
             control_set=controls,
+            qasm_tag="rz",
         )
         if self.validate_parameter(parameters):
             self.original_lev_a: int = cast(int, parameters[0])
@@ -42,7 +43,6 @@ class Rz(Gate):
             self.phi = regulate_theta(self.phi)
             self.lev_a, self.lev_b = self.levels_setter(self.original_lev_a, self.original_lev_b)
             self._params = parameters
-        self.qasm_tag = "rz"
 
     def __array__(self) -> NDArray[np.complex128, np.complex128]:  # noqa: PLW3201
         dimension = self.dimensions

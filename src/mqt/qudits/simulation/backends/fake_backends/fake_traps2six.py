@@ -15,21 +15,12 @@ class FakeIonTraps2Six(TNSim):
     def version(self) -> int:
         return 0
 
-    def __init__(
-        self,
-        provider: MQTQuditProvider,
-        **fields: dict[str, int | bool | NoiseModel | None],
-    ) -> None:
-        self._options = self._default_options()
-        self._provider = provider
-
-        self.name = "FakeTrap2Six"
-        self.description = "A Fake backend of an ion trap qudit machine"
+    def __init__(self, provider: MQTQuditProvider, **fields: dict[str, int | bool | NoiseModel | None]) -> None:
+        super().__init__(
+            provider=provider, name="FakeTrap2Six", description="A Fake backend of an ion trap qudit machine", **fields
+        )
         self.author = "<Kevin Mato>"
         self._energy_level_graphs: list[LevelGraph] = []
-
-        if fields:
-            self._options.update(fields)  # type: ignore[arg-type]
 
     @property
     def energy_level_graphs(self) -> list[LevelGraph]:

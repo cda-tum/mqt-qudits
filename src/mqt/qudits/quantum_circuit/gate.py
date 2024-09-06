@@ -40,6 +40,11 @@ class Gate(Instruction):
         params: Parameter = None,
         control_set: ControlData | None = None,
         label: str | None = None,
+        lev_a: int = 0,
+        lev_b: int = 0,
+        theta: float = 0.0,
+        phi: float = 0.0,
+        qasm_tag: str = "",
     ) -> None:
         self.dagger = False
         self.parent_circuit = circuit
@@ -55,11 +60,11 @@ class Gate(Instruction):
 
         self.is_long_range = self.check_long_range()
         # inheritable parameters
-        self.lev_a: int = 0
-        self.lev_b: int = 0
-        self.theta: float = 0.0
-        self.phi: float = 0.0
-        self.qasm_tag = ""
+        self.lev_a: int = lev_a
+        self.lev_b: int = lev_b
+        self.theta: float = theta
+        self.phi: float = phi
+        self.qasm_tag = qasm_tag
 
     @property
     def reference_lines(self) -> list[int]:

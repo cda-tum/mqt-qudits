@@ -33,8 +33,8 @@ class CSum(Gate):
             target_qudits=target_qudits,
             dimensions=dimensions,
             control_set=controls,
+            qasm_tag="csum",
         )
-        self.qasm_tag = "csum"
 
     def __array__(self) -> NDArray[np.complex128, np.complex128]:  # noqa: PLW3201
         qudits_targeted = cast(list[int], self.target_qudits)

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import gc
 import itertools
 from typing import TYPE_CHECKING, cast
@@ -101,23 +102,22 @@ class PhyAdaptiveDecomposition:
             self.cost_limit,
             [],
         )
-        try:
+
+        with contextlib.suppress(SequenceFoundError):
             self.dfs(self.TREE.root)
-        except SequenceFoundError:
+
+        matrices_decomposed, best_cost, final_graph = self.TREE.retrieve_decomposition(self.TREE.root)
+        matrices_decomposed_m: list[Gate] = []
+        if matrices_decomposed:
+            matrices_decomposed_m, final_graph = self.z_extraction(
+                matrices_decomposed, final_graph, self.phase_propagation
+            )
+        else:
             pass
-        finally:
-            matrices_decomposed, best_cost, final_graph = self.TREE.retrieve_decomposition(self.TREE.root)
-            matrices_decomposed_m: list[Gate] = []
-            if matrices_decomposed != []:
-                matrices_decomposed_m, final_graph = self.z_extraction(
-                    matrices_decomposed, final_graph, self.phase_propagation
-                )
-            else:
-                pass
 
-            self.TREE.print_tree(self.TREE.root, "TREE: ")
+        self.TREE.print_tree(self.TREE.root, "TREE: ")
 
-            return matrices_decomposed_m, best_cost, final_graph  # noqa: B012
+        return matrices_decomposed_m, best_cost, final_graph
 
     def z_extraction(
         self, decomposition: list[TreeNode], placement: LevelGraph, phase_propagation: bool
@@ -209,21 +209,12 @@ class PhyAdaptiveDecomposition:
 
             raise SequenceFoundError(current_root.key)
 
-        ################################################
-        ###############
-        #########
-
-        # BEGIN SEARCH
-
         u_ = current_root.u_of_level
 
         dimension = u_.shape[0]
         for c, r, r2 in itertools.product(range(dimension), range(dimension), range(dimension)):
             if r < c or r2 <= r:
                 continue
-            # for c in range(dimension):
-            #    for r in range(c, dimension):
-            #        for r2 in range(r + 1, dimension):
             if abs(u_[r2, c]) > 1.0e-8 and (abs(u_[r, c]) > 1.0e-18 or abs(u_[r, c]) == 0):
                 theta = 2 * np.arctan2(abs(u_[r2, c]), abs(u_[r, c]))
 
@@ -249,12 +240,8 @@ class PhyAdaptiveDecomposition:
                 decomp_next_step_cost = cost_of_pi_pulses + gate_cost + current_root.current_decomp_cost
 
                 branch_condition = current_root.max_cost[1] - decomp_next_step_cost  # SECOND POSITION IS PHYSICAL COST
-                # branch_condition_2 = current_root.max_cost[0] - next_step_cost
-                # deprecated: FIRST IS ALGORITHMIC COST
-
                 if branch_condition > 0 or abs(branch_condition) < 1.0e-12:
                     # if cost is better can be only candidate otherwise try them all
-
                     self.TREE.global_id_counter += 1
                     new_key = self.TREE.global_id_counter
 
@@ -267,25 +254,9 @@ class PhyAdaptiveDecomposition:
                         [new_placement.nodes[r]["lpmap"], new_placement.nodes[r2]["lpmap"], theta, phi],
                         self.dimension,
                     )
-                    # R(theta, phi, new_placement.nodes[r]['lpmap'],
-                    # new_placement.nodes[r2]['lpmap'], dimension)
-                    #
                     physical_rotation = gate_chain_condition(pi_pulses_routing, physical_rotation)
                     physical_rotation = graph_rule_ongate(physical_rotation, new_placement)
 
-                    """"# take care of phases accumulated by not pi-pulsing back
-                    p_backs = []
-                    for ppulse in pi_pulses_routing:
-                        p_backs.append(
-                                gates.R(
-                                        self.circuit,
-                                        "R",
-                                        self.qudit_index,
-                                        [ppulse.lev_a, ppulse.lev_b, ppulse.theta, -ppulse.phi],
-                                        self.dimension,
-                                )
-                        )
-                    """
                     p_backs = [
                         gates.R(
                             self.circuit,
@@ -296,7 +267,6 @@ class PhyAdaptiveDecomposition:
                         )
                         for ppulse in pi_pulses_routing
                     ]
-                    # p_backs.append(R(ppulse.theta, -ppulse.phi, ppulse.lev_a, ppulse.lev_b, dimension))
 
                     for p_back in p_backs:
                         graph_rule_update(p_back, new_placement)
@@ -312,10 +282,6 @@ class PhyAdaptiveDecomposition:
                         pi_pulses_routing,
                     )
 
-        # ===============CONTINUE SEARCH ON CHILDREN========================================
         if current_root.children is not None:
             for child in current_root.children:
                 self.dfs(child, level + 1)
-        # ===================================================================================
-
-        # END OF RECURSION#

@@ -34,8 +34,8 @@ class RandU(Gate):
             target_qudits=target_qudits,
             dimensions=dimensions,
             control_set=controls,
+            qasm_tag="rdu",
         )
-        self.qasm_tag = "rdu"
 
     def __array__(self) -> NDArray[np.complex128, np.complex128]:  # noqa: PLW3201
         dim = reduce(operator.mul, self.dimensions)

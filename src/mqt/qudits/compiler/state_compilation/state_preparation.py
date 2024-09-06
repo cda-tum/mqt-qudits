@@ -21,8 +21,6 @@ if typing.TYPE_CHECKING:
     from mqt.qudits.core.micro_dd import MicroDDNode, NodeContribution
     from mqt.qudits.quantum_circuit import QuantumCircuit
 
-    complex_array = NDArray[np.complex128]
-
 
 def find_complex_number(x: complex, c: complex) -> complex:
     a = x.real  # Real part of x
@@ -142,9 +140,9 @@ class StatePrep:
             return
         if node.weight is not None:
             rotations = self.retrieve_local_sequence(node.weight, node.children)
-
-        for key in sorted(rotations.keys()):
-            circuit_meta.append(Operation(controls, labels[depth], key, rotations[key]))  # noqa: PERF401
+            circuit_meta.extend([
+                Operation(controls, labels[depth], key, rotations[key]) for key in sorted(rotations.keys())
+            ])
 
         if not node.reduced:
             for i in range(cardinalities[depth]):

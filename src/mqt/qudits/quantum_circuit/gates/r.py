@@ -34,6 +34,7 @@ class R(Gate):
             target_qudits=target_qudits,
             dimensions=dimensions,
             control_set=controls,
+            qasm_tag="rxy",
         )
 
         if self.validate_parameter(parameters):
@@ -44,7 +45,6 @@ class R(Gate):
             self.lev_a, self.lev_b = self.levels_setter(self.original_lev_a, self.original_lev_b)
             self.theta = regulate_theta(self.theta)
             self._params = parameters
-        self.qasm_tag = "rxy"
 
     def __array__(self) -> NDArray:  # noqa: PLW3201
         dimension = self.dimensions

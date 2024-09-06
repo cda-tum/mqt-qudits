@@ -32,11 +32,12 @@ class Perm(Gate):
             target_qudits=target_qudits,
             dimensions=dimensions,
             control_set=controls,
+            params=parameters,
+            qasm_tag="pm",
         )
         if self.validate_parameter(parameters):
             self.perm_data = parameters
             self._params = parameters
-        self.qasm_tag = "pm"
 
     def __array__(self) -> NDArray:  # noqa: PLW3201
         return np.eye(self.dimensions)[:, self.perm_data]

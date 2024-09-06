@@ -32,8 +32,8 @@ class S(Gate):
                 target_qudits=target_qudits,
                 dimensions=dimensions,
                 control_set=controls,
+                qasm_tag="s",
             )
-            self.qasm_tag = "s"
         else:
             msg = "S can be applied to prime dimensional qudits"
             raise InvalidQuditDimensionError(msg)

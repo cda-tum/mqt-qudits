@@ -68,7 +68,6 @@ class QuditCompiler:
 
     @staticmethod
     def compile_O1(backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  # noqa: N802
-        phyloc = PhyLocAdaPass(backend)
         phyent = PhyEntQRCEXPass(backend)
 
         lanes = Lanes(circuit)

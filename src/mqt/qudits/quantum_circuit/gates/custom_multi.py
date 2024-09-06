@@ -34,12 +34,11 @@ class CustomMulti(Gate):
             dimensions=dimensions,
             control_set=controls,
             params=parameters,
+            qasm_tag="cumulti",
         )
         self.__array_storage: NDArray = None
         if self.validate_parameter(parameters):
             self.__array_storage = parameters
-
-        self.qasm_tag = "cumulti"
 
     def __array__(self) -> NDArray:  # noqa: PLW3201
         return self.__array_storage

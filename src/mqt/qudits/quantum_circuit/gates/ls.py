@@ -36,11 +36,13 @@ class LS(Gate):
             target_qudits=target_qudits,
             dimensions=dimensions,
             control_set=controls,
+            qasm_tag="ls",
+            params=parameters,
+            theta=parameters[0],
         )
         if self.validate_parameter(parameters):
             self.theta = parameters[0]
             self._params = parameters
-        self.qasm_tag = "ls"
 
     def __array__(self) -> NDArray:  # noqa: PLW3201
         dimension_0 = self.dimensions[0]

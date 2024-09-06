@@ -35,6 +35,9 @@ class CEx(Gate):
             target_qudits=target_qudits,
             dimensions=dimensions,
             control_set=controls,
+            qasm_tag="cx",
+            lev_b=1,
+            params=[0, 1, 1, 0.0],
         )
         # if customized
         if parameters is not None and self.validate_parameter(parameters):
@@ -45,11 +48,7 @@ class CEx(Gate):
             # self.lev_a, self.lev_b, self.ctrl_lev, self.phi = parameters
             self._params: list[int | float] = parameters
         else:
-            # Default
-            self.lev_a, self.lev_b, self.ctrl_lev, self.phi = (0, 1, 1, 0.0)
-            self._params = [0, 1, 1, 0.0]
-
-        self.qasm_tag = "cx"
+            self.ctrl_lev = 1
 
     def __array__(self) -> NDArray:  # noqa: PLW3201
         levels_swap_low: int = cast(int, self._params[0])

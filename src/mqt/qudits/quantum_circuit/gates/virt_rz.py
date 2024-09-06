@@ -33,13 +33,13 @@ class VirtRz(Gate):
             target_qudits=target_qudits,
             dimensions=dimensions,
             control_set=controls,
+            qasm_tag="virtrz",
         )
         if self.validate_parameter(parameters):
             self.lev_a: int = cast(int, parameters[0])
             self.phi: float = cast(float, parameters[1])
             self.phi = regulate_theta(self.phi)
             self._params = parameters
-        self.qasm_tag = "virtrz"
 
     def __array__(self) -> NDArray:  # noqa: PLW3201
         dimension = self.dimensions

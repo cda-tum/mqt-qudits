@@ -35,13 +35,13 @@ class Rh(Gate):
             target_qudits=target_qudits,
             dimensions=dimensions,
             control_set=controls,
+            qasm_tag="rh",
         )
         if self.validate_parameter(parameters):
             self.original_lev_a = parameters[0]
             self.original_lev_b = parameters[1]
             self.lev_a, self.lev_b = self.levels_setter(self.original_lev_a, self.original_lev_b)
             self._params = parameters
-        self.qasm_tag = "rh"
 
     def __array__(self) -> NDArray:  # noqa: PLW3201
         # (R(-np.pi, 0, l1, l2, dim) * R(np.pi / 2, np.pi / 2, l1, l2, dim))
