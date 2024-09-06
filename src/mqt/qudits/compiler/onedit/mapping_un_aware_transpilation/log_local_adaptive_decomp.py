@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import gc
 from typing import TYPE_CHECKING, cast
 
@@ -94,19 +95,18 @@ class LogAdaptiveDecomposition:
             self.cost_limit,
             [],
         )
-        try:
+
+        with contextlib.suppress(SequenceFoundError):
             self.dfs(self.TREE.root)
-        except SequenceFoundError:
-            pass
-        finally:
-            matrices_decomposed, best_cost, final_graph = self.TREE.retrieve_decomposition(self.TREE.root)
-            matrices_decomposed_m: list[Gate] = []
-            if matrices_decomposed != []:
-                matrices_decomposed_m, final_graph = self.z_extraction(matrices_decomposed, final_graph)
 
-            self.TREE.print_tree(self.TREE.root, "TREE: ")
+        matrices_decomposed, best_cost, final_graph = self.TREE.retrieve_decomposition(self.TREE.root)
+        matrices_decomposed_m: list[Gate] = []
+        if matrices_decomposed != []:
+            matrices_decomposed_m, final_graph = self.z_extraction(matrices_decomposed, final_graph)
 
-            return matrices_decomposed_m, best_cost, final_graph  # noqa: B012
+        self.TREE.print_tree(self.TREE.root, "TREE: ")
+
+        return matrices_decomposed_m, best_cost, final_graph
 
     def z_extraction(
         self, decomposition: list[TreeNode], placement: LevelGraph
