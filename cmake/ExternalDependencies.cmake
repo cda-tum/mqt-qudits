@@ -19,12 +19,6 @@ if(BUILD_MQT_QUDITS_BINDINGS)
 endif()
 
 if(BUILD_MQT_QUDITS_TESTS)
-  set(FETCHCONTENT_SOURCE_DIR_GOOGLETEST
-      ${PROJECT_SOURCE_DIR}/extern/googletest
-      CACHE
-        PATH
-        "Path to the source directory of the gtest submodule. This variable is used by FetchContent to download the library if it is not already available."
-  )
   set(gtest_force_shared_crt
       ON
       CACHE BOOL "" FORCE)
