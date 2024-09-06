@@ -165,9 +165,9 @@ class QASM:
         return False
 
     def parse_ditqasm2_str(self, contents: str) -> dict[str, Any]:
-        """Parse the string contents of an OpenQASM 2.0 file. This parser only
-        supports basic gate_matrix definitions, and is not guaranteed to check the full
-        openqasm grammar.
+        """Parse the string contents of an OpenQASM 2.0 file.
+
+        This parser only supports basic gate_matrix definitions, and is not guaranteed to check the full OpenQASM grammar.
         """
         # define regular expressions for parsing
         rgxs: dict[str, re.Pattern[str]] = {

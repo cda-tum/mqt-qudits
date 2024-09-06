@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""FROM An alternative quantum fidelity for mixed states of qudits Xiaoguang Wang, 1, 2, * Chang-Shui Yu, 3 and x. x.
-Yi 3.
-"""
+"""FROM An alternative quantum fidelity for mixed states of qudits https://doi.org/10.1016/j.physleta.2008.10.083."""
 
 from __future__ import annotations
 

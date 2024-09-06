@@ -191,7 +191,7 @@ extend-select = [
     "ASYNC",       # flake8-async
     "B",  "B904",  # flake8-bugbear
     "C4",          # flake8-comprehensions
-#    "D",           # pydocstyle
+    "D",           # pydocstyle
     "EM",          # flake8-errmsg
     "EXE",         # flake8-executable
     "FA",          # flake8-future-annotations
@@ -236,6 +236,7 @@ ignore = [
     "PT004",   # Incorrect, just usefixtures instead.
     "S101",    # Use of assert detected
     "S404",    # `subprocess` module is possibly insecure
+    "D10",     # Missing docstrings
 ]
 isort.required-imports = ["from __future__ import annotations"]
 

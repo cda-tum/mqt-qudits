@@ -99,11 +99,12 @@ def objective_function(thetas: list[float], m: NDArray[np.complex128, np.complex
     """Objective function for promoting sparsity and low variance in the transformed matrix M'.
 
     Args:
-        thetas (list of float): List of rotation angles.
-        m (numpy.ndarray): Input matrix (NxN).
+        thetas: List of rotation angles.
+        m: Input matrix (NxN).
+        dims: Dimensions of the qudits.
 
     Returns:
-        float: The value of the objective function.
+        The value of the objective function.
     """
     m_prime = apply_rotations(m, thetas, dims)
 

@@ -68,9 +68,7 @@ class FakeIonTraps2Trits(TNSim):
         return self._energy_level_graphs
 
     def __noise_model(self) -> NoiseModel:
-        """Noise model coded in plain sight, just for prototyping reasons
-        :return: NoideModel.
-        """
+        """Noise model coded in plain sight, just for prototyping reasons."""
         # Depolarizing quantum errors
         local_error = Noise(probability_depolarizing=0.001, probability_dephasing=0.001)
         local_error_rz = Noise(probability_depolarizing=0.03, probability_dephasing=0.03)
