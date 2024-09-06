@@ -59,3 +59,16 @@ if(BUILD_MQT_QUDITS_TESTS)
   include(GoogleTest)
   add_subdirectory(test)
 endif()
+
+if(MQT_QUDITS_MASTER_PROJECT)
+  if(NOT TARGET mqt-qudits-uninstall)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in
+                   ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake IMMEDIATE @ONLY)
+    add_custom_target(mqt-qudits-uninstall
+                      COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+  endif()
+else()
+  set(mqt-qudits_FOUND
+      TRUE
+      CACHE INTERNAL "True if mqt-qudits is found on the system")
+endif()
