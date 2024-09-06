@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import copy
-from typing import TYPE_CHECKING, List, Union, cast
+from typing import TYPE_CHECKING, Union, cast
 
 from ....quantum_circuit import gates
 from ... import CompilerPass
@@ -113,7 +113,7 @@ class ZPropagationOptPass(CompilerPass):
             if len(interval) > 1:
                 from ....quantum_circuit.gates import R, VirtRz
 
-                sequence = cast(List[Union[R, VirtRz]], circuit.instructions[interval[0] : interval[-1] + 1])
+                sequence = cast(list[Union[R, VirtRz]], circuit.instructions[interval[0] : interval[-1] + 1])
                 fixed_seq: list[R] = []
                 z_tail: list[VirtRz] = []
                 fixed_seq, z_tail = self.propagate_z(circuit, sequence, back)

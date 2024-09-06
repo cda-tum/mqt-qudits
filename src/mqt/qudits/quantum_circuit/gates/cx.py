@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import operator
 from functools import reduce
-from typing import TYPE_CHECKING, List, cast
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 
@@ -109,4 +109,4 @@ class CEx(Gate):
 
     @property
     def dimensions(self) -> list[int]:
-        return cast(List[int], self._dimensions)
+        return cast(list[int], self._dimensions)

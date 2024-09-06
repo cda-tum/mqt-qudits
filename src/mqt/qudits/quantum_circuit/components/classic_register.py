@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, Tuple, cast
+from typing import TYPE_CHECKING, Any, cast
 
 if TYPE_CHECKING:
-    ClSitemap = Dict[Tuple[str, int], Tuple[int]]
+    ClSitemap = dict[tuple[str, int], tuple[int]]
 
 
 class ClassicRegister:
@@ -20,7 +20,7 @@ class ClassicRegister:
 
         registers_from_qasm = []
         for label, data in registers_map.items():
-            global_indexing_dict: dict[int, int] = cast(Dict[int, int], data[0])
+            global_indexing_dict: dict[int, int] = cast(dict[int, int], data[0])
             temp = ClassicRegister(label, len(global_indexing_dict))
             temp.local_sitemap = global_indexing_dict
             registers_from_qasm.append(temp)

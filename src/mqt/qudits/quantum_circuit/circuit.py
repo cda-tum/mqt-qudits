@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 import locale
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Tuple, TypeVar, cast
+from typing import TYPE_CHECKING, Any, ClassVar, TypeVar, cast
 
 import numpy as np
 
@@ -39,7 +39,7 @@ if TYPE_CHECKING:
     from .components.quantum_register import SiteMap
     from .gate import Gate, Parameter
 
-    InverseSitemap = Dict[int, Tuple[str, int]]
+    InverseSitemap = dict[int, tuple[str, int]]
     from .components.classic_register import ClSitemap
 
 
@@ -107,7 +107,7 @@ class QuantumCircuit:
             # case 1
             # num_qudits: int, dimensions_slice: List[int]|None, numcl: int
             num_qudits: int = cast(int, args[0])
-            dims: list[int] = cast(List[int], num_qudits * [2] if args[1] is None else args[1])
+            dims: list[int] = cast(list[int], num_qudits * [2] if args[1] is None else args[1])
             self.append(QuantumRegister("q", num_qudits, dims))
             # self.num_cl = args[2]
         elif isinstance(args[0], QuantumRegister):
@@ -118,7 +118,7 @@ class QuantumCircuit:
 
     @classmethod
     def get_qasm_set(cls) -> dict[str, str]:
-        return cast(Dict[str, str], cls.qasm_to_gate_set_dict)
+        return cast(dict[str, str], cls.qasm_to_gate_set_dict)
 
     @property
     def dimensions(self) -> list[int]:
@@ -400,8 +400,6 @@ class QuantumCircuit:
 
     @property
     def gate_set(self) -> str:
-        for _item in self.qasm_to_gate_set_dict.values():
-            print(_item)
         return "\n".join(self.qasm_to_gate_set_dict.values())
 
     def simulate(self) -> NDArray:

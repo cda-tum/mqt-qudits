@@ -36,7 +36,7 @@ def apply_rotations(
 def instantiate_rotations(circuit: QuantumCircuit, gate: Gate, params_list: list[float]) -> list[Gate]:
     gate = copy.deepcopy(gate)
     gate.parent_circuit = circuit
-    dims = typing.cast(typing.List[int], gate.dimensions)
+    dims = typing.cast(list[int], gate.dimensions)
     params = params_splitter(params_list, dims)
 
     decomposition: list[Gate] = []
@@ -121,7 +121,7 @@ def objective_function(thetas: list[float], m: NDArray[np.complex128, np.complex
 
 def sparsify(gate: Gate, tol: float = 0.1) -> QuantumCircuit:
     m = gate.to_matrix()
-    dims = typing.cast(typing.List[int], gate.dimensions)
+    dims = typing.cast(list[int], gate.dimensions)
 
     Optimizer.set_class_variables(m, tol, dims[0], dims[1])
     bounds = Optimizer.return_bounds()

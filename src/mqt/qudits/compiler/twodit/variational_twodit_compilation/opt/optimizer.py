@@ -140,7 +140,3 @@ class Optimizer:
 
         except TimeoutError:
             result_queue.put((cls.FUN_SOLUTION, cls.X_SOLUTION))
-
-        except Exception as e:
-            print(e)
-            raise

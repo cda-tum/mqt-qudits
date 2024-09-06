@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import operator
-from typing import TYPE_CHECKING, Dict, List, Tuple, cast
+from typing import TYPE_CHECKING, cast
 
 from mqt.qudits.quantum_circuit.components.extensions.gate_types import GateTypes
 
@@ -9,10 +9,10 @@ if TYPE_CHECKING:
     from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
 
-    LaneLookUp = Dict[Gate, Tuple[int, int, int]]
-    CircuitGroupView = Dict[int, List[List[Tuple[int, Gate]]]]
-    LineView = List[Tuple[int, Gate]]
-    CircuitView = Dict[int, LineView]
+    LaneLookUp = dict[Gate, tuple[int, int, int]]
+    CircuitGroupView = dict[int, list[list[tuple[int, Gate]]]]
+    LineView = list[tuple[int, Gate]]
+    CircuitView = dict[int, LineView]
 
 
 class Lanes:
@@ -46,7 +46,7 @@ class Lanes:
                     self.index_dict[index] = []
                 self.index_dict[index].append(gate_tuple)
             elif gate.gate_type in {GateTypes.TWO, GateTypes.MULTI}:
-                indices: list[int] = cast(List[int], gate.target_qudits)
+                indices: list[int] = cast(list[int], gate.target_qudits)
                 for index in indices:
                     if index not in self.index_dict:
                         self.index_dict[index] = []
@@ -90,7 +90,7 @@ class Lanes:
                 else:
                     consecutive_groups[target_qudits] = [[gate_tuple]]
             else:
-                qudits_targeted: list[int] = cast(List[int], gate.target_qudits)
+                qudits_targeted: list[int] = cast(list[int], gate.target_qudits)
                 for qudit in qudits_targeted:
                     consecutive_groups[qudit].append([gate_tuple])
                     consecutive_groups[qudit].append([])

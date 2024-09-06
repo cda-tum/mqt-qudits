@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import gc
-from typing import TYPE_CHECKING, List, cast
+from typing import TYPE_CHECKING, cast
 
 from mqt.qudits.compiler import CompilerPass
 from mqt.qudits.compiler.onedit import PhyLocAdaPass
@@ -23,8 +23,8 @@ class PhyEntQRCEXPass(CompilerPass):
         self.circuit = QuantumCircuit()
 
     def transpile_gate(self, gate: Gate) -> list[Gate]:
-        target_qudits = cast(List[int], gate.target_qudits)
-        dimensions = cast(List[int], gate.dimensions)
+        target_qudits = cast(list[int], gate.target_qudits)
+        dimensions = cast(list[int], gate.dimensions)
 
         energy_graph_c = self.backend.energy_level_graphs[target_qudits[0]]
         energy_graph_t = self.backend.energy_level_graphs[target_qudits[1]]

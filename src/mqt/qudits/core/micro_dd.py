@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 import operator
-from typing import TYPE_CHECKING, List, Tuple, cast
+from typing import TYPE_CHECKING, cast
 
 
 class MicroDDNode:
@@ -46,7 +46,7 @@ one.terminal = True
 one.dd_hash = hash(1)
 
 if TYPE_CHECKING:
-    NodeContribution = List[List[Tuple[MicroDDNode, float]]]
+    NodeContribution = list[list[tuple[MicroDDNode, float]]]
     from numpy.typing import NDArray
 
 
@@ -306,18 +306,18 @@ def count_nodes_after(node: MicroDDNode, counter: list[int], cardinalities: list
 
 
 def print_decision_weights(node: MicroDDNode, indent: str = "") -> None:
-    print(indent + "Q " + str(node.value), node.weight)
+    print(indent + "Q " + str(node.value), node.weight)  # noqa: T201
     for child in node.children:
         print_decision_weights(child, indent + "  ")
 
 
 def print_decision_obj_id(node: MicroDDNode, indent: str = "") -> None:
-    print(indent + "Q " + str(node.value), id(node))
+    print(indent + "Q " + str(node.value), id(node))  # noqa: T201
     for child in node.children:
         print_decision_obj_id(child, indent + "  ")
 
 
 def print_decision_hash(node: MicroDDNode, indent: str = "") -> None:
-    print(indent + "Q " + str(node.value), node.dd_hash)
+    print(indent + "Q " + str(node.value), node.dd_hash)  # noqa: T201
     for child in node.children:
         print_decision_hash(child, indent + "  ")

@@ -82,11 +82,7 @@ class TNSim(Backend):
             qudits_legs = [node[0] for node in state_nodes]
 
             for op in operations:
-                try:
-                    op_matrix = op.to_matrix(identities=1)
-                except Exception as e:
-                    print(e)
-                    op_matrix = op.to_matrix(identities=1)
+                op_matrix = op.to_matrix(identities=1)
                 lines = op.reference_lines
 
                 if op.gate_type == GateTypes.SINGLE:

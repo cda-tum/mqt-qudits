@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 import copy
-from typing import TYPE_CHECKING, Dict, List, Tuple, TypeVar, Union, cast
+from typing import TYPE_CHECKING, TypeVar, Union, cast
 
 import networkx as nx  # type: ignore[import-not-found]
 import numpy as np
 
 from ..quantum_circuit.gates.virt_rz import VirtRz
 
-NodeAttributes = Dict[str, Union[str, int, float]]
-NodesWithAttributes = List[Tuple[int, NodeAttributes]]
+NodeAttributes = dict[str, Union[str, int, float]]
+NodesWithAttributes = list[tuple[int, NodeAttributes]]
 
 if TYPE_CHECKING:
     from ..quantum_circuit import QuantumCircuit
@@ -104,12 +104,12 @@ class LevelGraph(nx.Graph):  # type: ignore[misc]
                 substituter[1] = num_b
             elif mod_index[i][1] == 2:
                 substituter[1] = num_a
-            new_lst.append(cast(Tuple[int, int], tuple(substituter)))
+            new_lst.append(cast(tuple[int, int], tuple(substituter)))
 
         return new_lst
 
     # Define a TypeVar that can be either NodesWithAttributes or List[Tuple[int, int]]
-    NL = TypeVar("NL", NodesWithAttributes, List[Tuple[int, int]])
+    NL = TypeVar("NL", NodesWithAttributes, list[tuple[int, int]])
 
     @staticmethod
     def deep_copy_func(l_n: NL) -> NL:

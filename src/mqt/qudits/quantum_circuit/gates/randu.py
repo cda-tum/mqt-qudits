@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import reduce
-from typing import TYPE_CHECKING, List, cast
+from typing import TYPE_CHECKING, cast
 
 from ..components.extensions.gate_types import GateTypes
 from ..gate import Gate
@@ -43,4 +43,4 @@ class RandU(Gate):
 
     @property
     def dimensions(self) -> list[int]:
-        return cast(List[int], self._dimensions)
+        return cast(list[int], self._dimensions)

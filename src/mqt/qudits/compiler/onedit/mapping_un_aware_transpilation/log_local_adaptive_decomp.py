@@ -133,8 +133,8 @@ class LogAdaptiveDecomposition:
         not_diag = filtered_ucopy.any()
 
         if not_diag or not valid_diag:  # if is diagonal enough then somehow signal end of algorithm
-            print("Matrix isn't close to diagonal!")
-            raise RuntimeError
+            msg = "Matrix isn't close to diagonal!"
+            raise RuntimeError(msg)
         diag_u = np.diag(u_)
         dimension = u_.shape[0]
 

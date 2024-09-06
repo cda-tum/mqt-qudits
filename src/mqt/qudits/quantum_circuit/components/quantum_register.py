@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, List, Tuple, Union, cast
+from typing import TYPE_CHECKING, Union, cast
 
 if TYPE_CHECKING:
-    RegisterMap = Dict[str, List[Union[Dict[int, int], List[int]]]]
-    SiteMap = Dict[Tuple[str, int], Tuple[int, int]]
+    RegisterMap = dict[str, list[Union[dict[int, int], list[int]]]]
+    SiteMap = dict[tuple[str, int], tuple[int, int]]
 
 
 class QuantumRegister:
@@ -22,15 +22,15 @@ class QuantumRegister:
                     [dimensionality_extracted],
                 ]
             else:
-                mapping: dict[int, int] = cast(Dict[int, int], registers_map[reg_name][0])
+                mapping: dict[int, int] = cast(dict[int, int], registers_map[reg_name][0])
                 mapping[inreg_line_index] = line_info[0]
-                dimensions_mapped: list[int] = cast(List[int], registers_map[reg_name][1])
+                dimensions_mapped: list[int] = cast(list[int], registers_map[reg_name][1])
                 dimensions_mapped.append(line_info[1])
         # print(registers_map)
         registers_from_qasm = []
         for label, data in registers_map.items():
-            global_indexing_dict: dict[int, int] = cast(Dict[int, int], data[0])
-            global_dimensions_list: list[int] = cast(List[int], data[1])
+            global_indexing_dict: dict[int, int] = cast(dict[int, int], data[0])
+            global_dimensions_list: list[int] = cast(list[int], data[1])
             temp = QuantumRegister(label, len(global_indexing_dict), global_dimensions_list)
             temp.local_sitemap = global_indexing_dict
             registers_from_qasm.append(temp)

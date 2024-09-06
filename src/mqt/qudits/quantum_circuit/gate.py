@@ -4,7 +4,7 @@ import random
 import string
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 import numpy as np
 
@@ -17,7 +17,7 @@ from .components.extensions.gate_types import GateTypes
 if TYPE_CHECKING:
     from numpy.typing import NDArray
 
-    Parameter = Optional[Union[List[Union[int, float]], List[Union[int, str]], NDArray[np.complex128, np.complex128]]]
+    Parameter = Optional[Union[list[Union[int, float]], list[Union[int, str]], NDArray[np.complex128, np.complex128]]]
     from .circuit import QuantumCircuit
 
 

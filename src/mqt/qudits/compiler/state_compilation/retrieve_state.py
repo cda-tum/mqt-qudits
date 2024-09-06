@@ -103,17 +103,14 @@ def generate_uniform_state(dimensions: list[int], state: str) -> ArrayLike:
     all_entries = generate_all_combinations(dimensions)
 
     if state == "qudit-w-state":
-        # print("qudit-w-state")
         state_entries = generate_qudit_w_entries(dimensions)
     elif state == "embedded-w-state":
-        # print("embedded-w-state")
         state_entries = generate_embedded_w_entries(dimensions)
     elif state == "ghz":
         state_entries = generate_ghz_entries(dimensions)
-        # print("GHZ")
     else:
-        print("Input chose is wrong")
-        raise ValueError
+        msg = "Input chose is wrong"
+        raise ValueError(msg)
 
     complex_ = np.sqrt(1.0 / len(state_entries))
     state_vector = np.array([0.0] * len(all_entries), dtype=complex)

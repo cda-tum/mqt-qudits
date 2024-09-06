@@ -4,7 +4,7 @@ import copy
 import os
 import time
 from functools import partial
-from typing import TYPE_CHECKING, List, cast
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 
@@ -88,12 +88,12 @@ class NoisyCircuitFactory:
 
     def _get_control_qudits(self, instruction: Gate) -> list[int]:
         self._validate_two_qudit_gate(instruction, "Control")
-        qudits_targeted = cast(List[int], instruction.target_qudits)
+        qudits_targeted = cast(list[int], instruction.target_qudits)
         return qudits_targeted[:1]
 
     def _get_target_qudits(self, instruction: Gate) -> list[int]:
         self._validate_two_qudit_gate(instruction, "Target")
-        qudits_targeted = cast(List[int], instruction.target_qudits)
+        qudits_targeted = cast(list[int], instruction.target_qudits)
         return qudits_targeted[1:]
 
     @staticmethod
