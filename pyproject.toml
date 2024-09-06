@@ -30,15 +30,15 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Development Status :: 4 - Beta",
     "Typing :: Typed",
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 dependencies = [
     "numpy>=1.24; python_version < '3.12'",
     "numpy>=1.26; python_version >= '3.12'",
@@ -164,7 +164,7 @@ report.exclude_also = [
 [tool.mypy]
 files = ["src/mqt", "test/python", "noxfile.py"]
 mypy_path = ["$MYPY_CONFIG_FILE_DIR/src"]
-python_version = "3.8"
+python_version = "3.9"
 warn_unused_configs = true
 enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
 strict = true
@@ -267,7 +267,7 @@ build = "cp3*"
 skip = "*-musllinux_*"
 archs = "auto64"
 test-command = "python -c \"from mqt import qudits\""
-test-skip = ["cp38-macosx_arm64", "cp313*"] # skip testing on Python 3.13 until our dependencies are ready
+test-skip = ["cp313*"] # skip testing on Python 3.13 until our dependencies are ready
 build-frontend = "build[uv]"
 free-threaded-support = true
 manylinux-x86_64-image = "manylinux_2_28"
