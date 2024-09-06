@@ -8,7 +8,7 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 class TestQASM(TestCase):
     @staticmethod
     def test_from_qasm():
-        """Create circuit from QASM program"""
+        """Create circuit from QASM program."""
         qasm = """
                 DITQASM 2.0;
                 qreg field [7][5,5,5,5,5,5,5];

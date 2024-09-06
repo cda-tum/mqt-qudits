@@ -20,9 +20,7 @@ def rand_0_5() -> int:
 
 
 def is_quantum_state(state: NDArray[np.complex128]) -> bool:
-    """
-    Check if a given NumPy array represents a valid quantum state vector.
-    """
+    """Check if a given NumPy array represents a valid quantum state vector."""
     # Check if the input is a NumPy array
     if not isinstance(state, np.ndarray):
         print("Input is not a NumPy array")

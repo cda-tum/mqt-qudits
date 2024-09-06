@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """FROM An alternative quantum fidelity for mixed states of qudits Xiaoguang Wang, 1, 2, * Chang-Shui Yu, 3 and x. x.
-Yi 3"""
+Yi 3.
+"""
 
 from __future__ import annotations
 
@@ -55,9 +56,7 @@ def fidelity_on_density_operator(
 
 
 def naive_state_fidelity(state1: ArrayLike, state2: ArrayLike) -> float:
-    """
-    Calculates fidelity between two state vectors.
-    """
+    """Calculates fidelity between two state vectors."""
     # Ensure both states have the same dimension
     if state1.shape != state2.shape:
         msg = "Input arrays must have the same square shape."

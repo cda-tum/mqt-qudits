@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class CustomOne(Gate):
-    """One body custom gate"""
+    """One body custom gate."""
 
     def __init__(
         self,

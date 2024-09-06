@@ -14,8 +14,7 @@ if TYPE_CHECKING:
 
 
 def params_splitter(params: list[float] | NDArray[np.float64], dims: list[int]) -> list[list[float]]:
-    """
-    Split a list of parameters into sublists based on given dimensions.
+    """Split a list of parameters into sublists based on given dimensions.
 
     Args:
     params (Union[List[float], np.ndarray]): The input parameters to be split.

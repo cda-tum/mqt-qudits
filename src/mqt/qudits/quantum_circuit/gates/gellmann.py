@@ -16,9 +16,7 @@ if TYPE_CHECKING:
 
 
 class GellMann(Gate):
-    """
-    Gate used as generator for Givens rotations.
-    """
+    """Gate used as generator for Givens rotations."""
 
     def __init__(
         self,

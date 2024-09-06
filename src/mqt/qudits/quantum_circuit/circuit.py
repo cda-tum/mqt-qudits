@@ -299,7 +299,7 @@ class QuantumCircuit:
         return self
 
     def from_qasm(self, qasm_prog: str) -> None:
-        """Create a circuit from qasm text"""
+        """Create a circuit from qasm text."""
         self.reset()
         qasm_parser = QASM().parse_ditqasm2_str(qasm_prog)
         instructions = qasm_parser["instructions"]
@@ -362,8 +362,7 @@ class QuantumCircuit:
         return text
 
     def save_to_file(self, file_name: str, file_path: str = ".") -> str:
-        """
-        Save qasm into a file with the specified name and path.
+        """Save qasm into a file with the specified name and path.
 
         Args:
             text (str): The text to be saved into the file.
@@ -385,8 +384,7 @@ class QuantumCircuit:
         return str(full_file_path)
 
     def load_from_file(self, file_path: str) -> None:
-        """
-        Load text from a file.
+        """Load text from a file.
 
         Args:
             file_path (str): The path of the file to load.

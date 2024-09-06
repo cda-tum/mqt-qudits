@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class Job:
-    """Class to handle jobs
+    """Class to handle jobs.
 
     This first version of the Backend abstract class is written to be mostly
     backwards compatible with the legacy providers interface. This was done to ease

@@ -14,9 +14,7 @@ if TYPE_CHECKING:
 
 
 class QASM:
-    """
-    Class that manages the parsing of QASM programs
-    """
+    """Class that manages the parsing of QASM programs."""
 
     def __init__(self) -> None:
         self.program: dict[str, Any] = {}

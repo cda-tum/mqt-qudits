@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class CustomMulti(Gate):
-    """Multi body custom gate"""
+    """Multi body custom gate."""
 
     def __init__(
         self,

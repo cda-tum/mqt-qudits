@@ -11,7 +11,7 @@ from mqt.qudits.quantum_circuit.components import ClassicRegister
 class TestQuantumCircuit(TestCase):
     @staticmethod
     def test_to_qasm():
-        """Export circuit as QASM program"""
+        """Export circuit as QASM program."""
         qreg_field = QuantumRegister("field", 7, [7, 7, 7, 7, 7, 7, 7])
         qreg_matter = QuantumRegister("matter", 2, [2, 2])
         cl_reg = ClassicRegister("classic", 3)

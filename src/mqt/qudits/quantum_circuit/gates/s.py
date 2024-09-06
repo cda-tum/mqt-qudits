@@ -53,8 +53,8 @@ class S(Gate):
 
     @staticmethod
     def is_prime(n: int) -> bool:
-        """
-        Check if a number is prime.
+        """Check if a number is prime.
+
         Optimized for dimensions under 23.
 
         Args:

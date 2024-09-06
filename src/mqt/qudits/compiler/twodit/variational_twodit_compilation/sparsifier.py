@@ -96,8 +96,7 @@ def compute_f(x: NDArray[np.complex128, np.complex128]) -> float:
 
 
 def objective_function(thetas: list[float], m: NDArray[np.complex128, np.complex128], dims: list[int]) -> float:
-    """
-    Objective function for promoting sparsity and low variance in the transformed matrix M'.
+    """Objective function for promoting sparsity and low variance in the transformed matrix M'.
 
     Args:
         thetas (list of float): List of rotation angles.

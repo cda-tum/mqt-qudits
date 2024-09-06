@@ -35,14 +35,14 @@ def mini_sim(circuit: QuantumCircuit) -> NDArray[np.complex128]:
 
 
 class UnitaryVerifier:
-    """
-    Verifies unitary matrices.
+    """Verifies unitary matrices.
+
     sequence is a list of numpy arrays
     target is a numpy array
     dimensions is list of ints, equals to the dimensions of the qudits involved in the target operation
     initial_map is a list representing the mapping of the logic states
     to the physical ones at the beginning of the computation
-    final_map is a list representing the mapping of the logic states to the physical ones at the end of the computation
+    final_map is a list representing the mapping of the logic states to the physical ones at the end of the computation.
     """
 
     def __init__(

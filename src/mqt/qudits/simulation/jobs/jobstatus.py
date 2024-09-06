@@ -33,8 +33,7 @@ class JobStatus(str, enum.Enum):
 
     @classmethod
     def from_string(cls, status_str: str) -> JobStatus:
-        """
-        Create a JobStatus from a string.
+        """Create a JobStatus from a string.
 
         Args:
             status_str (str): The string representation of the status.

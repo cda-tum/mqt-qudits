@@ -139,8 +139,7 @@ class Gate(Instruction):
 
     @property
     def target_qudits(self) -> list[int] | int:
-        """
-        Get the target qudits.
+        """Get the target qudits.
 
         Returns:
             Union[List[int], np.ndarray]: The current target qudits.
@@ -152,7 +151,7 @@ class Gate(Instruction):
         self._target_qudits = value
 
     def __qasm__(self) -> str:  # noqa: PLW3201
-        """Generate QASM for Gate export"""
+        """Generate QASM for Gate export."""
         string = f"{self.qasm_tag} "
         if isinstance(self._params, np.ndarray):
             string += self.return_custom_data()

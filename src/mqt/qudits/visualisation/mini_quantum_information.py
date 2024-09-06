@@ -36,7 +36,7 @@ def get_density_matrix_from_counts(
 def partial_trace(
     rho: NDArray[np.complex128], qudits2keep: list[int], dims: list[int], optimize: bool = False
 ) -> NDArray[np.complex128]:
-    """Calculate the partial trace
+    """Calculate the partial trace.
 
     p_a = Tr_b(p)
 
@@ -54,7 +54,7 @@ def partial_trace(
         For instance, if the space is A x B x C x D,
         dims = [dim_A, dim_B, dim_C, dim_D]
 
-    Returns
+    Returns:
     -------
     p_a : 2D array
         Traced matrix

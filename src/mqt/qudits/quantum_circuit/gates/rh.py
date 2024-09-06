@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 class Rh(Gate):
-    """SU2 Hadamard"""
+    """SU2 Hadamard."""
 
     def __init__(
         self,
