@@ -41,3 +41,33 @@ class TestEntangledQR(TestCase):
         target /= target[0][0]
         res = (abs(target - np.identity(15, dtype="complex")) < 10e-5).all()
         assert res
+
+    @staticmethod
+    def test_entangling_qr_2():
+        # Create the original circuit
+        circuit = QuantumCircuit(2, [3, 3], 0)
+        circuit.x(0)
+        circuit.csum([0, 1])
+
+        # Simulate the original circuit
+        original_state = circuit.simulate()
+        print("Original circuit simulation result:")
+        print(original_state.round(3))
+
+        # Set up the provider and backend
+        provider = MQTQuditProvider()
+        backend_ion = provider.get_backend("faketraps2trits")
+
+        # Compile the circuit
+        qudit_compiler = QuditCompiler()
+        passes = ["LogEntQRCEXPass"]
+        new_circuit = qudit_compiler.compile(backend_ion, circuit, passes)
+
+        # Simulate the compiled circuit
+        compiled_state = new_circuit.simulate()
+        print("\nCompiled circuit simulation result:")
+        print(compiled_state.round(3))
+
+        # Compare the results
+        is_close = np.allclose(original_state, compiled_state)
+        print(f"\nAre the simulation results close? {is_close}")
