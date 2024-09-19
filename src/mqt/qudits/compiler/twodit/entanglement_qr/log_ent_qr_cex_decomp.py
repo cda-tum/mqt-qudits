@@ -109,7 +109,6 @@ class EntangledQRCEX:
                     for rotation in sequence_rotation_involved:
                         gate_matrix = self.get_gate_matrix(rotation, self.qudit_indices, self.dimensions)
                         u_ = gate_matrix @ u_
-                    u_.round(3)
                     decomp += sequence_rotation_involved
 
         diag_u = np.diag(u_)
