@@ -58,8 +58,8 @@ extensions = [
     "sphinx_inline_tabs",
     "sphinxext.opengraph",
     "sphinx.ext.viewcode",
+    "sphinx.ext.imgconverter",
     "sphinxcontrib.bibtex",
-    "sphinxcontrib.inkscapeconverter",
 ]
 
 source_suffix = [".rst", ".md"]
