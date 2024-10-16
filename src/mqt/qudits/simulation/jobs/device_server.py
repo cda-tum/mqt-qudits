@@ -2,11 +2,9 @@ from __future__ import annotations
 
 import asyncio
 import uuid
-from typing import Any, Dict
 
 from fastapi import FastAPI, HTTPException
 from jobstatus import JobStatus, JobStatusError
-from pydantic import BaseModel
 
 from mqt.qudits.simulation.jobs import JobResult
 
@@ -17,7 +15,7 @@ job_database = {}
 
 
 @app.post("/submit_job")
-async def submit_job(job: Dict):
+async def submit_job(job: dict):
     job_id = str(uuid.uuid4())
     job_database[job_id] = {"status": JobStatus.INITIALIZING, "submission": job.dict(), "result": None}
 
