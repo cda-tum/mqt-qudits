@@ -64,4 +64,3 @@ class TestZPropagationOptPass(TestCase):
         u2nb = mini_unitary_sim(new_circuit, new_circuit.instructions)
 
         assert np.allclose(u1nb, u2nb)
-

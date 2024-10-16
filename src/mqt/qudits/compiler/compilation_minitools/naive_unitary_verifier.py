@@ -11,10 +11,11 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from numpy.typing import NDArray
-    from mqt.qudits.simulation.backends.backendv2 import Backend
+
     from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
     from mqt.qudits.quantum_circuit.gates import R, Rz, VirtRz
+    from mqt.qudits.simulation.backends.backendv2 import Backend
 
 
 def mini_unitary_sim(circuit: QuantumCircuit, list_of_op: list[Gate]) -> NDArray[np.complex128, np.complex128]:
@@ -51,12 +52,11 @@ def naive_phy_sim(backend: Backend, circuit: QuantumCircuit) -> NDArray[np.compl
 
     init_permutation = np.eye(dimensions[0])[:, backend.energy_level_graphs[0].log_phy_map]
     for line in lines[1:]:
-        init_permutation = np.kron(init_permutation,
-                                   np.eye(dimensions[line])[:, backend.energy_level_graphs[line].log_phy_map])
+        init_permutation = np.kron(
+            init_permutation, np.eye(dimensions[line])[:, backend.energy_level_graphs[line].log_phy_map]
+        )
 
-    state = init_permutation.T @ state
-
-    return state
+    return init_permutation.T @ state
 
 
 class UnitaryVerifier:
@@ -71,13 +71,13 @@ class UnitaryVerifier:
     """
 
     def __init__(
-            self,
-            sequence: Sequence[Gate | R | Rz | VirtRz],
-            target: Gate,
-            dimensions: list[int],
-            nodes: list[int] | None = None,
-            initial_map: list[int] | None = None,
-            final_map: list[int] | None = None,
+        self,
+        sequence: Sequence[Gate | R | Rz | VirtRz],
+        target: Gate,
+        dimensions: list[int],
+        nodes: list[int] | None = None,
+        initial_map: list[int] | None = None,
+        final_map: list[int] | None = None,
     ) -> None:
         self.decomposition = sequence
         self.target = target.to_matrix().copy()
@@ -111,13 +111,13 @@ class UnitaryVerifier:
 
         for rotation in self.decomposition:
             target = rotation.to_matrix(identities=0) @ target
-            tdb = target.round(3)
+            target.round(3)
 
         if self.permutation_matrix_final is not None:
             target = np.linalg.inv(self.permutation_matrix_final) @ target
-            tdb = target.round(3)
+            target.round(3)
 
         target /= target[0][0]
-        tdb = target.round(3)
+        target.round(3)
 
         return bool((abs(target - np.identity(self.dimension, dtype="complex")) < 1e-4).all())

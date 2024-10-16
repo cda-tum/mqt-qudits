@@ -61,7 +61,7 @@ class Rz(Gate):
 
         return np.matmul(np.matmul(pi_back, rotate), pi_there)  # pi_back @ rotate @ pi_there
 
-    def _dagger_properties(self):
+    def _dagger_properties(self) -> None:
         self.phi *= -1
 
     @staticmethod

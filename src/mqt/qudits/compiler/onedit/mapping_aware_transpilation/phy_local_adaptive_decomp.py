@@ -3,7 +3,7 @@ from __future__ import annotations
 import contextlib
 import gc
 import itertools
-from random import random, shuffle
+from random import shuffle
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
@@ -48,8 +48,7 @@ class PhyLocAdaPass(CompilerPass):
         _decomp, algorithmic_cost, total_cost = qr.execute()
 
         adaptive = PhyAdaptiveDecomposition(
-                gate, energy_graph_i, (algorithmic_cost, total_cost), cast(int, gate.dimensions),
-                z_prop=self.vrz_prop
+            gate, energy_graph_i, (algorithmic_cost, total_cost), cast(int, gate.dimensions), z_prop=self.vrz_prop
         )
         (matrices_decomposed, _best_cost, new_energy_level_graph) = adaptive.execute()
 
@@ -74,12 +73,12 @@ class PhyLocAdaPass(CompilerPass):
 
 class PhyAdaptiveDecomposition:
     def __init__(
-            self,
-            gate: Gate,
-            graph_orig: LevelGraph,
-            cost_limit: tuple[float, float] | None = (0, 0),
-            dimension: int | None = -1,
-            z_prop: bool | None = False,
+        self,
+        gate: Gate,
+        graph_orig: LevelGraph,
+        cost_limit: tuple[float, float] | None = (0, 0),
+        dimension: int | None = -1,
+        z_prop: bool | None = False,
     ) -> None:
         self.circuit: QuantumCircuit = gate.parent_circuit
         self.U: NDArray = gate.to_matrix(identities=0)
@@ -93,17 +92,16 @@ class PhyAdaptiveDecomposition:
 
     def execute(self) -> tuple[list[Gate], tuple[float, float], LevelGraph]:
         self.TREE.add(
-                0,
-                gates.CustomOne(
-                        self.circuit, "CUo", self.qudit_index, np.identity(self.dimension, dtype="complex"),
-                        self.dimension
-                ),
-                self.U,
-                self.graph,
-                0,
-                0,
-                self.cost_limit,
-                [],
+            0,
+            gates.CustomOne(
+                self.circuit, "CUo", self.qudit_index, np.identity(self.dimension, dtype="complex"), self.dimension
+            ),
+            self.U,
+            self.graph,
+            0,
+            0,
+            self.cost_limit,
+            [],
         )
 
         with contextlib.suppress(SequenceFoundError):
@@ -113,13 +111,13 @@ class PhyAdaptiveDecomposition:
         matrices_decomposed_m: list[Gate] = []
         if matrices_decomposed:
             matrices_decomposed_m, final_graph = self.z_extraction(
-                    matrices_decomposed, final_graph, self.phase_propagation
+                matrices_decomposed, final_graph, self.phase_propagation
             )
 
         return matrices_decomposed_m, best_cost, final_graph
 
     def z_extraction(
-            self, decomposition: list[TreeNode], placement: LevelGraph, phase_propagation: bool
+        self, decomposition: list[TreeNode], placement: LevelGraph, phase_propagation: bool
     ) -> tuple[list[Gate], LevelGraph]:
         matrices: list[Gate] = []
 
@@ -129,7 +127,7 @@ class PhyAdaptiveDecomposition:
             matrices = [*matrices, d.rotation]
 
         u_ = decomposition[-1].u_of_level  # take U of last elaboration which should be the diagonal matrix found
-        u_db = u_.round(4)
+        u_.round(4)
         # check if close to diagonal
         ucopy = u_.copy()
 
@@ -159,14 +157,12 @@ class PhyAdaptiveDecomposition:
                     phy_n_i = placement.nodes[i]["lpmap"]
                     angle_phy = new_mod(np.angle(diag_u[i]))
                     phase_gate = gates.VirtRz(
-                            self.circuit, "VRz", self.qudit_index, [phy_n_i, angle_phy], self.dimension
+                        self.circuit, "VRz", self.qudit_index, [phy_n_i, angle_phy], self.dimension
                     )  # old version: VirtRz(np.angle(diag_U[i]), phy_n_i, dimension)
-                    log_phase_gate = gates.VirtRz(
-                            self.circuit, "VRz", self.qudit_index, [i, angle_phy], self.dimension
-                    )
-                    mdb = log_phase_gate.to_matrix(identities=0)
+                    log_phase_gate = gates.VirtRz(self.circuit, "VRz", self.qudit_index, [i, angle_phy], self.dimension)
+                    log_phase_gate.to_matrix(identities=0)
                     u_ = log_phase_gate.to_matrix(identities=0) @ u_
-                    u_db = u_.round(4)
+                    u_.round(4)
 
                     matrices.append(phase_gate)
 
@@ -177,11 +173,11 @@ class PhyAdaptiveDecomposition:
                     theta_z = new_mod(placement.nodes[i]["phase_storage"])
                     if abs(theta_z) > 1.0e-4:
                         phase_gate = gates.VirtRz(
-                                self.circuit,
-                                "VRz",
-                                self.qudit_index,
-                                [placement.nodes[i]["lpmap"], theta_z],
-                                self.dimension,
+                            self.circuit,
+                            "VRz",
+                            self.qudit_index,
+                            [placement.nodes[i]["lpmap"], theta_z],
+                            self.dimension,
                         )  # VirtRz(thetaZ, placement.nodes[i]['lpmap'],
                         # dimension)
                         matrices.append(phase_gate)
@@ -223,11 +219,11 @@ class PhyAdaptiveDecomposition:
                 phi = -(np.pi / 2 + np.angle(u_[r, c]) - np.angle(u_[r2, c]))
 
                 rotation_involved = gates.R(
-                        self.circuit, "R", self.qudit_index, [r, r2, theta, phi], self.dimension
+                    self.circuit, "R", self.qudit_index, [r, r2, theta, phi], self.dimension
                 )  # R(theta, phi, r, r2, dimension)
 
                 u_temp = rotation_involved.to_matrix(identities=0) @ u_  # matmul(rotation_involved.matrix, U_)
-                udb = u_temp.round(4)
+                u_temp.round(4)
                 non_zeros = np.count_nonzero(abs(u_temp) > 1.0e-4)
 
                 (
@@ -250,22 +246,22 @@ class PhyAdaptiveDecomposition:
                     if new_placement.nodes[r]["lpmap"] > new_placement.nodes[r2]["lpmap"]:
                         phi *= -1
                     physical_rotation = gates.R(
-                            self.circuit,
-                            "R",
-                            self.qudit_index,
-                            [new_placement.nodes[r]["lpmap"], new_placement.nodes[r2]["lpmap"], theta, phi],
-                            self.dimension,
+                        self.circuit,
+                        "R",
+                        self.qudit_index,
+                        [new_placement.nodes[r]["lpmap"], new_placement.nodes[r2]["lpmap"], theta, phi],
+                        self.dimension,
                     )
                     physical_rotation = gate_chain_condition(pi_pulses_routing, physical_rotation)
                     physical_rotation = graph_rule_ongate(physical_rotation, new_placement)
 
                     p_backs = [
                         gates.R(
-                                self.circuit,
-                                "R",
-                                self.qudit_index,
-                                [ppulse.lev_a, ppulse.lev_b, ppulse.theta, -ppulse.phi],
-                                self.dimension,
+                            self.circuit,
+                            "R",
+                            self.qudit_index,
+                            [ppulse.lev_a, ppulse.lev_b, ppulse.theta, -ppulse.phi],
+                            self.dimension,
                         )
                         for ppulse in pi_pulses_routing
                     ]
@@ -274,19 +270,19 @@ class PhyAdaptiveDecomposition:
                         graph_rule_update(p_back, new_placement)
 
                     current_root.add(
-                            new_key,
-                            physical_rotation,
-                            u_temp,
-                            new_placement,
-                            next_step_cost,
-                            decomp_next_step_cost,
-                            current_root.max_cost,
-                            pi_pulses_routing,
+                        new_key,
+                        physical_rotation,
+                        u_temp,
+                        new_placement,
+                        next_step_cost,
+                        decomp_next_step_cost,
+                        current_root.max_cost,
+                        pi_pulses_routing,
                     )
 
         def calculate_sparsity(matrix):
             total_elements = matrix.size
-            non_zero_elements = np.count_nonzero(np.abs(matrix) > 1e-8) # np.count_nonzero(matrix)
+            non_zero_elements = np.count_nonzero(np.abs(matrix) > 1e-8)  # np.count_nonzero(matrix)
             return non_zero_elements / total_elements
 
         def change_kids(lst):
@@ -295,10 +291,10 @@ class PhyAdaptiveDecomposition:
                 return lst
             vals = [calculate_sparsity(obj.u_of_level) for obj in lst]
             # Calculate the range of values in the list
-            min_val, max_val = min(vals), max(vals)
+            min_val, _max_val = min(vals), max(vals)
             min_from_one = 1 - min_val
             dim = lst[0].u_of_level.shape[0]
-            threshold = ((dim-3)**2/dim**2)
+            threshold = (dim - 3) ** 2 / dim**2
             # If the spread is below the threshold, shuffle the list
             if min_from_one < threshold and len(lst) > dim**2 * 0.6:
                 shuffle(lst)

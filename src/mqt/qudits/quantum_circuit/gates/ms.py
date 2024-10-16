@@ -59,15 +59,15 @@ class MS(Gate):
             np.identity(dimension_1, dtype="complex"),
         )
         gate_part_2 = np.kron(
-                np.identity(dimension_0, dtype="complex"),
-                GellMann(self.parent_circuit, "Gellman_s", qudit_targeted_1, ps, dimension_1, None).to_matrix(),
+            np.identity(dimension_0, dtype="complex"),
+            GellMann(self.parent_circuit, "Gellman_s", qudit_targeted_1, ps, dimension_1, None).to_matrix(),
         ) + np.kron(
-                GellMann(self.parent_circuit, "Gellman_s", qudit_targeted_0, ps, dimension_0, None).to_matrix(),
-                np.identity(dimension_1, dtype="complex"),
+            GellMann(self.parent_circuit, "Gellman_s", qudit_targeted_0, ps, dimension_0, None).to_matrix(),
+            np.identity(dimension_1, dtype="complex"),
         )
         return expm(-1j * theta * gate_part_1 @ gate_part_2 / 4)
 
-    def _dagger_properties(self):
+    def _dagger_properties(self) -> None:
         self.theta *= -1
 
     @staticmethod

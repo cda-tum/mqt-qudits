@@ -58,7 +58,7 @@ class LS(Gate):
 
         return expm(-1j * self.theta * exp_matrix)
 
-    def _dagger_properties(self):
+    def _dagger_properties(self) -> None:
         self.theta *= -1
 
     @staticmethod

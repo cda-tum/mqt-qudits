@@ -432,7 +432,8 @@ class QuantumCircuit:
         elif mode == "resynth":
             new_circuit = qudit_compiler.compile_O1_resynth(backend_ion, self)
         else:
-            raise ValueError(f"mode {mode} not supported")
+            msg = f"mode {mode} not supported"
+            raise ValueError(msg)
 
         return new_circuit
 

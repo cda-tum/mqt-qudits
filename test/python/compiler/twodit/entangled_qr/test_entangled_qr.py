@@ -21,7 +21,6 @@ def random_unitary_matrix(n: int) -> NDArray[np.complex128, np.complex128]:
 
 
 class TestEntangledQR(TestCase):
-
     def test_entangling_qr(self):
         circuit_53 = QuantumCircuit(2, [5, 3], 0)
         target_u = random_unitary_matrix(15)
@@ -33,7 +32,7 @@ class TestEntangledQR(TestCase):
         target = target_u.copy()
         for rotation in decomp:
             target = rotation.to_matrix(identities=2) @ target
-            tdb = target.round(4)
+            target.round(4)
         global_phase = target[0][0]
         target /= global_phase
         res = (abs(target - np.identity(15, dtype="complex")) < 10e-5).all()
@@ -49,8 +48,8 @@ class TestEntangledQR(TestCase):
         #    target = rotation.to_matrix(identities=2).conj().T @ target
 
         # as_gates = [op.dag() for op in reversed(decomp)]
-        #uni = mini_unitary_sim(circuit_53, as_gates)
-        #assert np.allclose(uni, target)
+        # uni = mini_unitary_sim(circuit_53, as_gates)
+        # assert np.allclose(uni, target)
 
     @staticmethod
     def test_entangling_qr_2():
@@ -112,7 +111,7 @@ class TestEntangledQR(TestCase):
         new_circuit = qudit_compiler.compile(backend_ion, circuit, passes)
 
         # Simulate the compiled circuit
-        compiled_state = naive_phy_sim(provider.get_backend("faketraps2trits"), new_circuit)  #new_circuit.simulate()
+        compiled_state = naive_phy_sim(provider.get_backend("faketraps2trits"), new_circuit)  # new_circuit.simulate()
         print("\nCompiled circuit simulation result:")
         print(compiled_state.round(3))
 

@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import asyncio
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Callable
 
+from . import JobResult
 from .jobstatus import JobStatus
-from .client_api import APIClient
 
 if TYPE_CHECKING:
     from ..backends.backendv2 import Backend
-    from . import JobResult
+    from .client_api import APIClient
 
 
 class Job:
@@ -43,19 +43,18 @@ class Job:
             else:
                 # For local simulation, we get the result directly from the backend
                 result_data = await self._backend.run_local_simulation(self._job_id)
-            self._result = JobResult(self._job_id, result_data['state_vector'], result_data['counts'])
+            self._result = JobResult(self._job_id, result_data["state_vector"], result_data["counts"])
         return self._result
 
-    async def wait_for_final_state(self, timeout: float | None = None,
-                                   callback: Callable[[str, JobStatus], None] | None = None) -> None:
+    async def wait_for_final_state(
+        self, timeout: float | None = None, callback: Callable[[str, JobStatus], None] | None = None
+    ) -> None:
         if self._api_client:
             try:
-                await asyncio.wait_for(
-                        self._api_client.wait_for_job_completion(self._job_id, callback),
-                        timeout
-                )
+                await asyncio.wait_for(self._api_client.wait_for_job_completion(self._job_id, callback), timeout)
             except asyncio.TimeoutError:
-                raise TimeoutError(f"Timeout while waiting for job {self._job_id}")
+                msg = f"Timeout while waiting for job {self._job_id}"
+                raise TimeoutError(msg)
         else:
             # For local simulation, we assume the job is done immediately
             self._status = JobStatus.DONE

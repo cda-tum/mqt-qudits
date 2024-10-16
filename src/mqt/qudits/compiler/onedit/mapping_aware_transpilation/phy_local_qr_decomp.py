@@ -118,11 +118,11 @@ class PhyQrDecomp:
                         phi *= -1
 
                     physical_rotation = gates.R(
-                            self.circuit,
-                            "R",
-                            self.qudit_index,
-                            [temp_placement.nodes[r - 1]["lpmap"], temp_placement.nodes[r]["lpmap"], theta, phi],
-                            self.dimension,
+                        self.circuit,
+                        "R",
+                        self.qudit_index,
+                        [temp_placement.nodes[r - 1]["lpmap"], temp_placement.nodes[r]["lpmap"], theta, phi],
+                        self.dimension,
                     )
                     # R(theta, phi, temp_placement.nodes[r - 1]['lpmap'], temp_placement.nodes[r]['lpmap'], dimension)
                     physical_rotation = gate_chain_condition(pi_pulses_routing, physical_rotation)

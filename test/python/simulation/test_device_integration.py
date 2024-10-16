@@ -1,10 +1,12 @@
-import unittest
+from __future__ import annotations
+
 import asyncio
-import aiohttp
-from fastapi.testclient import TestClient
-from multiprocessing import Process
-import uvicorn
 import time
+import unittest
+from multiprocessing import Process
+
+import pytest
+import uvicorn
 
 from mqt.qudits.simulation import MQTQuditProvider
 from mqt.qudits.simulation.jobs import JobStatus
@@ -41,41 +43,36 @@ class TestQuantumSystemIntegration(unittest.TestCase):
     def test_full_job_lifecycle(self):
         async def run_test():
             # Create a simple quantum circuit
-            circuit = {
-                "operations": [
-                    {"gate": "H", "qubit": 0},
-                    {"gate": "CNOT", "control": 0, "target": 1}
-                ]
-            }
+            circuit = {"operations": [{"gate": "H", "qubit": 0}, {"gate": "CNOT", "control": 0, "target": 1}]}
 
             # Submit the job
             job = await self.backend.run(circuit, shots=1000)
-            self.assertIsNotNone(job.job_id)
+            assert job.job_id is not None
 
             # Check initial status
             status = await job.status()
-            self.assertIn(status, list(JobStatus))
+            assert status in list(JobStatus)
 
             # Wait for the job to complete
             await job.wait_for_final_state(timeout=30)
 
             # Check final status
             final_status = await job.status()
-            self.assertEqual(final_status, JobStatus.DONE)
+            assert final_status == JobStatus.DONE
 
             # Get results
             result = await job.result()
-            self.assertIsNotNone(result)
-            self.assertTrue(hasattr(result, 'get_counts'))
-            self.assertTrue(hasattr(result, 'get_state_vector'))
+            assert result is not None
+            assert hasattr(result, "get_counts")
+            assert hasattr(result, "get_state_vector")
 
             counts = result.get_counts()
-            self.assertIsInstance(counts, list)
-            self.assertEqual(sum(counts), 1000)  # Total should match our shots
+            assert isinstance(counts, list)
+            assert sum(counts) == 1000  # Total should match our shots
 
             state_vector = result.get_state_vector()
-            self.assertIsInstance(state_vector, list)
-            self.assertEqual(len(state_vector), 4)  # 2^2 for 2 qubits
+            assert isinstance(state_vector, list)
+            assert len(state_vector) == 4  # 2^2 for 2 qubits
 
         asyncio.run(run_test())
 
@@ -88,32 +85,30 @@ class TestQuantumSystemIntegration(unittest.TestCase):
                 jobs.append(job)
 
             results = await asyncio.gather(*(job.wait_for_final_state(timeout=30) for job in jobs))
-            self.assertEqual(len(results), 5)
+            assert len(results) == 5
 
             for job in jobs:
                 status = await job.status()
-                self.assertEqual(status, JobStatus.DONE)
+                assert status == JobStatus.DONE
 
                 result = await job.result()
-                self.assertIsNotNone(result)
+                assert result is not None
 
         asyncio.run(run_concurrent_jobs())
 
     def test_error_handling(self):
         async def run_error_test():
             # Try to get status of non-existent job
-            with self.assertRaises(Exception):
+            with pytest.raises(Exception):
                 await self.api_client.get_job_status("non_existent_job_id")
 
             # Try to get result of non-existent job
-            with self.assertRaises(Exception):
+            with pytest.raises(Exception):
                 await self.api_client.get_job_result("non_existent_job_id")
 
             # Submit invalid job
             invalid_circuit = {"operations": [{"gate": "InvalidGate", "qubit": 0}]}
-            with self.assertRaises(Exception):
+            with pytest.raises(Exception):
                 await self.backend.run(invalid_circuit, shots=100)
 
         asyncio.run(run_error_test())
-
-

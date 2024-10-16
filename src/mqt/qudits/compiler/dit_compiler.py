@@ -19,15 +19,15 @@ if typing.TYPE_CHECKING:
 
 class QuditCompiler:
     passes_enabled: typing.ClassVar = {
-        "PhyLocQRPass":           PhyLocQRPass,
-        "PhyLocAdaPass":          PhyLocAdaPass,
-        "LocQRPass":              PhyLocQRPass,
-        "LocAdaPass":             PhyLocAdaPass,
-        "LogLocQRPass":           LogLocQRPass,
-        "ZPropagationOptPass":    ZPropagationOptPass,
-        "ZRemovalOptPass":        ZRemovalOptPass,
-        "LogEntQRCEXPass":        LogEntQRCEXPass,
-        "PhyEntQRCEXPass":        PhyEntQRCEXPass,
+        "PhyLocQRPass": PhyLocQRPass,
+        "PhyLocAdaPass": PhyLocAdaPass,
+        "LocQRPass": PhyLocQRPass,
+        "LocAdaPass": PhyLocAdaPass,
+        "LogLocQRPass": LogLocQRPass,
+        "ZPropagationOptPass": ZPropagationOptPass,
+        "ZRemovalOptPass": ZRemovalOptPass,
+        "LogEntQRCEXPass": LogEntQRCEXPass,
+        "PhyEntQRCEXPass": PhyEntQRCEXPass,
         "NaiveLocResynthOptPass": NaiveLocResynthOptPass,
     }
 
@@ -35,7 +35,7 @@ class QuditCompiler:
         pass
 
     def compile(self, backend: Backend, circuit: QuantumCircuit, passes_names: list[str]) -> QuantumCircuit:
-        """ Method compiles with passes chosen"""
+        """Method compiles with passes chosen."""
         passes_dict = {}
         new_instr = []
         # Instantiate and execute created classes
@@ -57,7 +57,7 @@ class QuditCompiler:
                 # new_instr.extend(new_instructions)
             else:
                 append_to_front(new_instr, gate)
-                #new_instr.append(gate)
+                # new_instr.append(gate)
 
         transpiled_circuit = circuit.copy()
         mappings = []
@@ -68,7 +68,7 @@ class QuditCompiler:
         return transpiled_circuit.set_instructions(new_instr)
 
     def compile_O0(self, backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  # noqa: N802
-        """ Method compiles with PHY LOC QR and PHY ENT QR CEX with no optimization"""
+        """Method compiles with PHY LOC QR and PHY ENT QR CEX with no optimization."""
         passes = ["PhyLocQRPass", "PhyEntQRCEXPass"]
         compiled = self.compile(backend, circuit, passes)
 
@@ -81,7 +81,7 @@ class QuditCompiler:
 
     @staticmethod
     def compile_O1_resynth(backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  # noqa: N802
-        """ Method compiles with PHY LOC QR and PHY ENT QR CEX with a resynth steps """
+        """Method compiles with PHY LOC QR and PHY ENT QR CEX with a resynth steps."""
         phyloc = PhyLocQRPass(backend)
         phyent = PhyEntQRCEXPass(backend)
         resynth = NaiveLocResynthOptPass(backend)
@@ -107,7 +107,7 @@ class QuditCompiler:
 
     @staticmethod
     def compile_O1_adaptive(backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  # noqa: N802
-        """ Method compiles with PHY LOC ADA and PHY ENT QR CEX"""
+        """Method compiles with PHY LOC ADA and PHY ENT QR CEX."""
         phyent = PhyEntQRCEXPass(backend)
         phyloc = PhyLocAdaPass(backend)
         new_instructions = []
@@ -129,13 +129,11 @@ class QuditCompiler:
         transpiled_circuit.set_mapping(mappings)
 
         z_propagation_pass = ZPropagationOptPass(backend=backend, back=False)
-        new_transpiled_circuit = z_propagation_pass.transpile(transpiled_circuit)
-
-        return new_transpiled_circuit
+        return z_propagation_pass.transpile(transpiled_circuit)
 
     @staticmethod
     def compile_O2(backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  # noqa: N802
-        """ Method compiles with PHY LOC ADA and PHY ENT QR CEX with a resynth steps """
+        """Method compiles with PHY LOC ADA and PHY ENT QR CEX with a resynth steps."""
         phyloc = PhyLocAdaPass(backend)
         phyent = PhyEntQRCEXPass(backend)
         resynth = NaiveLocResynthOptPass(backend)

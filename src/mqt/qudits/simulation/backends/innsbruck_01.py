@@ -2,14 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import numpy as np
 from typing_extensions import Unpack
-import asyncio
 
-from ..jobs.client_api import APIClient
 # from pyseq.mqt_qudits_runner.sequence_runner import quantum_circuit_runner
 from ...core import LevelGraph
-from ..jobs import Job, JobResult
+from ..jobs import Job
+from ..jobs.client_api import APIClient
 from .backendv2 import Backend
 
 if TYPE_CHECKING:
@@ -24,15 +22,15 @@ class Innsbruck01(Backend):
         return 0
 
     def __init__(
-            self,
-            provider: MQTQuditProvider,
-            **fields: Unpack[Backend.DefaultOptions],
+        self,
+        provider: MQTQuditProvider,
+        **fields: Unpack[Backend.DefaultOptions],
     ) -> None:
         super().__init__(
-                provider=provider,
-                name="Innsbruck01",
-                description="Interface to the Innsbruck machine 01. Interface prototype with MVP.",
-                **fields,
+            provider=provider,
+            name="Innsbruck01",
+            description="Interface to the Innsbruck machine 01. Interface prototype with MVP.",
+            **fields,
         )
         self.outcome: list[int] = []
         self.options["noise_model"] = self.__noise_model()
@@ -82,7 +80,7 @@ class Innsbruck01(Backend):
         return self.noise_model
 
     async def run(self, circuit: QuantumCircuit, **options: Unpack[Backend.DefaultOptions]) -> Job:
-        job = Job(self)
+        Job(self)
 
         self._options.update(options)
         self.noise_model = self._options.get("noise_model", None)
@@ -100,13 +98,12 @@ class Innsbruck01(Backend):
         job_id = await self._api_client.submit_job(circuit, self.shots, self.energy_level_graphs)
         return Job(self, job_id, self._api_client)
 
-    async def close(self):
+    async def close(self) -> None:
         await self._api_client.close()
 
     def execute(self, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> None:
-        """
-        self.system_sizes = circuit.dimensions
-        self.circ_operations = circuit.instructions
+        """self.system_sizes = circuit.dimensions
+        self.circ_operations = circuit.instructions.
 
         client = APIClient()
         try:
@@ -128,6 +125,5 @@ class Innsbruck01(Backend):
             await client.close()  # Ensure session is closed
 
         # Placeholder for assigning outcome from the quantum circuit execution
-        # self.outcome = quantum_circuit_runner(metadata, self.system_sizes)"""
-
-        pass
+        # self.outcome = quantum_circuit_runner(metadata, self.system_sizes)
+        """

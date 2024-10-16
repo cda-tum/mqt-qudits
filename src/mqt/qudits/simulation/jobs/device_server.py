@@ -1,9 +1,14 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import List, Dict, Any
+from __future__ import annotations
+
 import asyncio
 import uuid
+from typing import Any, Dict
+
+from fastapi import FastAPI, HTTPException
 from jobstatus import JobStatus, JobStatusError
+from pydantic import BaseModel
+
+from mqt.qudits.simulation.jobs import JobResult
 
 app = FastAPI()
 
@@ -11,34 +16,10 @@ app = FastAPI()
 job_database = {}
 
 
-class Circuit(BaseModel):
-    operations: List[Dict[str, Any]]
-
-
-class EnergyLevelGraph(BaseModel):
-    edges: List[Dict[str, Any]]
-    nodes: List[int]
-
-
-class JobSubmission(BaseModel):
-    circuit: Dict[str, Any]
-    shots: int
-    energy_level_graphs: List[Dict[str, Any]]
-
-
-class JobResult(BaseModel):
-    state_vector: List[complex]
-    counts: List[int]
-
-
 @app.post("/submit_job")
-async def submit_job(job: JobSubmission):
+async def submit_job(job: Dict):
     job_id = str(uuid.uuid4())
-    job_database[job_id] = {
-        "status":     JobStatus.INITIALIZING,
-        "submission": job.dict(),
-        "result":     None
-    }
+    job_database[job_id] = {"status": JobStatus.INITIALIZING, "submission": job.dict(), "result": None}
 
     # Start job processing
     asyncio.create_task(process_job(job_id))
@@ -62,7 +43,7 @@ async def get_job_result(job_id: str):
     return job_database[job_id]["result"]
 
 
-async def process_job(job_id: str):
+async def process_job(job_id: str) -> None:
     try:
         # Simulate job processing
         job_database[job_id]["status"] = JobStatus.QUEUED
@@ -82,10 +63,5 @@ async def process_job(job_id: str):
         job_database[job_id]["status"] = JobStatus.DONE
     except Exception as e:
         job_database[job_id]["status"] = JobStatus.ERROR
-        raise JobStatusError(f"Error processing job: {str(e)}", JobStatus.ERROR)
-
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+        msg = f"Error processing job: {e!s}"
+        raise JobStatusError(msg, JobStatus.ERROR)

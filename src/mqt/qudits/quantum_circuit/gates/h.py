@@ -46,7 +46,7 @@ class H(Gate):
             array1[e1] = 1
             matrix += omega * np.outer(array0, array1)
 
-        matrix = matrix * (1 / np.sqrt(self.dimensions))
+        matrix *= 1 / np.sqrt(self.dimensions)
         if self.dagger:
             return matrix.conj().T
         return matrix

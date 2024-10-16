@@ -83,7 +83,7 @@ class CEx(Gate):
 
         return result
 
-    def _dagger_properties(self):
+    def _dagger_properties(self) -> None:
         self.phi *= -1
 
     @staticmethod

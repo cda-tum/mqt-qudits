@@ -61,13 +61,13 @@ class R(Gate):
         qudit_targeted = cast(int, self.target_qudits)
 
         return cosine_matrix - 1j * np.sin(theta / 2) * (
-                np.sin(phi)
-                * GellMann(self.parent_circuit, "Gellman_a", qudit_targeted, pa, self.dimensions, None).to_matrix()
-                + np.cos(phi)
-                * GellMann(self.parent_circuit, "Gellman_s", qudit_targeted, ps, self.dimensions, None).to_matrix()
+            np.sin(phi)
+            * GellMann(self.parent_circuit, "Gellman_a", qudit_targeted, pa, self.dimensions, None).to_matrix()
+            + np.cos(phi)
+            * GellMann(self.parent_circuit, "Gellman_s", qudit_targeted, ps, self.dimensions, None).to_matrix()
         )
 
-    def _dagger_properties(self):
+    def _dagger_properties(self) -> None:
         self.theta *= -1
 
     @staticmethod

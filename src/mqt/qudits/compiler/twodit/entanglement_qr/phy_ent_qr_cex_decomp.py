@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import gc
-from typing import List, TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, cast
 
 from mqt.qudits.compiler import CompilerPass
 from mqt.qudits.compiler.onedit import PhyLocQRPass
@@ -20,6 +20,7 @@ class PhyEntQRCEXPass(CompilerPass):
     def __init__(self, backend: Backend) -> None:
         super().__init__(backend)
         from mqt.qudits.quantum_circuit import QuantumCircuit
+
         self.circuit = QuantumCircuit()
 
     def __transpile_local_ops(self, gate: Gate):
@@ -30,8 +31,8 @@ class PhyEntQRCEXPass(CompilerPass):
         def check_lev(lev, dim):
             if lev < dim:
                 return lev
-            else:
-                raise IndexError("Mapping Not Compatible with Circuit.")
+            msg = "Mapping Not Compatible with Circuit."
+            raise IndexError(msg)
 
         target_qudits = cast(list[int], gate.target_qudits)
         dimensions = cast(list[int], gate.dimensions)
@@ -62,15 +63,14 @@ class PhyEntQRCEXPass(CompilerPass):
         eqr = EntangledQRCEX(gate)
         decomp, _countcr, _countpsw = eqr.execute()
 
-        #seq_perm_0_d = self.__transpile_local_ops(perm_0_dag)
-        #seq_perm_1_d = self.__transpile_local_ops(perm_1_dag)
-        #seq_perm_0 = self.__transpile_local_ops(perm_0)
-        #seq_perm_1 = self.__transpile_local_ops(perm_1)
+        # seq_perm_0_d = self.__transpile_local_ops(perm_0_dag)
+        # seq_perm_1_d = self.__transpile_local_ops(perm_1_dag)
+        # seq_perm_0 = self.__transpile_local_ops(perm_0)
+        # seq_perm_1 = self.__transpile_local_ops(perm_1)
 
         full_sequence = [perm_0_dag, perm_1_dag]
         full_sequence.extend(decomp)
-        full_sequence.append(perm_0)
-        full_sequence.append(perm_1)
+        full_sequence.extend((perm_0, perm_1))
 
         physical_sequence = []
         for gate in reversed(decomp):
@@ -80,13 +80,13 @@ class PhyEntQRCEXPass(CompilerPass):
             else:
                 physical_sequence.append(gate)
 
-        physical_sequence_dag = [op.dag() for op in reversed(physical_sequence)]
+        [op.dag() for op in reversed(physical_sequence)]
 
-        #full_sequence.extend(seq_perm_0_d)
-        #full_sequence.extend(seq_perm_1_d)
-        #full_sequence.extend(physical_sequence_dag)
-        #full_sequence.extend(seq_perm_0)
-        #full_sequence.extend(seq_perm_1)
+        # full_sequence.extend(seq_perm_0_d)
+        # full_sequence.extend(seq_perm_1_d)
+        # full_sequence.extend(physical_sequence_dag)
+        # full_sequence.extend(seq_perm_0)
+        # full_sequence.extend(seq_perm_1)
 
         return full_sequence
 
