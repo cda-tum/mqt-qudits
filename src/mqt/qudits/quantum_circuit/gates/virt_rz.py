@@ -49,6 +49,9 @@ class VirtRz(Gate):
 
         return matrix
 
+    def _dagger_properties(self):
+        self.phi *= -1
+
     def validate_parameter(self, param: Parameter) -> bool:
         if param is None:
             return False

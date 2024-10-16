@@ -58,6 +58,9 @@ class LS(Gate):
 
         return expm(-1j * self.theta * exp_matrix)
 
+    def _dagger_properties(self):
+        self.theta *= -1
+
     @staticmethod
     def validate_parameter(param: Parameter) -> bool:
         if param is None:

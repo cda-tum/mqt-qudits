@@ -31,20 +31,20 @@ class Gate(Instruction):
     """Unitary gate_matrix."""
 
     def __init__(
-        self,
-        circuit: QuantumCircuit,
-        name: str,
-        gate_type: GateTypes,
-        target_qudits: list[int] | int,
-        dimensions: list[int] | int,
-        params: Parameter = None,
-        control_set: ControlData | None = None,
-        label: str | None = None,
-        lev_a: int = 0,
-        lev_b: int = 0,
-        theta: float = 0.0,
-        phi: float = 0.0,
-        qasm_tag: str = "",
+            self,
+            circuit: QuantumCircuit,
+            name: str,
+            gate_type: GateTypes,
+            target_qudits: list[int] | int,
+            dimensions: list[int] | int,
+            params: Parameter = None,
+            control_set: ControlData | None = None,
+            label: str | None = None,
+            lev_a: int = 0,
+            lev_b: int = 0,
+            theta: float = 0.0,
+            phi: float = 0.0,
+            qasm_tag: str = "",
     ) -> None:
         self.dagger = False
         self.parent_circuit = circuit
@@ -83,9 +83,13 @@ class Gate(Instruction):
     def __array__(self) -> NDArray:  # noqa: PLW3201
         pass
 
+    def _dagger_properties(self):
+        pass
+
     def dag(self) -> Gate:
         self._name += "_dag"
         self.dagger = True
+        self._dagger_properties()
         return self
 
     def to_matrix(self, identities: int = 0) -> NDArray:
@@ -110,7 +114,7 @@ class Gate(Instruction):
         # AT THE MOMENT WE SUPPORT CONTROL OF SINGLE QUDIT GATES
         assert self.gate_type == GateTypes.SINGLE
         if len(indices) > self.parent_circuit.num_qudits or any(
-            idx >= self.parent_circuit.num_qudits for idx in indices
+                idx >= self.parent_circuit.num_qudits for idx in indices
         ):
             msg = "Indices or Number of Controls is beyond the Quantum Circuit Size"
             raise IndexError(msg)
@@ -209,10 +213,10 @@ class Gate(Instruction):
     @property
     def control_info(self) -> dict[str, int | list[int] | Parameter | ControlData]:
         return {
-            "target": self.target_qudits,
+            "target":           self.target_qudits,
             "dimensions_slice": self._dimensions,
-            "params": self._params,
-            "controls": self._controls_data,
+            "params":           self._params,
+            "controls":         self._controls_data,
         }
 
     def return_custom_data(self) -> str:

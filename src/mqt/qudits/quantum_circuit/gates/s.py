@@ -49,6 +49,10 @@ class S(Gate):
             array[i] = 1
             result = omega * np.outer(array, array)
             matrix += result
+
+            if self.dagger:
+                return matrix.conj().T
+
         return matrix
 
     @staticmethod

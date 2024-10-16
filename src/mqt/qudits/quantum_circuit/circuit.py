@@ -419,7 +419,7 @@ class QuantumCircuit:
 
         return qudit_compiler.compile_O0(backend_ion, self)
 
-    def compileO1(self, backend_name: str) -> QuantumCircuit:  # noqa: N802
+    def compileO1(self, backend_name: str, mode: str = "resynth") -> QuantumCircuit:  # noqa: N802
         from mqt.qudits.compiler import QuditCompiler
         from mqt.qudits.simulation import MQTQuditProvider
 
@@ -427,7 +427,14 @@ class QuantumCircuit:
         provider = MQTQuditProvider()
         backend_ion = provider.get_backend(backend_name)
 
-        return qudit_compiler.compile_O1(backend_ion, self)
+        if mode == "adapt":
+            new_circuit = qudit_compiler.compile_O1_adaptive(backend_ion, self)
+        elif mode == "resynth":
+            new_circuit = qudit_compiler.compile_O1_resynth(backend_ion, self)
+        else:
+            raise ValueError(f"mode {mode} not supported")
+
+        return new_circuit
 
     def set_initial_state(self, state: ArrayLike, approx: bool = False) -> QuantumCircuit:
         from mqt.qudits.compiler.state_compilation.state_preparation import StatePrep

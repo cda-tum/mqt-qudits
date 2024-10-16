@@ -45,7 +45,11 @@ class H(Gate):
             array0[e0] = 1
             array1[e1] = 1
             matrix += omega * np.outer(array0, array1)
-        return matrix * (1 / np.sqrt(self.dimensions))
+
+        matrix = matrix * (1 / np.sqrt(self.dimensions))
+        if self.dagger:
+            return matrix.conj().T
+        return matrix
 
     @property
     def dimensions(self) -> int:
