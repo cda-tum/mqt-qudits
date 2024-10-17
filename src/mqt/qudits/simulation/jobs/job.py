@@ -3,12 +3,13 @@ from __future__ import annotations
 import asyncio
 from typing import TYPE_CHECKING, Callable
 
-from . import JobResult
+
 from .jobstatus import JobStatus
 
 if TYPE_CHECKING:
     from ..backends.backendv2 import Backend
     from .client_api import APIClient
+    from . import JobResult
 
 
 class Job:
@@ -43,7 +44,7 @@ class Job:
             else:
                 # For local simulation, we get the result directly from the backend
                 result_data = await self._backend.run_local_simulation(self._job_id)
-            self._result = JobResult(self._job_id, result_data["state_vector"], result_data["counts"])
+            # self._result = JobResult(self._job_id, result_data["state_vector"], result_data["counts"])
         return self._result
 
     async def wait_for_final_state(
