@@ -41,7 +41,10 @@ class CustomMulti(Gate):
             self.__array_storage = parameters
 
     def __array__(self) -> NDArray:  # noqa: PLW3201
-        return self.__array_storage
+        matrix = self.__array_storage
+        if self.dagger:
+            return matrix.conj().T
+        return matrix
 
     @staticmethod
     def validate_parameter(parameter: NDArray | None = None) -> bool:

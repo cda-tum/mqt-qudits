@@ -39,7 +39,10 @@ class RandU(Gate):
 
     def __array__(self) -> NDArray[np.complex128, np.complex128]:  # noqa: PLW3201
         dim = reduce(operator.mul, self.dimensions)
-        return unitary_group.rvs(dim)
+        matrix = unitary_group.rvs(dim)
+        if self.dagger:
+            return matrix.conj().T
+        return matrix
 
     @property
     def dimensions(self) -> list[int]:

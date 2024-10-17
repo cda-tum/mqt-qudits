@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import numpy as np
 from typing_extensions import Unpack
 
 # from pyseq.mqt_qudits_runner.sequence_runner import quantum_circuit_runner
 from ...core import LevelGraph
-from ..jobs import Job, JobResult
+from ..jobs import Job
+from ..jobs.client_api import APIClient
 from .backendv2 import Backend
 
 if TYPE_CHECKING:
@@ -36,6 +36,7 @@ class Innsbruck01(Backend):
         self.options["noise_model"] = self.__noise_model()
         self.author = "<Kevin Mato>"
         self._energy_level_graphs: list[LevelGraph] = []
+        self._api_client = APIClient()
 
     @property
     def energy_level_graphs(self) -> list[LevelGraph]:
@@ -78,8 +79,8 @@ class Innsbruck01(Backend):
     def __noise_model(self) -> NoiseModel | None:
         return self.noise_model
 
-    def run(self, circuit: QuantumCircuit, **options: Unpack[Backend.DefaultOptions]) -> Job:
-        job = Job(self)
+    async def run(self, circuit: QuantumCircuit, **options: Unpack[Backend.DefaultOptions]) -> Job:
+        Job(self)
 
         self._options.update(options)
         self.noise_model = self._options.get("noise_model", None)
@@ -90,16 +91,39 @@ class Innsbruck01(Backend):
         self.file_name = self._options.get("file_name", None)
 
         assert self.shots >= 50, "Number of shots should be above 50"
-        self.execute(circuit)
-        job.set_result(JobResult(state_vector=np.array([]), counts=self.outcome))
+        # asyncio.run(self.execute(circuit))  # Call the async execute method
+        # job.set_result(JobResult(state_vector=np.array([]), counts=self.outcome))
+        # return job
 
-        return job
+        job_id = await self._api_client.submit_job(circuit, self.shots, self.energy_level_graphs)
+        return Job(self, job_id, self._api_client)
+
+    async def close(self) -> None:
+        await self._api_client.close()
 
     def execute(self, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> None:
-        _ = noise_model  # Silences the unused argument warning
-        self.system_sizes = circuit.dimensions
-        self.circ_operations = circuit.instructions
+        """self.system_sizes = circuit.dimensions
+        self.circ_operations = circuit.instructions.
 
-        # quantum_circuit_runner(self.circ_operations)
+        client = APIClient()
+        try:
+            # Single API call with notification
+            payload = {"key1": "value1", "key2": "value2"}
+            await client.notify_on_completion('submit', payload, self.notify)
 
-        self.outcome = []  # quantum_circuit_runner(metadata, self.system_sizes)
+            # Multiple API calls
+            payloads = [
+                {"key1": "value1", "key2": "value2"},
+                {"key1": "value3", "key2": "value4"},
+            ]
+            results = await client.fetch_multiple('submit', payloads)
+
+            for result in results:
+                self.notify(result)
+
+        finally:
+            await client.close()  # Ensure session is closed
+
+        # Placeholder for assigning outcome from the quantum circuit execution
+        # self.outcome = quantum_circuit_runner(metadata, self.system_sizes)
+        """

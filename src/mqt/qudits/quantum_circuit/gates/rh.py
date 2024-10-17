@@ -57,7 +57,10 @@ class Rh(Gate):
             dimension,
         ).to_matrix()
 
-        return np.matmul(pi_x, rotate)
+        matrix = np.matmul(pi_x, rotate)
+        if self.dagger:
+            return matrix.conj().T
+        return matrix
 
     @staticmethod
     def levels_setter(la: int, lb: int) -> tuple[int, int]:

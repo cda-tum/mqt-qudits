@@ -10,7 +10,8 @@ if TYPE_CHECKING:
 
 
 class JobResult:
-    def __init__(self, state_vector: NDArray[np.complex128], counts: Sequence[int]) -> None:
+    def __init__(self, job_id: str, state_vector: NDArray[np.complex128], counts: Sequence[int]) -> None:
+        self.job_id = job_id
         self.state_vector = state_vector
         self.counts = counts
 
@@ -19,3 +20,7 @@ class JobResult:
 
     def get_state_vector(self) -> NDArray[np.complex128]:
         return self.state_vector
+
+    def get_job_id(self) -> str:
+        """Return the job ID associated with this result."""
+        return self.job_id

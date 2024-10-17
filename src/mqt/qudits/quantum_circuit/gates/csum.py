@@ -54,4 +54,8 @@ class CSum(Gate):
                 matrix += np.kron(mapmat, x_mat_i)
             else:
                 matrix += np.kron(x_mat_i, mapmat)
+
+        if self.dagger:
+            return matrix.conj().T
+
         return matrix
