@@ -3,13 +3,12 @@ from __future__ import annotations
 import asyncio
 from typing import TYPE_CHECKING, Callable
 
-
 from .jobstatus import JobStatus
 
 if TYPE_CHECKING:
     from ..backends.backendv2 import Backend
-    from .client_api import APIClient
     from . import JobResult
+    from .client_api import APIClient
 
 
 class Job:
@@ -40,10 +39,10 @@ class Job:
         if self._result is None:
             await self.wait_for_final_state()
             if self._api_client:
-                result_data = await self._api_client.get_job_result(self._job_id)
+                await self._api_client.get_job_result(self._job_id)
             else:
                 # For local simulation, we get the result directly from the backend
-                result_data = await self._backend.run_local_simulation(self._job_id)
+                await self._backend.run_local_simulation(self._job_id)
             # self._result = JobResult(self._job_id, result_data["state_vector"], result_data["counts"])
         return self._result
 
