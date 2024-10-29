@@ -10,46 +10,25 @@ class Noise:
     probability_depolarizing: float
     probability_dephasing: float
 
+
 class SubspaceNoise:
-    """Represents a set of noises for one quantum gate.
-    """
-    probs: dict[{int, int}, Noise] | Noise = None
+    """Represents a set of noises for one quantum gate."""
 
-    def __init__(self, subnoise: Noise | dict[{int, int}, Noise]):
-        self.setNoise(subnoise)
+    probs: dict[tuple[int, int], Noise] | Noise
 
-    def __init__(self, probability_depolarizing: float, probability_dephasing: float):
+    def __init__(self, probability_depolarizing: float, probability_dephasing: float) -> None:
+        """The two floating number inputs are recognized as the mathematical noise."""
         noise = Noise(probability_depolarizing, probability_dephasing)
-        self.setNoise(noise)
+        self.probs = noise
 
-    def isMathematicalNoise(self) -> bool:
+    def is_mathematical_noise(self) -> bool:
+        """In the mathematical noise model, the whole noises are represented by two floating numbers."""
         return isinstance(self.probs, Noise)
-    
-    def isPysicalNoise(self) -> bool:
-        return isinstance(self.probs, dict[{int, int}, Noise])
-    
-    def getNoise(self, levA: int, levB: int, dim: int) -> Noise:
-        if self.isPhysicalNoise():
-            return self.probs[{levA, levB}]
-        else:
-            return Noise(self.probs.probability_depolarizing * dim / 2, self.probs.probability_dephasing * dim / 2)
 
-    def setNoise(self, noise: Noise):
-        if self.isPhysicalNoise():
-            raise NotImplementedError
-        self.probs = noise
+    def is_physical_noise(self) -> bool:
+        """In the physical noise model, the probability of noise are specified for each set of level in the qudit's dimension."""
+        return not self.is_mathematical_noise()
 
-    def setNoise(self, noise: dict[{int, int}, Noise]):
-        if self.isMathematicalNoise():
-            raise NotImplementedError
-        self.probs = noise
-
-    def setNoise(self, noise: Noise, levA: int, levB: int):
-        if self.isMathematicalNoise():
-            raise NotImplementedError
-        if self.probs == None:
-            probs = {}
-        probs[{levA, levB}] = noise
 
 class NoiseModel:
     """Represents a quantum noise model for various gates and qudit configurations."""
@@ -61,7 +40,7 @@ class NoiseModel:
         """Helper method to add quantum errors to the model.
 
         Args:
-            noise (Noise): The noise model to add.
+            subnoise (SubspaceNoise): The subspace noise model to add.
             gates (List[str]): List of gate names to apply the noise to.
             mode (Union[Tuple[int, ...], Literal["local", "all", "nonlocal", "target", "control"]]): The mode or qudit configuration for the noise.
         """

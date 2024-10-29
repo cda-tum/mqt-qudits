@@ -7,7 +7,7 @@ import numpy as np
 
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
-from mqt.qudits.simulation.noise_tools import Noise, NoiseModel, NoisyCircuitFactory
+from mqt.qudits.simulation.noise_tools import NoiseModel, NoisyCircuitFactory, SubspaceNoise
 
 
 def rand_0_5() -> int:
@@ -17,12 +17,12 @@ def rand_0_5() -> int:
 
 class TestNoisyCircuitFactory(TestCase):
     def setUp(self) -> None:
-        local_error = Noise(probability_depolarizing=0.999, probability_dephasing=0.999)
-        local_error_rz = Noise(probability_depolarizing=0.999, probability_dephasing=0.999)
-        entangling_error = Noise(probability_depolarizing=0.999, probability_dephasing=0.999)
-        entangling_error_extra = Noise(probability_depolarizing=0.999, probability_dephasing=0.999)
-        entangling_error_on_target = Noise(probability_depolarizing=0.999, probability_dephasing=0.999)
-        entangling_error_on_control = Noise(probability_depolarizing=0.999, probability_dephasing=0.999)
+        local_error = SubspaceNoise(probability_depolarizing=0.999, probability_dephasing=0.999)
+        local_error_rz = SubspaceNoise(probability_depolarizing=0.999, probability_dephasing=0.999)
+        entangling_error = SubspaceNoise(probability_depolarizing=0.999, probability_dephasing=0.999)
+        entangling_error_extra = SubspaceNoise(probability_depolarizing=0.999, probability_dephasing=0.999)
+        entangling_error_on_target = SubspaceNoise(probability_depolarizing=0.999, probability_dephasing=0.999)
+        entangling_error_on_control = SubspaceNoise(probability_depolarizing=0.999, probability_dephasing=0.999)
 
         # Add errors to noise_tools model
 
