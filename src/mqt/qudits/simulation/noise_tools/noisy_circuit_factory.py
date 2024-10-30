@@ -4,12 +4,14 @@ import copy
 import os
 import time
 from functools import partial
+from itertools import combinations
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
 
-from ...quantum_circuit import QuantumCircuit, gates
+from ...quantum_circuit import QuantumCircuit
 from ...quantum_circuit.components.extensions.gate_types import GateTypes
+from .noise import Noise
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -17,7 +19,7 @@ if TYPE_CHECKING:
     from numpy.random import Generator
 
     from ...quantum_circuit.gate import Gate
-    from .noise import Noise, NoiseModel
+    from .noise import NoiseModel, SubspaceNoise
 
 
 class NoisyCircuitFactory:
@@ -54,8 +56,8 @@ class NoisyCircuitFactory:
             if qudits is None:
                 continue  # type: ignore[unreachable]
 
-            self._apply_depolarizing_noise(noisy_circuit, instruction, qudits, noise_info)
-            self._apply_dephasing_noise(noisy_circuit, instruction, qudits, noise_info)
+            self._apply_depolarizing_noise(noisy_circuit, qudits, noise_info)
+            self._apply_dephasing_noise(noisy_circuit, qudits, noise_info)
 
     def _get_affected_qudits(self, instruction: Gate, mode: str) -> list[int]:
         if isinstance(mode, str):
@@ -102,32 +104,51 @@ class NoisyCircuitFactory:
             msg = f"{mode} mode only applicable for two-qudit gates, not {instruction.gate_type}"
             raise ValueError(msg)
 
+    @staticmethod
+    def _calc_each_probability_with_dimension(prob: float, dimensions: int) -> float:
+        combination_dim_2 = dimensions * (dimensions - 1) / 2
+        n_noises = combination_dim_2 * 3
+        return prob * dimensions / 2 / n_noises
+
     def _apply_depolarizing_noise(
-        self, noisy_circuit: QuantumCircuit, instruction: Gate, qudits: list[int], noise_info: Noise
+        self, noisy_circuit: QuantumCircuit, qudits: list[int], noise_info: SubspaceNoise
     ) -> None:
-        if self.rng.random() < noise_info.probability_depolarizing:
-            self._apply_x_noise(noisy_circuit, instruction, qudits)
+        if noise_info.is_mathematical_noise():
+            assert isinstance(noise_info.probs, Noise)  # to give a type hint to mypy
+            for dit in qudits:
+                dim = noisy_circuit.dimensions[dit]
+                levels = list(range(dim))
+                prob_each = self._calc_each_probability_with_dimension(noise_info.probs.probability_depolarizing, dim)
+                accum_prob = prob_each
+                for _lev_a, _lev_b in combinations(levels, 2):
+                    if self.rng.random() < prob_each:
+                        noisy_circuit.eachx(dit, [_lev_a, _lev_b])  # X01, X02, X12 in qutrit
+                        return
+                    accum_prob += prob_each
+                    if self.rng.random() < prob_each:
+                        noisy_circuit.eachy(dit, [_lev_a, _lev_b])  # Y01, Y02, Y12 in qutrit
+                        return
+                    accum_prob += prob_each
+                    if self.rng.random() < prob_each:
+                        noisy_circuit.virtrz(dit, [_lev_a])  # Z01, Z02, Z12 in qutrit
+                        return
+                    accum_prob += prob_each
+        elif noise_info.is_physical_noise():
+            raise NotImplementedError
 
     def _apply_dephasing_noise(
-        self, noisy_circuit: QuantumCircuit, instruction: Gate, qudits: list[int], noise_info: Noise
+        self, noisy_circuit: QuantumCircuit, qudits: list[int], noise_info: SubspaceNoise
     ) -> None:
-        if self.rng.random() < noise_info.probability_dephasing:
-            self._apply_z_noise(noisy_circuit, instruction, qudits)
-
-    @staticmethod
-    def _apply_x_noise(noisy_circuit: QuantumCircuit, instruction: Gate, qudits: list[int]) -> None:
-        if isinstance(instruction, (gates.R, gates.Rz)):
+        if noise_info.is_mathematical_noise():
+            assert isinstance(noise_info.probs, Noise)  # to give a type hint to mypy
             for dit in qudits:
-                noisy_circuit.r(dit, [instruction.lev_a, instruction.lev_b, np.pi, np.pi / 2])
-        else:
-            for dit in qudits:
-                noisy_circuit.x(dit)
-
-    @staticmethod
-    def _apply_z_noise(noisy_circuit: QuantumCircuit, instruction: Gate, qudits: list[int]) -> None:
-        if isinstance(instruction, (gates.R, gates.Rz)):
-            for dit in qudits:
-                noisy_circuit.rz(dit, [instruction.lev_a, instruction.lev_b, np.pi])
-        else:
-            for dit in qudits:
-                noisy_circuit.z(dit)
+                dim = noisy_circuit.dimensions[dit]
+                prob_adjusted = noise_info.probs.probability_dephasing * dim / 2 / dim
+                accum_prob = prob_adjusted
+                for lev in range(dim):
+                    if self.rng.random() < prob_adjusted:
+                        noisy_circuit.virtrz(dit, [lev, np.pi])
+                        return
+                    accum_prob += prob_adjusted
+        elif noise_info.is_physical_noise():
+            raise NotImplementedError

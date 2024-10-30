@@ -84,7 +84,7 @@ class TestNoisyCircuitFactory(TestCase):
             insts_new += 1
             tag_counts_list2[gate.qasm_tag] += 1
 
-        keys_to_check = ["x", "z", "rxy", "rz"]
+        keys_to_check = ["eachx", "eachy", "virtrz"]
         valid_stochasticity = True
         # Iterate over all keys
         for key in tag_counts_list1.keys() | tag_counts_list2.keys():
@@ -102,14 +102,12 @@ class TestNoisyCircuitFactory(TestCase):
     def test_generate_circuit_isolated(self):
         qreg_example = QuantumRegister("reg", 2, [5, 5])
         circ = QuantumCircuit(qreg_example)
-        x = circ.x(0)
-        x.control([1], [2])
+        circ.x(0)
 
         factory = NoisyCircuitFactory(self.noise_model, circ)
         instructions_og = circ.instructions
         new_circ = factory.generate_circuit()
 
         assert circ.number_gates == 1
-        assert new_circ.number_gates == 5
+        assert new_circ.number_gates == 3  # original x, depolarizing, dephasing
         assert [i.qasm_tag for i in instructions_og] == ["x"]
-        assert ["x", "x", "x", "z", "z"]

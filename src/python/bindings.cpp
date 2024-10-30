@@ -268,10 +268,16 @@ NoiseModel parse_noise_model(const py::dict& noise_model) {
         noiseSpread = noiseSpreadTuple;
       }
 
-      double depo =
-          noiseTypesPair.second.attr("probability_depolarizing").cast<double>();
-      double deph =
-          noiseTypesPair.second.attr("probability_dephasing").cast<double>();
+      if (py::isinstance<py::dict>(noiseTypesPair.second)) {
+        throw std::invalid_argument("Physical noise is not supported yet.");
+      }
+
+      double depo = noiseTypesPair.second.attr("probs")
+                        .attr("probability_depolarizing")
+                        .cast<double>();
+      double deph = noiseTypesPair.second.attr("probs")
+                        .attr("probability_dephasing")
+                        .cast<double>();
       std::tuple<double, double> noiseProb = std::make_tuple(depo, deph);
 
       newNoiseType[noiseSpread] = noiseProb;
