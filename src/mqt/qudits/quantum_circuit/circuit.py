@@ -16,6 +16,8 @@ from .gates import (
     CustomMulti,
     CustomOne,
     CustomTwo,
+    EachX,
+    EachY,
     GellMann,
     H,
     Perm,
@@ -267,6 +269,14 @@ class QuantumCircuit:
     @add_gate_decorator
     def rz(self, qudit: int, parameters: list[int | float], controls: ControlData | None = None) -> Rz:
         return Rz(self, "Rz" + str(self.dimensions[qudit]), qudit, parameters, self.dimensions[qudit], controls)
+
+    @add_gate_decorator
+    def eachx(self, qudit: int, parameters: list[int], controls: ControlData | None = None) -> EachX:
+        return EachX(self, "Xeach" + str(self.dimensions[qudit]), qudit, parameters, self.dimensions[qudit], controls)
+
+    @add_gate_decorator
+    def eachy(self, qudit: int, parameters: list[int], controls: ControlData | None = None) -> EachY:
+        return EachY(self, "Yeach" + str(self.dimensions[qudit]), qudit, parameters, self.dimensions[qudit], controls)
 
     @add_gate_decorator
     def virtrz(self, qudit: int, parameters: list[int | float], controls: ControlData | None = None) -> VirtRz:
