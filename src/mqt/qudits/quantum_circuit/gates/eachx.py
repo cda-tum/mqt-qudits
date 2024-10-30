@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from ..components.extensions.gate_types import GateTypes
 from ..gate import Gate
-from .gellmann import GellMann
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
