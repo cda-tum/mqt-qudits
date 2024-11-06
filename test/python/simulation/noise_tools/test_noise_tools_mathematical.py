@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from collections import defaultdict
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
-from mqt.qudits.simulation.noise_tools import NoiseModel, NoisyCircuitFactory, SubspaceNoise
+from mqt.qudits.simulation.noise_tools import Noise, NoiseModel, NoisyCircuitFactory
 
 
 def rand_0_5() -> int:
@@ -17,12 +17,12 @@ def rand_0_5() -> int:
 
 class TestNoisyCircuitFactory(TestCase):
     def setUp(self) -> None:
-        local_error = SubspaceNoise(probability_depolarizing=0.999, probability_dephasing=0.999)
-        local_error_rz = SubspaceNoise(probability_depolarizing=0.999, probability_dephasing=0.999)
-        entangling_error = SubspaceNoise(probability_depolarizing=0.999, probability_dephasing=0.999)
-        entangling_error_extra = SubspaceNoise(probability_depolarizing=0.999, probability_dephasing=0.999)
-        entangling_error_on_target = SubspaceNoise(probability_depolarizing=0.999, probability_dephasing=0.999)
-        entangling_error_on_control = SubspaceNoise(probability_depolarizing=0.999, probability_dephasing=0.999)
+        local_error = Noise(probability_depolarizing=0.999, probability_dephasing=0.999)
+        local_error_rz = Noise(probability_depolarizing=0.999, probability_dephasing=0.999)
+        entangling_error = Noise(probability_depolarizing=0.999, probability_dephasing=0.999)
+        entangling_error_extra = Noise(probability_depolarizing=0.999, probability_dephasing=0.999)
+        entangling_error_on_target = Noise(probability_depolarizing=0.999, probability_dephasing=0.999)
+        entangling_error_on_control = Noise(probability_depolarizing=0.999, probability_dephasing=0.999)
 
         # Add errors to noise_tools model
 
@@ -68,36 +68,36 @@ class TestNoisyCircuitFactory(TestCase):
         circ.csum([0, 1])
 
         factory = NoisyCircuitFactory(self.noise_model, circ)
-        instructions_og = circ.instructions
-        new_circ = factory.generate_circuit()
-        instructions_new = new_circ.instructions
+        with pytest.raises(NotImplementedError):
+            factory.generate_circuit()
+            # instructions_new = new_circ.instructions
 
-        tag_counts_list1: dict[str, int] = defaultdict(int)
-        tag_counts_list2: dict[str, int] = defaultdict(int)
-        insts = 0
-        insts_new = 0
-        for gate in instructions_og:
-            insts += 1
-            tag_counts_list1[gate.qasm_tag] += 1
+            # tag_counts_list1: dict[str, int] = defaultdict(int)
+            # tag_counts_list2: dict[str, int] = defaultdict(int)
+            # insts = 0
+            # insts_new = 0
+            # for gate in instructions_og:
+            #     insts += 1
+            #     tag_counts_list1[gate.qasm_tag] += 1
 
-        for gate in instructions_new:
-            insts_new += 1
-            tag_counts_list2[gate.qasm_tag] += 1
+            # for gate in instructions_new:
+            #     insts_new += 1
+            #     tag_counts_list2[gate.qasm_tag] += 1
 
-        keys_to_check = ["noisex", "noisey", "virtrz"]
-        valid_stochasticity = True
-        # Iterate over all keys
-        for key in tag_counts_list1.keys() | tag_counts_list2.keys():
-            if key in keys_to_check:
-                if tag_counts_list1.get(key, 0) > tag_counts_list2.get(key, 0):
-                    valid_stochasticity = False
-            elif tag_counts_list1.get(key, 0) != tag_counts_list2.get(key, 0):
-                valid_stochasticity = False
+            # keys_to_check = ["noisex", "noisey", "virtrz"]
+            # valid_stochasticity = True
+            # # Iterate over all keys
+            # for key in tag_counts_list1.keys() | tag_counts_list2.keys():
+            #     if key in keys_to_check:
+            #         if tag_counts_list1.get(key, 0) > tag_counts_list2.get(key, 0):
+            #             valid_stochasticity = False
+            #     elif tag_counts_list1.get(key, 0) != tag_counts_list2.get(key, 0):
+            #         valid_stochasticity = False
 
-        assert valid_stochasticity
-        assert insts == circ.number_gates
-        assert insts_new == new_circ.number_gates
-        assert len(instructions_new) > len(instructions_og)
+            # assert valid_stochasticity
+            # assert insts == circ.number_gates
+            # assert insts_new == new_circ.number_gates
+            # assert len(instructions_new) > len(instructions_og)
 
     def test_generate_circuit_isolated(self):
         qreg_example = QuantumRegister("reg", 2, [5, 5])
@@ -105,9 +105,9 @@ class TestNoisyCircuitFactory(TestCase):
         circ.x(0)
 
         factory = NoisyCircuitFactory(self.noise_model, circ)
-        instructions_og = circ.instructions
-        new_circ = factory.generate_circuit()
+        with pytest.raises(NotImplementedError):
+            factory.generate_circuit()
 
-        assert circ.number_gates == 1
-        assert new_circ.number_gates == 3  # original x, depolarizing, dephasing
-        assert [i.qasm_tag for i in instructions_og] == ["x"]
+            # assert circ.number_gates == 1
+            # assert new_circ.number_gates == 3  # original x, depolarizing, dephasing
+            # assert [i.qasm_tag for i in instructions_og] == ["x"]

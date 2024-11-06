@@ -4,8 +4,10 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import Unpack
 
+from mqt.qudits.simulation.noise_tools.noise import Noise
+
 from ....core import LevelGraph
-from ...noise_tools import NoiseModel, SubspaceNoise
+from ...noise_tools import NoiseModel
 from ..tnsim import TNSim
 
 if TYPE_CHECKING:
@@ -72,12 +74,12 @@ class FakeIonTraps2Trits(TNSim):
     def __noise_model(self) -> NoiseModel:
         """Noise model coded in plain sight, just for prototyping reasons."""
         # Depolarizing quantum errors
-        local_error = SubspaceNoise(probability_depolarizing=0.001, probability_dephasing=0.001)
-        local_error_rz = SubspaceNoise(probability_depolarizing=0.03, probability_dephasing=0.03)
-        entangling_error = SubspaceNoise(probability_depolarizing=0.1, probability_dephasing=0.001)
-        entangling_error_extra = SubspaceNoise(probability_depolarizing=0.1, probability_dephasing=0.1)
-        entangling_error_on_target = SubspaceNoise(probability_depolarizing=0.1, probability_dephasing=0.0)
-        entangling_error_on_control = SubspaceNoise(probability_depolarizing=0.01, probability_dephasing=0.0)
+        local_error = Noise(probability_depolarizing=0.001, probability_dephasing=0.001)
+        local_error_rz = Noise(probability_depolarizing=0.03, probability_dephasing=0.03)
+        entangling_error = Noise(probability_depolarizing=0.1, probability_dephasing=0.001)
+        entangling_error_extra = Noise(probability_depolarizing=0.1, probability_dephasing=0.1)
+        entangling_error_on_target = Noise(probability_depolarizing=0.1, probability_dephasing=0.0)
+        entangling_error_on_control = Noise(probability_depolarizing=0.01, probability_dephasing=0.0)
 
         # Add errors to noise_tools model
 

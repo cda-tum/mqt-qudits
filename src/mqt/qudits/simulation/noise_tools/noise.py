@@ -7,17 +7,15 @@ class Noise:
     probability_depolarizing: float
     probability_dephasing: float
 
+    def __init__(self, probability_depolarizing: float, probability_dephasing: float) -> None:
+        self.probability_depolarizing = probability_depolarizing
+        self.probability_dephasing = probability_dephasing
+
 
 class SubspaceNoise:
     """Represents physical noises for each level transitions."""
 
     probs: dict[tuple[int, int], Noise]
-
-    def __init__(self, new_dict: dict[tuple[int, int], Noise]) -> None:
-        self.add_noises(new_dict)
-
-    def __init__(self, probability_depolarizing: float, probability_dephasing: float, lev_a: int, lev_b: int) -> None:
-        self.add_noise([lev_a, lev_b], Noise(probability_depolarizing, probability_dephasing))
 
     def __init__(
         self,
@@ -25,13 +23,19 @@ class SubspaceNoise:
         probability_dephasing: float,
         levels: tuple[int, int] | list[tuple[int, int]],
     ) -> None:
-        if isinstance(levels, tuple[int, int]):
-            self.add_noise(levels, Noise(probability_depolarizing, probability_dephasing))
-        elif isinstance(levels, list[tuple[int, int]]):
-            for lev in levels:
-                self.add_noise(lev, Noise(probability_depolarizing, probability_dephasing))
+        if isinstance(levels, tuple):
+            self.add_noise(
+                levels[0],
+                levels[1],
+                Noise(probability_depolarizing, probability_dephasing),
+            )
         else:
-            raise NotImplementedError
+            for lev in levels:
+                self.add_noise(
+                    lev[0],
+                    lev[1],
+                    Noise(probability_depolarizing, probability_dephasing),
+                )
 
     def add_noise(self, lev_a: int, lev_b: int, noise: Noise) -> None:
         if lev_b < lev_a:
@@ -45,17 +49,17 @@ class SubspaceNoise:
         self.probs[lev_a, lev_b] = noise
 
     def add_noises(self, noises: dict[tuple[int, int], Noise]) -> None:
-        for levs, noise in noises.items():
-            self.add_noise(levs, noise)
+        for tup, noise in noises.items():
+            self.add_noise(tup[0], tup[1], noise)
 
 
 class NoiseModel:
     """Represents a quantum noise model for various gates and qudit configurations."""
 
     def __init__(self) -> None:
-        self.quantum_errors: dict[str, dict[str, SubspaceNoise]] = {}
+        self.quantum_errors: dict[str, dict[str, Noise | SubspaceNoise]] = {}
 
-    def _add_quantum_error(self, noise: SubspaceNoise | Noise, gates: list[str], mode: str) -> None:
+    def _add_quantum_error(self, noise: Noise | SubspaceNoise, gates: list[str], mode: str) -> None:
         """Helper method to add quantum errors to the model.
 
         Args:
@@ -68,13 +72,13 @@ class NoiseModel:
                 self.quantum_errors[gate] = {}
             if mode not in self.quantum_errors[gate]:
                 self.quantum_errors[gate][mode] = noise  # empty case
+            elif isinstance(noise, Noise):
+                msg = "Mathematical noise is defined for multiple times!"
+                raise ValueError(msg)
             else:
-                if isinstance(noise, Noise):
-                    msg = "Mathematical noise is defined for multiple times!"
-                    raise ValueError(msg)
-                self.quantum_errors[gate][mode].add_noises(
-                    noise.probs
-                )  # add the noise info to the existing SubspaceNoise instance
+                existing_instance = self.quantum_errors[gate][mode]
+                assert isinstance(existing_instance, SubspaceNoise)
+                existing_instance.add_noises(noise.probs)  # add the noise info to the existing SubspaceNoise instance
 
     def add_quantum_error_locally(self, noise: Noise | SubspaceNoise, gates: list[str]) -> None:
         """Add a quantum error locally to all qudits for specified gates."""

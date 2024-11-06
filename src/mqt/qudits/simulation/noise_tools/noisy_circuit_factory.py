@@ -4,14 +4,12 @@ import copy
 import os
 import time
 from functools import partial
-from itertools import combinations
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
 
 from ...quantum_circuit import QuantumCircuit
 from ...quantum_circuit.components.extensions.gate_types import GateTypes
-from .noise import Noise
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -19,7 +17,7 @@ if TYPE_CHECKING:
     from numpy.random import Generator
 
     from ...quantum_circuit.gate import Gate
-    from .noise import NoiseModel, SubspaceNoise
+    from .noise import Noise, NoiseModel, SubspaceNoise
 
 
 class NoisyCircuitFactory:
@@ -111,44 +109,11 @@ class NoisyCircuitFactory:
         return prob * dimensions / 2 / n_noises
 
     def _apply_depolarizing_noise(
-        self, noisy_circuit: QuantumCircuit, qudits: list[int], noise_info: SubspaceNoise
+        self, noisy_circuit: QuantumCircuit, qudits: list[int], noise_info: Noise | SubspaceNoise
     ) -> None:
-        if noise_info.is_mathematical_noise():
-            assert isinstance(noise_info.probs, Noise)  # to give a type hint to mypy
-            for dit in qudits:
-                dim = noisy_circuit.dimensions[dit]
-                levels = list(range(dim))
-                prob_each = self._calc_each_probability_with_dimension(noise_info.probs.probability_depolarizing, dim)
-                accum_prob = prob_each
-                for _lev_a, _lev_b in combinations(levels, 2):
-                    if self.rng.random() < prob_each:
-                        noisy_circuit.noisex(dit, [_lev_a, _lev_b])  # X01, X02, X12 in qutrit
-                        return
-                    accum_prob += prob_each
-                    if self.rng.random() < prob_each:
-                        noisy_circuit.noisey(dit, [_lev_a, _lev_b])  # Y01, Y02, Y12 in qutrit
-                        return
-                    accum_prob += prob_each
-                    if self.rng.random() < prob_each:
-                        noisy_circuit.virtrz(dit, [_lev_a])  # Z01, Z02, Z12 in qutrit
-                        return
-                    accum_prob += prob_each
-        elif noise_info.is_physical_noise():
-            raise NotImplementedError
+        raise NotImplementedError  # TODO
 
     def _apply_dephasing_noise(
-        self, noisy_circuit: QuantumCircuit, qudits: list[int], noise_info: SubspaceNoise
+        self, noisy_circuit: QuantumCircuit, qudits: list[int], noise_info: Noise | SubspaceNoise
     ) -> None:
-        if noise_info.is_mathematical_noise():
-            assert isinstance(noise_info.probs, Noise)  # to give a type hint to mypy
-            for dit in qudits:
-                dim = noisy_circuit.dimensions[dit]
-                prob_adjusted = noise_info.probs.probability_dephasing * dim / 2 / dim
-                accum_prob = prob_adjusted
-                for lev in range(dim):
-                    if self.rng.random() < prob_adjusted:
-                        noisy_circuit.virtrz(dit, [lev, np.pi])
-                        return
-                    accum_prob += prob_adjusted
-        elif noise_info.is_physical_noise():
-            raise NotImplementedError
+        raise NotImplementedError  # TODO

@@ -8,7 +8,7 @@ import numpy as np
 from mqt.qudits._qudits.misim import state_vector_simulation  # noqa: PLC2701
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
-from mqt.qudits.simulation.noise_tools import NoiseModel, SubspaceNoise
+from mqt.qudits.simulation.noise_tools import Noise, NoiseModel
 
 if typing.TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -87,12 +87,12 @@ class Testpymisim(TestCase):
             circ.csum([0, 1])
 
         # Depolarizing quantum errors
-        local_error = SubspaceNoise(probability_depolarizing=0.1, probability_dephasing=0.1)
-        local_error_rz = SubspaceNoise(probability_depolarizing=0.3, probability_dephasing=0.3)
-        entangling_error = SubspaceNoise(probability_depolarizing=0.1, probability_dephasing=0.1)
-        entangling_error_extra = SubspaceNoise(probability_depolarizing=0.1, probability_dephasing=0.1)
-        entangling_error_on_target = SubspaceNoise(probability_depolarizing=0.1, probability_dephasing=0.1)
-        entangling_error_on_control = SubspaceNoise(probability_depolarizing=0.1, probability_dephasing=0.1)
+        local_error = Noise(probability_depolarizing=0.1, probability_dephasing=0.1)
+        local_error_rz = Noise(probability_depolarizing=0.3, probability_dephasing=0.3)
+        entangling_error = Noise(probability_depolarizing=0.1, probability_dephasing=0.1)
+        entangling_error_extra = Noise(probability_depolarizing=0.1, probability_dephasing=0.1)
+        entangling_error_on_target = Noise(probability_depolarizing=0.1, probability_dephasing=0.1)
+        entangling_error_on_control = Noise(probability_depolarizing=0.1, probability_dephasing=0.1)
 
         # Add errors to noise_tools model
 

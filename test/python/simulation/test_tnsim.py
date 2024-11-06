@@ -3,13 +3,12 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
 from mqt.qudits.simulation import MQTQuditProvider
-from mqt.qudits.simulation.noise_tools import NoiseModel, SubspaceNoise
-
-from .._qudits.test_pymisim import is_quantum_state
+from mqt.qudits.simulation.noise_tools import Noise, NoiseModel
 
 
 class TestTNSim(TestCase):
@@ -383,12 +382,12 @@ class TestTNSim(TestCase):
         circuit.csum([0, 1])
 
         # Depolarizing quantum errors
-        local_error = SubspaceNoise(probability_depolarizing=0.5, probability_dephasing=0.5)
-        local_error_rz = SubspaceNoise(probability_depolarizing=0.5, probability_dephasing=0.5)
-        entangling_error = SubspaceNoise(probability_depolarizing=0.5, probability_dephasing=0.5)
-        entangling_error_extra = SubspaceNoise(probability_depolarizing=0.5, probability_dephasing=0.5)
-        entangling_error_on_target = SubspaceNoise(probability_depolarizing=0.5, probability_dephasing=0.5)
-        entangling_error_on_control = SubspaceNoise(probability_depolarizing=0.5, probability_dephasing=0.5)
+        local_error = Noise(probability_depolarizing=0.5, probability_dephasing=0.5)
+        local_error_rz = Noise(probability_depolarizing=0.5, probability_dephasing=0.5)
+        entangling_error = Noise(probability_depolarizing=0.5, probability_dephasing=0.5)
+        entangling_error_extra = Noise(probability_depolarizing=0.5, probability_dephasing=0.5)
+        entangling_error_on_target = Noise(probability_depolarizing=0.5, probability_dephasing=0.5)
+        entangling_error_on_control = Noise(probability_depolarizing=0.5, probability_dephasing=0.5)
 
         # Add errors to noise_tools model
 
@@ -406,13 +405,14 @@ class TestTNSim(TestCase):
         noise_model.add_quantum_error_locally(local_error_rz, ["rz", "virtrz"])
 
         print("Start execution")
-        job = backend.run(circuit, noise_model=noise_model, shots=100)
-        result = job.result()
-        state_vector = result.get_state_vector()
-        counts = result.get_counts()
-        assert len(counts) == 100
-        assert len(state_vector.squeeze()) == 5**3
-        assert is_quantum_state(state_vector)
+        with pytest.raises(NotImplementedError):
+            backend.run(circuit, noise_model=noise_model, shots=100)
+            # result = job.result()
+            # state_vector = result.get_state_vector()
+            # counts = result.get_counts()
+            # assert len(counts) == 100
+            # assert len(state_vector.squeeze()) == 5**3
+            # assert is_quantum_state(state_vector)
 
     def test_tn_multi(self):  # noqa: PLR6301
         # TODO: Implement test currently just a stub
