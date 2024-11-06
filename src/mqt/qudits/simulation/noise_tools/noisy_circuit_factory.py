@@ -122,11 +122,11 @@ class NoisyCircuitFactory:
                 accum_prob = prob_each
                 for _lev_a, _lev_b in combinations(levels, 2):
                     if self.rng.random() < prob_each:
-                        noisy_circuit.eachx(dit, [_lev_a, _lev_b])  # X01, X02, X12 in qutrit
+                        noisy_circuit.noisex(dit, [_lev_a, _lev_b])  # X01, X02, X12 in qutrit
                         return
                     accum_prob += prob_each
                     if self.rng.random() < prob_each:
-                        noisy_circuit.eachy(dit, [_lev_a, _lev_b])  # Y01, Y02, Y12 in qutrit
+                        noisy_circuit.noisey(dit, [_lev_a, _lev_b])  # Y01, Y02, Y12 in qutrit
                         return
                     accum_prob += prob_each
                     if self.rng.random() < prob_each:

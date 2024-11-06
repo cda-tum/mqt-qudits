@@ -9,12 +9,12 @@ from .custom_multi import CustomMulti
 from .custom_one import CustomOne
 from .custom_two import CustomTwo
 from .cx import CEx
-from .eachx import EachX
-from .eachy import EachY
 from .gellmann import GellMann
 from .h import H
 from .ls import LS
 from .ms import MS
+from .noise_x import NoiseX
+from .noise_y import NoiseY
 from .perm import Perm
 from .r import R
 from .randu import RandU
@@ -34,11 +34,11 @@ __all__ = [
     "CustomMulti",
     "CustomOne",
     "CustomTwo",
-    "EachX",
-    "EachY",
     "GateTypes",
     "GellMann",
     "H",
+    "NoiseX",
+    "NoiseY",
     "Perm",
     "R",
     "RandU",

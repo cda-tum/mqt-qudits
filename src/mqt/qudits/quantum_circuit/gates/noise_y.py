@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from ..gate import Parameter
 
 
-class EachY(Gate):
+class NoiseY(Gate):
     def __init__(
         self,
         circuit: QuantumCircuit,
@@ -32,7 +32,7 @@ class EachY(Gate):
             target_qudits=target_qudits,
             dimensions=dimensions,
             control_set=controls,
-            qasm_tag="eachy",
+            qasm_tag="noisey",
         )
 
         if self.validate_parameter(parameters):

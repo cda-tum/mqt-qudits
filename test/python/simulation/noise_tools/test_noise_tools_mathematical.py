@@ -84,7 +84,7 @@ class TestNoisyCircuitFactory(TestCase):
             insts_new += 1
             tag_counts_list2[gate.qasm_tag] += 1
 
-        keys_to_check = ["eachx", "eachy", "virtrz"]
+        keys_to_check = ["noisex", "noisey", "virtrz"]
         valid_stochasticity = True
         # Iterate over all keys
         for key in tag_counts_list1.keys() | tag_counts_list2.keys():
