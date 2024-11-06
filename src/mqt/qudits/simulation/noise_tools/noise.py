@@ -9,7 +9,7 @@ class Noise:
 
 
 class SubspaceNoise:
-    """Represents physial noises for each level transitions."""
+    """Represents physical noises for each level transitions."""
 
     probs: dict[tuple[int, int], Noise]
 
