@@ -4,12 +4,14 @@ import copy
 import os
 import time
 from functools import partial
+from itertools import combinations, product
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
 
 from ...quantum_circuit import QuantumCircuit
 from ...quantum_circuit.components.extensions.gate_types import GateTypes
+from .noise import Noise, SubspaceNoise
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -17,7 +19,7 @@ if TYPE_CHECKING:
     from numpy.random import Generator
 
     from ...quantum_circuit.gate import Gate
-    from .noise import Noise, NoiseModel, SubspaceNoise
+    from .noise import NoiseModel
 
 
 class NoisyCircuitFactory:
@@ -102,18 +104,57 @@ class NoisyCircuitFactory:
             msg = f"{mode} mode only applicable for two-qudit gates, not {instruction.gate_type}"
             raise ValueError(msg)
 
-    @staticmethod
-    def _calc_each_probability_with_dimension(prob: float, dimensions: int) -> float:
-        combination_dim_2 = dimensions * (dimensions - 1) / 2
-        n_noises = combination_dim_2 * 3
-        return prob * dimensions / 2 / n_noises
-
     def _apply_depolarizing_noise(
         self, noisy_circuit: QuantumCircuit, qudits: list[int], noise_info: Noise | SubspaceNoise
     ) -> None:
-        raise NotImplementedError  # TODO
+        if isinstance(noise_info, Noise):  # Mathematical Noise
+            for dit in qudits:
+                dim = noisy_circuit.dimensions[dit]
+                prob_each = noise_info.probability_depolarizing / dim / dim
+                n_xz = list(product(range(dim), repeat=2))
+                p_xz = [1 - prob_each * (dim * dim - 1)] + [prob_each] * (dim * dim - 1)
+                n_x, n_z = self.rng.choice(n_xz, p=p_xz)
+                for _ in range(n_x):
+                    noisy_circuit.x(dit)
+                for _ in range(n_z):
+                    noisy_circuit.z(dit)
+        elif isinstance(noise_info, SubspaceNoise):  # Physical Noise
+            for dit in qudits:
+                dim = noisy_circuit.dimensions[dit]
+                levels = combinations(range(dim), 2)
+                for lev_tuple in levels:
+                    if lev_tuple in noise_info.probs:
+                        prob_each = noise_info.probs[lev_tuple].probability_depolarizing / 4
+                        n_xz = list(product(range(2), repeat=2))
+                        p_xz = [1 - prob_each * 3] + [prob_each] * 3
+                        n_x, n_z = self.rng.choice(n_xz, p=p_xz)
+                        if n_x:
+                            noisy_circuit.noisex(dit, list(lev_tuple))
+                        if n_z:
+                            noisy_circuit.noisez(dit, lev_tuple[1])
 
     def _apply_dephasing_noise(
         self, noisy_circuit: QuantumCircuit, qudits: list[int], noise_info: Noise | SubspaceNoise
     ) -> None:
-        raise NotImplementedError  # TODO
+        if isinstance(noise_info, Noise):  # Mathematical Noise
+            for dit in qudits:
+                dim = noisy_circuit.dimensions[dit]
+                prob_each = noise_info.probability_dephasing / dim
+                n_z = list(range(dim))
+                p_z = [1 - prob_each * (dim - 1)] + [prob_each] * (dim - 1)
+                level = self.rng.choice(n_z, p=p_z)
+                if level != 0:
+                    noisy_circuit.noisez(dit, level)
+        elif isinstance(noise_info, SubspaceNoise):  # Physical Noise
+            for dit in qudits:
+                dim = noisy_circuit.dimensions[dit]
+                levels = combinations(range(dim), 2)
+                for lev_tuple in levels:
+                    if lev_tuple in noise_info.probs:
+                        list(set(range(dim)) - set(lev_tuple))
+                        prob_each = noise_info.probs[lev_tuple].probability_dephasing / dim
+                        n_z = list(range(dim))
+                        p_z = [1 - prob_each * (dim - 1)] + [prob_each] * (dim - 1)
+                        level = self.rng.choice(n_z, p_z)
+                        if level not in {0, lev_tuple[0], lev_tuple[1]}:
+                            noisy_circuit.noisez(dit, level)
