@@ -151,7 +151,7 @@ class NoisyCircuitFactory:
                 levels = combinations(range(dim), 2)
                 for lev_tuple in levels:
                     if lev_tuple in noise_info.probs:
-                        list(set(range(dim)) - set(lev_tuple)) # Levels not related to depolarizing
+                        list(set(range(dim)) - set(lev_tuple))  # Levels not related to depolarizing
                         prob_each = noise_info.probs[lev_tuple].probability_dephasing / dim
                         n_z = list(range(dim))
                         p_z = [1 - prob_each * (dim - 1)] + [prob_each] * (dim - 1)

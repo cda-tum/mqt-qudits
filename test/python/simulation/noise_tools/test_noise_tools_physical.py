@@ -7,7 +7,7 @@ import numpy as np
 
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
-from mqt.qudits.simulation.noise_tools import Noise, SubspaceNoise, NoiseModel, NoisyCircuitFactory
+from mqt.qudits.simulation.noise_tools import NoiseModel, NoisyCircuitFactory, SubspaceNoise
 
 
 def rand_0_5() -> int:
@@ -18,8 +18,8 @@ def rand_0_5() -> int:
 class TestNoisyCircuitFactoryPhysical(TestCase):
     def setUp(self) -> None:
         sub1 = SubspaceNoise(0.999, 0.999, (0, 1))
-        sub2 = SubspaceNoise(0.0, 0.999, [(1,2),(2,3)])
-        sub3 = SubspaceNoise(0.999, 0.0, [(1,2),(2,3)])
+        sub2 = SubspaceNoise(0.0, 0.999, [(1, 2), (2, 3)])
+        sub3 = SubspaceNoise(0.999, 0.0, [(1, 2), (2, 3)])
 
         # Add errors to noise_tools model
 
@@ -105,7 +105,7 @@ class TestNoisyCircuitFactoryPhysical(TestCase):
         assert circ.number_gates == 2  # original x only
         assert [i.qasm_tag for i in instructions_og] == ["z", "z"]
         for tag in [i.qasm_tag for i in new_circ.instructions]:
-            assert tag in ["z", "virtrz", "noisex"]
+            assert tag in {"z", "virtrz", "noisex"}
 
     def test_generate_circuit_isolated2(self):
         qreg_example = QuantumRegister("reg", 2, [5, 5])
@@ -119,7 +119,7 @@ class TestNoisyCircuitFactoryPhysical(TestCase):
         assert circ.number_gates == 2  # original x only
         assert [i.qasm_tag for i in instructions_og] == ["x", "x"]
         for tag in [i.qasm_tag for i in new_circ.instructions]:
-            assert tag in ["x", "virtrz"]
+            assert tag in {"x", "virtrz"}
 
     def test_generate_circuit_isolated3(self):
         qreg_example = QuantumRegister("reg", 2, [5, 5])
@@ -133,4 +133,4 @@ class TestNoisyCircuitFactoryPhysical(TestCase):
         assert circ.number_gates == 2  # original x only
         assert [i.qasm_tag for i in instructions_og] == ["s", "s"]
         for tag in [i.qasm_tag for i in new_circ.instructions]:
-            assert tag in ["s", "noisex", "virtrz"]
+            assert tag in {"s", "noisex", "virtrz"}

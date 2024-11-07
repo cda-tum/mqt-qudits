@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from unittest import TestCase
 
-from mqt.qudits.simulation.noise_tools.noise import SubspaceNoise
 import numpy as np
 
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
 from mqt.qudits.simulation import MQTQuditProvider
 from mqt.qudits.simulation.noise_tools import Noise, NoiseModel
+from mqt.qudits.simulation.noise_tools.noise import SubspaceNoise
 
 from .._qudits.test_pymisim import is_quantum_state
 
@@ -435,8 +435,8 @@ class TestTNSim(TestCase):
 
         # Define Physical Noise
         sub1 = SubspaceNoise(0.999, 0.999, (0, 1))
-        sub2 = SubspaceNoise(0.0, 0.999, [(1,2),(2,3)])
-        sub3 = SubspaceNoise(0.999, 0.0, [(1,2),(2,3)])
+        sub2 = SubspaceNoise(0.0, 0.999, [(1, 2), (2, 3)])
+        sub3 = SubspaceNoise(0.999, 0.0, [(1, 2), (2, 3)])
 
         # Add errors to noise_tools model
 
