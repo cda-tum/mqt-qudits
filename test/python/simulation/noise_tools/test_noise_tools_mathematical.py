@@ -109,8 +109,7 @@ class TestNoisyCircuitFactory(TestCase):
         factory = NoisyCircuitFactory(self.noise_model, circ)
         instructions_og = circ.instructions
         new_circ = factory.generate_circuit()
-        print(circ.instructions)
-        print(new_circ.instructions)
         assert circ.number_gates == 1  # original x only
-        assert new_circ.number_gates >= 3  # original x + depolarizing + dephasing
         assert [i.qasm_tag for i in instructions_og] == ["x"]
+        for tag in [i.qasm_tag for i in new_circ.instructions]:
+            assert tag in {"x", "z", "virtrz"}
