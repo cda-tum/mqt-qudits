@@ -136,7 +136,7 @@ class NoisyCircuitFactory:
     def _apply_dephasing_noise(
         self, noisy_circuit: QuantumCircuit, qudits: list[int], noise_info: Noise | SubspaceNoise
     ) -> None:
-        if isinstance(noise_info, Noise):  # Mathematical Noise
+        if isinstance(noise_info, Noise):  # Mathematical Noise (#TODO: Not needed?)
             for dit in qudits:
                 dim = noisy_circuit.dimensions[dit]
                 prob_each = noise_info.probability_dephasing / dim
@@ -151,10 +151,10 @@ class NoisyCircuitFactory:
                 levels = combinations(range(dim), 2)
                 for lev_tuple in levels:
                     if lev_tuple in noise_info.probs:
-                        list(set(range(dim)) - set(lev_tuple))
+                        list(set(range(dim)) - set(lev_tuple)) # Levels not related to depolarizing
                         prob_each = noise_info.probs[lev_tuple].probability_dephasing / dim
                         n_z = list(range(dim))
                         p_z = [1 - prob_each * (dim - 1)] + [prob_each] * (dim - 1)
-                        level = self.rng.choice(n_z, p_z)
+                        level = self.rng.choice(n_z, p=p_z)
                         if level not in {0, lev_tuple[0], lev_tuple[1]}:
                             noisy_circuit.noisez(dit, level)

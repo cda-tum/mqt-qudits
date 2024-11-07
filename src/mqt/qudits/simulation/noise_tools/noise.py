@@ -4,9 +4,6 @@ from __future__ import annotations
 class Noise:
     """Represents a noise model with depolarizing and dephasing probabilities."""
 
-    probability_depolarizing: float
-    probability_dephasing: float
-
     def __init__(self, probability_depolarizing: float, probability_dephasing: float) -> None:
         self.probability_depolarizing = probability_depolarizing
         self.probability_dephasing = probability_dephasing
@@ -15,14 +12,14 @@ class Noise:
 class SubspaceNoise:
     """Represents physical noises for each level transitions."""
 
-    probs: dict[tuple[int, int], Noise]
-
     def __init__(
         self,
         probability_depolarizing: float,
         probability_dephasing: float,
         levels: tuple[int, int] | list[tuple[int, int]],
     ) -> None:
+        self.probs: dict[tuple[int, int], Noise] = {}
+
         if isinstance(levels, tuple):
             self.add_noise(
                 levels[0],
@@ -40,10 +37,10 @@ class SubspaceNoise:
     def add_noise(self, lev_a: int, lev_b: int, noise: Noise) -> None:
         if lev_b < lev_a:
             lev_a, lev_b = lev_b, lev_a
-        if lev_a != lev_b:
+        if lev_a == lev_b:
             msg = "The levels in the subspace noise should be different!"
             raise ValueError(msg)
-        if (lev_a, lev_b) not in self.probs:
+        if (lev_a, lev_b) in self.probs:
             msg = "The same level physical noise is defined for multiple times!"
             raise ValueError(msg)
         self.probs[lev_a, lev_b] = noise
