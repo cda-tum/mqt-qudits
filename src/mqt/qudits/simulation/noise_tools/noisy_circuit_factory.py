@@ -4,15 +4,15 @@ import copy
 import os
 import time
 from functools import partial
-from itertools import combinations, product
+from itertools import product
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
 
 from ...quantum_circuit import QuantumCircuit
 from ...quantum_circuit.components.extensions.gate_types import GateTypes
-from .noise import Noise, SubspaceNoise
 from ...quantum_circuit.gates import CEx, R, Rh, Rz
+from .noise import Noise, SubspaceNoise
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -32,7 +32,7 @@ class NoisyCircuitFactory:
     @staticmethod
     def _initialize_rng() -> Generator:
         current_time = int(time.time() * 1000)
-        seed = hash((os.getpid(), current_time)) % 2 ** 32
+        seed = hash((os.getpid(), current_time)) % 2**32
         return np.random.default_rng(seed)
 
     def generate_circuit(self) -> QuantumCircuit:
@@ -49,11 +49,11 @@ class NoisyCircuitFactory:
         return noisy_circuit
 
     def _dynamic_subspace_noise_info_rectification(self, noise_info: SubspaceNoise, instruction: Gate) -> SubspaceNoise:
-        """
-        Corrects negative subspace levels in SubspaceNoise by matching them to physical two-level rotations.
+        """Corrects negative subspace levels in SubspaceNoise by matching them to physical two-level rotations.
         This function adapts SubspaceNoise dynamically to align with physical local two-level rotations
         (R, Rz, Rh, CEx). If the input noise has negative subspace levels, it maps them to the
         instruction's actual levels.
+
         Args:
             noise_info: The original SubspaceNoise object to be corrected
             instruction: The Gate instruction containing the target levels
@@ -77,14 +77,13 @@ class NoisyCircuitFactory:
 
         # Create new noise info with correct levels
         return SubspaceNoise(
-                probability_depolarizing=noise_probs.probability_depolarizing,
-                probability_dephasing=noise_probs.probability_dephasing,
-                levels=(instruction.lev_a, instruction.lev_b)
+            probability_depolarizing=noise_probs.probability_depolarizing,
+            probability_dephasing=noise_probs.probability_dephasing,
+            levels=(instruction.lev_a, instruction.lev_b),
         )
 
     def _needs_correction(self, noise_info: SubspaceNoise) -> bool:
-        """
-        Determines if the noise info needs level correction.
+        """Determines if the noise info needs level correction.
         Returns True if there is exactly one subspace and it has negative indices.
         """
         if len(noise_info.subspace_w_probs) != 1:
@@ -116,11 +115,11 @@ class NoisyCircuitFactory:
 
     def _get_qudits_for_mode(self, instruction: Gate, mode: str) -> list[int]:
         mode_handlers: dict[str, Callable[[], list[int]]] = {
-            "local":    lambda: instruction.reference_lines,
-            "all":      lambda: list(range(instruction.parent_circuit.num_qudits)),
+            "local": lambda: instruction.reference_lines,
+            "all": lambda: list(range(instruction.parent_circuit.num_qudits)),
             "nonlocal": partial(self._get_nonlocal_qudits, instruction),
-            "control":  partial(self._get_control_qudits, instruction),
-            "target":   partial(self._get_target_qudits, instruction),
+            "control": partial(self._get_control_qudits, instruction),
+            "target": partial(self._get_target_qudits, instruction),
         }
 
         handler = mode_handlers.get(mode)
@@ -154,7 +153,7 @@ class NoisyCircuitFactory:
             raise ValueError(msg)
 
     def _apply_depolarizing_noise(
-            self, noisy_circuit: QuantumCircuit, qudits: list[int], noise_info: Noise | SubspaceNoise
+        self, noisy_circuit: QuantumCircuit, qudits: list[int], noise_info: Noise | SubspaceNoise
     ) -> None:
         if isinstance(noise_info, Noise):  # Mathematical Description of Depolarizing noise channel
             for dit in qudits:
@@ -174,16 +173,17 @@ class NoisyCircuitFactory:
                 possible_levels = list(range(dim))
 
                 # Validate all subspace levels
-                for lev_a, lev_b in noise_info.subspace_w_probs.keys():
+                for lev_a, lev_b in noise_info.subspace_w_probs:
                     if lev_a not in possible_levels or lev_b not in possible_levels:
-                        raise IndexError(
-                                "Subspace levels exceed qudit dimensions. "
-                                f"Got levels ({lev_a}, {lev_b}) but dimension is {dim}. "
-                                "Check noise model compatibility with circuit."
+                        msg = (
+                            "Subspace levels exceed qudit dimensions. "
+                            f"Got levels ({lev_a}, {lev_b}) but dimension is {dim}. "
+                            "Check noise model compatibility with circuit."
                         )
+                        raise IndexError(msg)
 
                     # Calculate probabilities for noise operations
-                    prob_each = noise_info.subspace_w_probs[(lev_a, lev_b)].probability_depolarizing / 4
+                    prob_each = noise_info.subspace_w_probs[lev_a, lev_b].probability_depolarizing / 4
 
                     # Generate possible noise combinations (X,Z gates)
                     noise_combinations = list(product(range(2), repeat=2))
@@ -201,10 +201,9 @@ class NoisyCircuitFactory:
                         noisy_circuit.noisey(dit, [lev_a, lev_b])
 
     def _apply_dephasing_noise(
-            self, noisy_circuit: QuantumCircuit, qudits: list[int], noise_info: Noise | SubspaceNoise
+        self, noisy_circuit: QuantumCircuit, qudits: list[int], noise_info: Noise | SubspaceNoise
     ) -> None:
-        """
-        Applies dephasing noise to specified qudit levels outside the main depolarizing subspace levels.
+        """Applies dephasing noise to specified qudit levels outside the main depolarizing subspace levels.
 
         Args:
             noisy_circuit: Circuit to apply noise to
@@ -220,13 +219,14 @@ class NoisyCircuitFactory:
                 possible_levels = set(range(dim))  # Changed to set for efficient operations
 
                 # Validate all subspace levels
-                for lev_a, lev_b in noise_info.subspace_w_probs.keys():
+                for lev_a, lev_b in noise_info.subspace_w_probs:
                     if lev_a not in possible_levels or lev_b not in possible_levels:
-                        raise IndexError(
-                                "Subspace levels exceed qudit dimensions. "
-                                f"Got levels ({lev_a}, {lev_b}) but dimension is {dim}. "
-                                "Check noise model compatibility with circuit."
+                        msg = (
+                            "Subspace levels exceed qudit dimensions. "
+                            f"Got levels ({lev_a}, {lev_b}) but dimension is {dim}. "
+                            "Check noise model compatibility with circuit."
                         )
+                        raise IndexError(msg)
 
                     # Calculate remaining levels for dephasing
                     subspace_levels = {lev_a, lev_b}
@@ -236,7 +236,7 @@ class NoisyCircuitFactory:
                         continue
 
                     # Calculate probability for each level
-                    prob_each = noise_info.subspace_w_probs[(lev_a, lev_b)].probability_dephasing
+                    prob_each = noise_info.subspace_w_probs[lev_a, lev_b].probability_dephasing
                     probs = [prob_each, 1 - prob_each]  # [apply noise, no noise]
 
                     # Apply dephasing to each level outside subspace

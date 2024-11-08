@@ -281,7 +281,7 @@ class QuantumCircuit:
     @add_gate_decorator
     def noisez(self, qudit: int, level: int, controls: ControlData | None = None) -> VirtRz:
         return VirtRz(
-                self, "NoiseZ" + str(self.dimensions[qudit]), qudit, [level, np.pi], self.dimensions[qudit], controls
+            self, "NoiseZ" + str(self.dimensions[qudit]), qudit, [level, np.pi], self.dimensions[qudit], controls
         )
 
     @add_gate_decorator

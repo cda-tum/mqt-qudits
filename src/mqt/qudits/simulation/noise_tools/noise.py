@@ -13,36 +13,35 @@ class SubspaceNoise:
     """Represents physical noises for each level transitions."""
 
     def __init__(
-            self,
-            probability_depolarizing: float,
-            probability_dephasing: float,
-            levels: tuple[int, int] | list[tuple[int, int]],
+        self,
+        probability_depolarizing: float,
+        probability_dephasing: float,
+        levels: tuple[int, int] | list[tuple[int, int]],
     ) -> None:
         self.subspace_w_probs: dict[tuple[int, int], Noise] = {}
 
         if isinstance(levels, tuple):
             self.add_noise(
-                    levels[0],
-                    levels[1],
-                    Noise(probability_depolarizing, probability_dephasing),
+                levels[0],
+                levels[1],
+                Noise(probability_depolarizing, probability_dephasing),
             )
-        else:
-            if len(levels) > 0:
-                for lev in levels:
-                    self.add_noise(
-                            lev[0],
-                            lev[1],
-                            Noise(probability_depolarizing, probability_dephasing),
-                    )
-            else:
-                # case where you want the subspace noise to be dynamically assigned
-                # to the two-dimensional subspace of a Givens derived rotation.
-                # The negative values are not physical and we will check only if they are negative.
+        elif len(levels) > 0:
+            for lev in levels:
                 self.add_noise(
-                        -2,
-                        -1,
-                        Noise(probability_depolarizing, probability_dephasing),
+                    lev[0],
+                    lev[1],
+                    Noise(probability_depolarizing, probability_dephasing),
                 )
+        else:
+            # case where you want the subspace noise to be dynamically assigned
+            # to the two-dimensional subspace of a Givens derived rotation.
+            # The negative values are not physical and we will check only if they are negative.
+            self.add_noise(
+                -2,
+                -1,
+                Noise(probability_depolarizing, probability_dephasing),
+            )
 
     def add_noise(self, lev_a: int, lev_b: int, noise: Noise) -> None:
         if lev_b < lev_a:
@@ -53,9 +52,11 @@ class SubspaceNoise:
         if (lev_a, lev_b) in self.subspace_w_probs:
             msg = "The same level physical noise is defined for multiple times!"
             raise ValueError(msg)
-        if lev_a < 0 or lev_b < 0 and len(self.subspace_w_probs)>0:
-            msg = ("Negative keys are for the dynamic assignment of the subspaces, "
-                   "therefore you cannot assignment other subspaces!")
+        if lev_a < 0 or (lev_b < 0 and len(self.subspace_w_probs) > 0):
+            msg = (
+                "Negative keys are for the dynamic assignment of the subspaces, "
+                "therefore you cannot assignment other subspaces!"
+            )
             raise ValueError(msg)
         self.subspace_w_probs[lev_a, lev_b] = noise
 
@@ -90,7 +91,8 @@ class NoiseModel:
                 existing_instance = self.quantum_errors[gate][mode]
                 assert isinstance(existing_instance, SubspaceNoise)
                 existing_instance.add_noises(
-                    noise.subspace_w_probs)  # add the noise info to the existing SubspaceNoise instance
+                    noise.subspace_w_probs
+                )  # add the noise info to the existing SubspaceNoise instance
 
     def add_quantum_error_locally(self, noise: Noise | SubspaceNoise, gates: list[str]) -> None:
         """Add a quantum error locally to all qudits for specified gates."""
