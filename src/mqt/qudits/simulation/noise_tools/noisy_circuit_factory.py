@@ -50,6 +50,7 @@ class NoisyCircuitFactory:
 
     def _dynamic_subspace_noise_info_rectification(self, noise_info: SubspaceNoise, instruction: Gate) -> SubspaceNoise:
         """Corrects negative subspace levels in SubspaceNoise by matching them to physical two-level rotations.
+
         This function adapts SubspaceNoise dynamically to align with physical local two-level rotations
         (R, Rz, Rh, CEx). If the input noise has negative subspace levels, it maps them to the
         instruction's actual levels.
@@ -82,8 +83,10 @@ class NoisyCircuitFactory:
             levels=(instruction.lev_a, instruction.lev_b),
         )
 
-    def _needs_correction(self, noise_info: SubspaceNoise) -> bool:
+    @staticmethod
+    def _needs_correction(noise_info: SubspaceNoise) -> bool:
         """Determines if the noise info needs level correction.
+
         Returns True if there is exactly one subspace and it has negative indices.
         """
         if len(noise_info.subspace_w_probs) != 1:
@@ -102,7 +105,7 @@ class NoisyCircuitFactory:
                 continue  # type: ignore[unreachable]
 
             if isinstance(noise_info, SubspaceNoise):
-                noise_info = self._dynamic_subspace_noise_info_rectification(noise_info, instruction)
+                noise_info = self._dynamic_subspace_noise_info_rectification(noise_info, instruction)  # noqa: PLW2901
 
             self._apply_depolarizing_noise(noisy_circuit, qudits, noise_info)
             self._apply_dephasing_noise(noisy_circuit, qudits, noise_info)
