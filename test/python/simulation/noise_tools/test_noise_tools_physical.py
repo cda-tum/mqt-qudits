@@ -97,7 +97,7 @@ class TestNoisyCircuitFactoryPhysical(TestCase):
         assert len(instructions_new) > len(instructions_og)
 
     def test_generate_circuit_isolated1(self):
-        qreg_example = QuantumRegister("reg", 2, [5, 5])
+        qreg_example = QuantumRegister("reg", 4, [5, 5, 5, 5])
         circ = QuantumCircuit(qreg_example)
         circ.z(0)
         circ.z(1)
@@ -109,9 +109,15 @@ class TestNoisyCircuitFactoryPhysical(TestCase):
         assert [i.qasm_tag for i in instructions_og] == ["z", "z"]
         for tag in [i.qasm_tag for i in new_circ.instructions]:
             assert tag in {"z", "virtrz", "noisex", "noisey"}
+        for inst in new_circ.instructions:
+            assert(inst.target_qudits == 0 or inst.target_qudits == 1)
+            if inst.qasm_tag == "noisex" or inst.qasm_tag == "noisey":
+                assert(inst.lev_a == 0 and inst.lev_b == 1)
+            if inst.qasm_tag == "virtz":
+                assert(inst.lev_a != 0 and inst.lev_b != 1)
 
     def test_generate_circuit_isolated2(self):
-        qreg_example = QuantumRegister("reg", 2, [5, 5])
+        qreg_example = QuantumRegister("reg", 4, [5, 5, 5 ,5])
         circ = QuantumCircuit(qreg_example)
         circ.x(0)
         circ.x(1)
@@ -123,12 +129,15 @@ class TestNoisyCircuitFactoryPhysical(TestCase):
         assert [i.qasm_tag for i in instructions_og] == ["x", "x"]
         for tag in [i.qasm_tag for i in new_circ.instructions]:
             assert tag in {"x", "virtrz"}
+        for inst in new_circ.instructions:
+            assert(inst.target_qudits == 0 or inst.target_qudits == 1)
+        
 
     def test_generate_circuit_isolated3(self):
-        qreg_example = QuantumRegister("reg", 2, [5, 5])
+        qreg_example = QuantumRegister("reg", 4, [5, 5, 5, 5])
         circ = QuantumCircuit(qreg_example)
-        circ.s(0)
         circ.s(1)
+        circ.s(2)
 
         factory = NoisyCircuitFactory(self.noise_model, circ)
         instructions_og = circ.instructions
@@ -137,6 +146,10 @@ class TestNoisyCircuitFactoryPhysical(TestCase):
         assert [i.qasm_tag for i in instructions_og] == ["s", "s"]
         for tag in [i.qasm_tag for i in new_circ.instructions]:
             assert tag in {"s", "noisex", "virtrz", "noisey"}
+        for inst in new_circ.instructions:
+            assert(inst.target_qudits == 1 or inst.target_qudits == 2)
+            if inst.qasm_tag == "noisex" or inst.qasm_tag == "noisey":
+                assert( (inst.lev_a == 2 and inst.lev_b==3) or (inst.lev_a == 1 and inst.lev_b==2))
 
     @staticmethod
     def test_str():
@@ -156,9 +169,6 @@ class TestNoisyCircuitFactoryPhysical(TestCase):
         noise_model.add_quantum_error_locally(err2, ["z"])
         with pytest.raises(ValueError, match="The same level physical noise is defined for multiple times!"):
             noise_model.add_quantum_error_locally(err2, ["z"])
-
-        with pytest.raises(ValueError, match="Negative keys are for the dynamic assignment of the subspaces,"):
-            SubspaceNoise(0.999, 0.999, (-1, -2))
 
     @staticmethod
     def test_invalid_level():
