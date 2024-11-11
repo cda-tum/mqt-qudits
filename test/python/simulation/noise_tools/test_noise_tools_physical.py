@@ -4,6 +4,7 @@ from collections import defaultdict
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
@@ -31,6 +32,8 @@ class TestNoisyCircuitFactoryPhysical(TestCase):
         noise_model.add_quantum_error_locally(sub2, ["rh", "h", "rxy", "x"])
         noise_model.add_quantum_error_locally(sub3, ["s"])
         self.noise_model = noise_model
+
+        assert set(noise_model.basis_gates) == {"csum", "z", "rh", "h", "rxy", "x", "s"}
 
     def test_generate_circuit(self):
         qreg_example = QuantumRegister("reg", 6, 6 * [5])
@@ -134,3 +137,78 @@ class TestNoisyCircuitFactoryPhysical(TestCase):
         assert [i.qasm_tag for i in instructions_og] == ["s", "s"]
         for tag in [i.qasm_tag for i in new_circ.instructions]:
             assert tag in {"s", "noisex", "virtrz", "noisey"}
+
+    @staticmethod
+    def test_str():
+        sub1 = SubspaceNoise(0.999, 0.999, (0, 1))
+        noise_model = NoiseModel()
+        noise_model.add_quantum_error_locally(sub1, ["z"])
+        assert "Gate: z, Mode: local, SubspaceNoise: 0<->1:0.999 0.999," in str(noise_model)
+
+    @staticmethod
+    def test_error():
+        noise_model = NoiseModel()
+
+        with pytest.raises(ValueError, match="The levels in the subspace noise should be different!"):
+            SubspaceNoise(0.999, 0.999, (0, 0))
+
+        err2 = SubspaceNoise(0.999, 0.999, (0, 1))
+        noise_model.add_quantum_error_locally(err2, ["z"])
+        with pytest.raises(ValueError, match="The same level physical noise is defined for multiple times!"):
+            noise_model.add_quantum_error_locally(err2, ["z"])
+
+        with pytest.raises(ValueError, match="Negative keys are for the dynamic assignment of the subspaces,"):
+            SubspaceNoise(0.999, 0.999, (-1, -2))
+
+    @staticmethod
+    def test_invalid_level():
+        err = SubspaceNoise(0.999, 0.999, (8, 9))
+        noise_model = NoiseModel()
+        noise_model.add_quantum_error_locally(err, ["z"])
+        qreg_example = QuantumRegister("reg", 6, 6 * [5])
+        circ = QuantumCircuit(qreg_example)
+        circ.z(0)
+        factory = NoisyCircuitFactory(noise_model, circ)
+        with pytest.raises(IndexError, match=r"Subspace levels exceed qudit dimensions.*"):
+            factory.generate_circuit()
+
+    @staticmethod
+    def test_no_dephasing():
+        err = SubspaceNoise(0.999, 0.999, (0, 1))
+        noise_model = NoiseModel()
+        noise_model.add_quantum_error_locally(err, ["z"])
+        qreg_example = QuantumRegister("reg", 2, 2 * [2])
+        circ = QuantumCircuit(qreg_example)
+        circ.z(0)
+        factory = NoisyCircuitFactory(noise_model, circ)
+        factory.generate_circuit()
+
+    @staticmethod
+    def test_invalid_gate():
+        err = SubspaceNoise(0.999, 0.999, (0, 1))
+        noise_model = NoiseModel()
+        noise_model.add_nonlocal_quantum_error_on_control(err, ["z"])
+        qreg_example = QuantumRegister("reg", 2, 2 * [2])
+        circ = QuantumCircuit(qreg_example)
+        circ.z(0)
+        factory = NoisyCircuitFactory(noise_model, circ)
+        with pytest.raises(ValueError, match=r".* is incompatible for the desidred operation."):
+            factory.generate_circuit()
+
+        noise_model = NoiseModel()
+        noise_model.add_nonlocal_quantum_error(err, ["z"])
+        factory = NoisyCircuitFactory(noise_model, circ)
+        with pytest.raises(ValueError, match=r"Nonlocal mode not applicable for gate type: .*"):
+            factory.generate_circuit()
+
+    @staticmethod
+    def test_invalid_mode():
+        err = SubspaceNoise(0.999, 0.999, (0, 1))
+        noise_model = NoiseModel()
+        noise_model._add_quantum_error(err, ["z"], "error_mode")  # noqa: SLF001
+        qreg_example = QuantumRegister("reg", 2, 2 * [2])
+        circ = QuantumCircuit(qreg_example)
+        circ.z(0)
+        factory = NoisyCircuitFactory(noise_model, circ)
+        with pytest.raises(ValueError, match="Unknown mode: error_mode"):
+            factory.generate_circuit()

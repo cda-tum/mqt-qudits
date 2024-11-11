@@ -4,6 +4,7 @@ from collections import defaultdict
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
@@ -113,3 +114,11 @@ class TestNoisyCircuitFactory(TestCase):
         assert [i.qasm_tag for i in instructions_og] == ["x"]
         for tag in [i.qasm_tag for i in new_circ.instructions]:
             assert tag in {"x", "z", "virtrz"}
+
+    @staticmethod
+    def test_error():
+        noise_model = NoiseModel()
+        local_error = Noise(probability_depolarizing=0.999, probability_dephasing=0.999)
+        noise_model.add_all_qudit_quantum_error(local_error, ["csum"])
+        with pytest.raises(ValueError, match="Mathematical noise has been defined multiple times!"):
+            noise_model.add_all_qudit_quantum_error(local_error, ["csum"])

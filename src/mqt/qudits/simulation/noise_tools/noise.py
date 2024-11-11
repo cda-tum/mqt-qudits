@@ -8,6 +8,9 @@ class Noise:
         self.probability_depolarizing = probability_depolarizing
         self.probability_dephasing = probability_dephasing
 
+    def __str__(self) -> str:
+        return str(self.probability_depolarizing) + " " + str(self.probability_dephasing)
+
 
 class SubspaceNoise:
     """Represents physical noises for each level transitions."""
@@ -42,6 +45,12 @@ class SubspaceNoise:
                 -1,
                 Noise(probability_depolarizing, probability_dephasing),
             )
+
+    def __str__(self) -> str:
+        result = ""
+        for levs, noise in self.subspace_w_probs.items():
+            result += str(levs[0]) + "<->" + str(levs[1]) + ":" + str(noise) + ", "
+        return result
 
     def add_noise(self, lev_a: int, lev_b: int, noise: Noise) -> None:
         if lev_b < lev_a:
