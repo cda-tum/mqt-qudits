@@ -61,7 +61,7 @@ class SubspaceNoise:
         if (lev_a, lev_b) in self.subspace_w_probs:
             msg = "The same level physical noise is defined for multiple times!"
             raise ValueError(msg)
-        if lev_a < 0 or (lev_b < 0 and len(self.subspace_w_probs) > 0):
+        if (lev_a < 0 or lev_b < 0) and len(self.subspace_w_probs) > 0:
             msg = (
                 "Negative keys are for the dynamic assignment of the subspaces, "
                 "therefore you cannot assignment other subspaces!"
