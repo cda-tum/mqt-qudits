@@ -110,14 +110,16 @@ class TestNoisyCircuitFactoryPhysical(TestCase):
         for tag in [i.qasm_tag for i in new_circ.instructions]:
             assert tag in {"z", "virtrz", "noisex", "noisey"}
         for inst in new_circ.instructions:
-            assert(inst.target_qudits == 0 or inst.target_qudits == 1)
-            if inst.qasm_tag == "noisex" or inst.qasm_tag == "noisey":
-                assert(inst.lev_a == 0 and inst.lev_b == 1)
+            assert inst.target_qudits in {0, 1}
+            if inst.qasm_tag in {"noisex", "noisey"}:
+                assert inst.lev_a == 0
+                assert inst.lev_b == 1
             if inst.qasm_tag == "virtz":
-                assert(inst.lev_a != 0 and inst.lev_b != 1)
+                assert inst.lev_a != 0
+                assert inst.lev_b != 1
 
     def test_generate_circuit_isolated2(self):
-        qreg_example = QuantumRegister("reg", 4, [5, 5, 5 ,5])
+        qreg_example = QuantumRegister("reg", 4, [5, 5, 5, 5])
         circ = QuantumCircuit(qreg_example)
         circ.x(0)
         circ.x(1)
@@ -130,8 +132,7 @@ class TestNoisyCircuitFactoryPhysical(TestCase):
         for tag in [i.qasm_tag for i in new_circ.instructions]:
             assert tag in {"x", "virtrz"}
         for inst in new_circ.instructions:
-            assert(inst.target_qudits == 0 or inst.target_qudits == 1)
-        
+            assert inst.target_qudits in {0, 1}
 
     def test_generate_circuit_isolated3(self):
         qreg_example = QuantumRegister("reg", 4, [5, 5, 5, 5])
@@ -147,9 +148,9 @@ class TestNoisyCircuitFactoryPhysical(TestCase):
         for tag in [i.qasm_tag for i in new_circ.instructions]:
             assert tag in {"s", "noisex", "virtrz", "noisey"}
         for inst in new_circ.instructions:
-            assert(inst.target_qudits == 1 or inst.target_qudits == 2)
-            if inst.qasm_tag == "noisex" or inst.qasm_tag == "noisey":
-                assert( (inst.lev_a == 2 and inst.lev_b==3) or (inst.lev_a == 1 and inst.lev_b==2))
+            assert inst.target_qudits in {1, 2}
+            if inst.qasm_tag in {"noisex", "noisey"}:
+                assert (inst.lev_a == 2 and inst.lev_b == 3) or (inst.lev_a == 1 and inst.lev_b == 2)
 
     @staticmethod
     def test_str():
