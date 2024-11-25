@@ -246,7 +246,8 @@ class TestNoisyCircuitFactoryPhysical(TestCase):
             else:
                 assert inst.target_qudits in {1, 2}
             if inst.qasm_tag in {"noisex", "noisey"}:
-                assert (inst.lev_a == 0 and inst.lev_b == 1)
+                assert inst.lev_a == 0
+                assert inst.lev_b == 1
 
     @staticmethod
     def test_generate_circuit_isolated5():
@@ -278,10 +279,10 @@ class TestNoisyCircuitFactoryPhysical(TestCase):
 
     @staticmethod
     def test_invalid_dynamic_levels_construction():
+        err = SubspaceNoise(0.999, 0.999, (0, 1))
         with pytest.raises(ValueError, match="Negative keys are for the dynamic assignment"):
-            err = SubspaceNoise(0.999, 0.999, (0, 1))
             err.add_noise(-2, -1, Noise(0.99, 0.0))
 
+        err = SubspaceNoise(0.999, 0.999, [])
         with pytest.raises(ValueError, match="Negative keys are already present"):
-            err = SubspaceNoise(0.999, 0.999, [])
             err.add_noise(1, 2, Noise(0.99, 0.0))

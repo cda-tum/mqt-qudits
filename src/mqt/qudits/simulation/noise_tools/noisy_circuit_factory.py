@@ -144,15 +144,24 @@ class NoisyCircuitFactory:
         qudits_targeted = cast(list[int], instruction.target_qudits)
         return qudits_targeted[:1]
 
-    def _get_target_qudits(self, instruction: Gate) -> list[int]:
-        """Method assumes that the instructions can only be single qudit gates or mutlicontrolled versions of them
-        like a (multi)controlled R gate or a Cex.
+    @staticmethod
+    def _get_target_qudits(instruction: Gate) -> list[int]:
+        """Returns the target qudits for a gate instruction, excluding control qudits.
+
+        For multi-controlled gates (e.g. controlled-R, controlled-exchange), returns all
+        non-control qudits. For single qudit gates, returns a list with just the target qudit.
+
+        Args:
+        instruction: The gate instruction to analyze
+
+        Returns:
+        List of target qudit indices, excluding control qudits
         """
         if instruction.gate_type != GateTypes.SINGLE:
             qudits_targeted = cast(list[int], instruction.reference_lines)
             return qudits_targeted[1:]
-        else:
-            return [instruction.target_qudits]
+
+        return [instruction.target_qudits]
 
     @staticmethod
     def _validate_two_qudit_gate(instruction: Gate) -> None:
