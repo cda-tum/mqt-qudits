@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from unittest import TestCase
 
 import numpy as np
@@ -26,7 +28,7 @@ class TestNoiseX(TestCase):
             [0.0 + 0.0j, 0.0 + 0.0j, 1.0 + 0.0j, 0.0 + 0.0j],
             [0.0 + 0.0j, 1.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
             [1.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
-            [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 1.0 + 0.0j]
+            [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 1.0 + 0.0j],
         ])
 
         assert np.allclose(nx_2.to_matrix(identities=0), nx_test_2)
