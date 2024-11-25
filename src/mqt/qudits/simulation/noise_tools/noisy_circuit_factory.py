@@ -170,7 +170,7 @@ class NoisyCircuitFactory:
             raise ValueError(msg)
 
     def _apply_depolarizing_noise(
-            self, noisy_circuit: QuantumCircuit, qudits: list[int], noise_info: Noise | SubspaceNoise
+        self, noisy_circuit: QuantumCircuit, qudits: list[int], noise_info: Noise | SubspaceNoise
     ) -> None:
         if isinstance(noise_info, Noise):  # Mathematical Description of Depolarizing noise channel
             for dit in qudits:
