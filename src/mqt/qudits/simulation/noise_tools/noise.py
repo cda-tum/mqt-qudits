@@ -64,6 +64,13 @@ class SubspaceNoise:
         if (lev_a < 0 or lev_b < 0) and len(self.subspace_w_probs) > 0:
             msg = (
                 "Negative keys are for the dynamic assignment of the subspaces, "
+                "therefore you cannot assignment more subspaces!"
+            )
+            raise ValueError(msg)
+        if any(isinstance(levs, tuple) and len(levs) == 2 and levs[0] < 0 and levs[1] < 0
+               for levs in self.subspace_w_probs.keys()):
+            msg = (
+                "Negative keys are already present for the dynamic assignment of the subspaces, "
                 "therefore you cannot assignment other subspaces!"
             )
             raise ValueError(msg)

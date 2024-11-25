@@ -145,18 +145,23 @@ class NoisyCircuitFactory:
         return qudits_targeted[:1]
 
     def _get_target_qudits(self, instruction: Gate) -> list[int]:
-        self._validate_two_qudit_gate(instruction)
-        qudits_targeted = cast(list[int], instruction.target_qudits)
-        return qudits_targeted[1:]
+        """Method assumes that the instructions can only be single qudit gates or mutlicontrolled versions of them
+        like a (multi)controlled R gate or a Cex.
+        """
+        if instruction.gate_type != GateTypes.SINGLE:
+            qudits_targeted = cast(list[int], instruction.reference_lines)
+            return qudits_targeted[1:]
+        else:
+            return [instruction.target_qudits]
 
     @staticmethod
     def _validate_two_qudit_gate(instruction: Gate) -> None:
         if instruction.gate_type != GateTypes.TWO:
-            msg = f"Gate type {instruction.gate_type} is incompatible for the desidred operation."
+            msg = f"Gate type {instruction.gate_type} is incompatible for the desired operation."
             raise ValueError(msg)
 
     def _apply_depolarizing_noise(
-        self, noisy_circuit: QuantumCircuit, qudits: list[int], noise_info: Noise | SubspaceNoise
+            self, noisy_circuit: QuantumCircuit, qudits: list[int], noise_info: Noise | SubspaceNoise
     ) -> None:
         if isinstance(noise_info, Noise):  # Mathematical Description of Depolarizing noise channel
             for dit in qudits:

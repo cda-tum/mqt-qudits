@@ -38,7 +38,7 @@ class TestNoisyCircuitFactory(TestCase):
         noise_model.add_nonlocal_quantum_error(entangling_error_extra, ["csum"])
         # Local Gates
         noise_model.add_quantum_error_locally(local_error, ["rh", "h", "rxy", "s", "x", "z"])
-        noise_model.add_quantum_error_locally(local_error_rz, ["rz", "virtrz"])
+        noise_model.add_quantum_error_locally(local_error_rz, ["rz"])
         self.noise_model = noise_model
 
     def test_generate_circuit(self):

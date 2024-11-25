@@ -8,7 +8,7 @@ import pytest
 
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.quantum_circuit.components.quantum_register import QuantumRegister
-from mqt.qudits.simulation.noise_tools import NoiseModel, NoisyCircuitFactory, SubspaceNoise
+from mqt.qudits.simulation.noise_tools import Noise, NoiseModel, NoisyCircuitFactory, SubspaceNoise
 
 
 def rand_0_5() -> int:
@@ -21,6 +21,7 @@ class TestNoisyCircuitFactoryPhysical(TestCase):
         sub1 = SubspaceNoise(0.999, 0.999, (0, 1))
         sub2 = SubspaceNoise(0.0, 0.999, [(1, 2), (2, 3)])
         sub3 = SubspaceNoise(0.999, 0.0, [(1, 2), (2, 3)])
+        dynamic_assigned = SubspaceNoise(0.999, 0.0, [])
 
         # Add errors to noise_tools model
 
@@ -28,12 +29,13 @@ class TestNoisyCircuitFactoryPhysical(TestCase):
         # Very noisy gate_matrix
         noise_model.add_all_qudit_quantum_error(sub1, ["csum"])
         # Local Gates
-        noise_model.add_quantum_error_locally(sub1, ["z"])
-        noise_model.add_quantum_error_locally(sub2, ["rh", "h", "rxy", "x"])
+        noise_model.add_quantum_error_locally(sub1, ["z", "ms"])
+        noise_model.add_quantum_error_locally(sub2, ["x", "h"])
+        noise_model.add_quantum_error_locally(dynamic_assigned, ["rh", "rz", "rxy", "cx"])
         noise_model.add_quantum_error_locally(sub3, ["s"])
         self.noise_model = noise_model
 
-        assert set(noise_model.basis_gates) == {"csum", "z", "rh", "h", "rxy", "x", "s"}
+        assert set(noise_model.basis_gates) == {"csum", "z", "ms", "rh", "h", "rz", "rxy", "x", "s", "cx"}
 
     def test_generate_circuit(self):
         qreg_example = QuantumRegister("reg", 6, 6 * [5])
@@ -203,7 +205,7 @@ class TestNoisyCircuitFactoryPhysical(TestCase):
         circ = QuantumCircuit(qreg_example)
         circ.z(0)
         factory = NoisyCircuitFactory(noise_model, circ)
-        with pytest.raises(ValueError, match=r".* is incompatible for the desidred operation."):
+        with pytest.raises(ValueError, match=r".* is incompatible for the desired operation."):
             factory.generate_circuit()
 
         noise_model = NoiseModel()
@@ -223,3 +225,63 @@ class TestNoisyCircuitFactoryPhysical(TestCase):
         factory = NoisyCircuitFactory(noise_model, circ)
         with pytest.raises(ValueError, match="Unknown mode: error_mode"):
             factory.generate_circuit()
+
+    def test_generate_circuit_isolated4(self):
+        qreg_example = QuantumRegister("reg", 4, [5, 5, 5, 5])
+        circ = QuantumCircuit(qreg_example)
+        circ.ms([1, 2], [np.pi / 4])
+        circ.ms([1, 2], [np.pi / 3])
+
+        factory = NoisyCircuitFactory(self.noise_model, circ)
+        instructions_og = circ.instructions
+        new_circ = factory.generate_circuit()
+        assert circ.number_gates == 2  # original x only
+        assert [i.qasm_tag for i in instructions_og] == ["ms", "ms"]
+        for tag in [i.qasm_tag for i in new_circ.instructions]:
+            assert tag in {"ms", "noisex", "virtrz", "noisey"}
+        for inst in new_circ.instructions:
+            if isinstance(inst.target_qudits, list):
+                for t in inst.target_qudits:
+                    assert t in {1, 2}
+            else:
+                assert inst.target_qudits in {1, 2}
+            if inst.qasm_tag in {"noisex", "noisey"}:
+                assert (inst.lev_a == 0 and inst.lev_b == 1)
+
+    @staticmethod
+    def test_generate_circuit_isolated5():
+        dynamic_assigned = SubspaceNoise(0.999, 0.0, [])
+        # Add errors to noise_tools model
+        noise_model = NoiseModel()  # We know that the architecture is only two qudits
+        noise_model.add_nonlocal_quantum_error_on_target(dynamic_assigned, ["rh", "rz", "rxy", "cx"])
+        qreg_example = QuantumRegister("reg", 4, [5, 5, 5, 5])
+        circ = QuantumCircuit(qreg_example)
+        circ.r(1, [0, 1, np.pi, np.pi / 2]).dag()
+        circ.r(1, [2, 3, np.pi, np.pi / 2]).control([2], [1])
+        circ.cx([0, 1])
+
+        factory = NoisyCircuitFactory(noise_model, circ)
+        instructions_og = circ.instructions
+        new_circ = factory.generate_circuit()
+        assert circ.number_gates == 3  # namely r, r, cx
+        assert [i.qasm_tag for i in instructions_og] == ["rxy", "rxy", "cx"]
+        for tag in [i.qasm_tag for i in new_circ.instructions]:
+            assert tag in {"rxy", "cx", "noisex", "virtrz", "noisey"}
+        for inst in new_circ.instructions:
+            if isinstance(inst.target_qudits, list):
+                for t in inst.target_qudits:
+                    assert t in {0, 1}
+            else:
+                assert inst.target_qudits in {0, 1}
+            if inst.qasm_tag in {"noisex", "noisey"}:
+                assert (inst.lev_a == 0 and inst.lev_b == 1) or (inst.lev_a == 2 and inst.lev_b == 3)
+
+    @staticmethod
+    def test_invalid_dynamic_levels_construction():
+        with pytest.raises(ValueError, match="Negative keys are for the dynamic assignment"):
+            err = SubspaceNoise(0.999, 0.999, (0, 1))
+            err.add_noise(-2, -1, Noise(0.99, 0.0))
+
+        with pytest.raises(ValueError, match="Negative keys are already present"):
+            err = SubspaceNoise(0.999, 0.999, [])
+            err.add_noise(1, 2, Noise(0.99, 0.0))
