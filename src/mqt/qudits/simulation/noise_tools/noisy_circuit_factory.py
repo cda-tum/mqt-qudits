@@ -158,10 +158,10 @@ class NoisyCircuitFactory:
         List of target qudit indices, excluding control qudits
         """
         if instruction.gate_type != GateTypes.SINGLE:
-            qudits_targeted = cast(list[int], instruction.reference_lines)
+            qudits_targeted = instruction.reference_lines
             return qudits_targeted[1:]
 
-        return [instruction.target_qudits]
+        return [cast(int, instruction.target_qudits)]
 
     @staticmethod
     def _validate_two_qudit_gate(instruction: Gate) -> None:
