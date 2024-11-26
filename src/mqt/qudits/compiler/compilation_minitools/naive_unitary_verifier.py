@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import operator
 from functools import reduce
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, final
 
 import numpy as np
 
@@ -15,13 +15,22 @@ if TYPE_CHECKING:
     from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
     from mqt.qudits.quantum_circuit.gates import R, Rz, VirtRz
-    from mqt.qudits.simulation.backends.backendv2 import Backend
 
 
-def mini_unitary_sim(circuit: QuantumCircuit, list_of_op: list[Gate]) -> NDArray[np.complex128, np.complex128]:
+def permute_according_to_mapping(circuit: QuantumCircuit, mappings: list[int]) -> NDArray:
+    lines = list(range(circuit.num_qudits))
+    dimensions = circuit.dimensions
+    permutation = np.eye(dimensions[0])[:, mappings[0]]
+    for line in lines[1:]:
+        permutation = np.kron(permutation, np.eye(dimensions[line])[:, mappings[line]])
+    return permutation
+
+
+def mini_unitary_sim(circuit: QuantumCircuit) -> NDArray[np.complex128, np.complex128]:
     size = reduce(operator.mul, circuit.dimensions)
     id_mat = np.identity(size)
-    for gate in list_of_op:
+    for gate in circuit.instructions:
+        gatedb = gate.to_matrix(identities=2).round(3)
         id_mat = gate.to_matrix(identities=2) @ id_mat
     return id_mat
 
@@ -35,28 +44,42 @@ def mini_sim(circuit: QuantumCircuit) -> NDArray[np.complex128]:
     return state
 
 
-def naive_phy_sim(backend: Backend, circuit: QuantumCircuit) -> NDArray[np.complex128]:
-    assert circuit.mappings is not None
+def mini_phy_unitary_sim(circuit: QuantumCircuit) -> NDArray[np.complex128, np.complex128]:
+    assert circuit.final_mappings is not None
+    assert circuit.initial_mappings is not None
+
+    dimensions = circuit.dimensions
+    lines = list(range(circuit.num_qudits))
+    id_mat = np.identity(np.prod(dimensions))
+
+    final_permutation = permute_according_to_mapping(circuit, circuit.final_mappings)
+    init_permutation = permute_according_to_mapping(circuit, circuit.initial_mappings)
+
+    id_mat = init_permutation @ id_mat
+    for gate in circuit.instructions:
+        id_mat = gate.to_matrix(identities=2) @ id_mat
+
+    return final_permutation.T @ id_mat
+
+
+def naive_phy_sim(circuit: QuantumCircuit) -> NDArray[np.complex128]:
+    assert circuit.final_mappings is not None
+    assert circuit.initial_mappings is not None
+
     dimensions = circuit.dimensions
     lines = list(range(circuit.num_qudits))
     state = np.array(np.prod(dimensions) * [0.0 + 0.0j])
     state[0] = 1.0 + 0.0j
 
-    final_permutation = np.eye(dimensions[0])[:, circuit.mappings[0]]
-    for line in lines[1:]:
-        final_permutation = np.kron(final_permutation, np.eye(dimensions[line])[:, circuit.mappings[line]])
+    final_permutation = permute_according_to_mapping(circuit, circuit.final_mappings)
+    init_permutation = permute_according_to_mapping(circuit, circuit.initial_mappings)
 
-    state = final_permutation @ state
+    state = init_permutation @ state
+
     for gate in circuit.instructions:
         state = gate.to_matrix(identities=2) @ state
 
-    init_permutation = np.eye(dimensions[0])[:, backend.energy_level_graphs[0].log_phy_map]
-    for line in lines[1:]:
-        init_permutation = np.kron(
-            init_permutation, np.eye(dimensions[line])[:, backend.energy_level_graphs[line].log_phy_map]
-        )
-
-    return init_permutation.T @ state
+    return final_permutation.T @ state
 
 
 class UnitaryVerifier:
@@ -71,13 +94,13 @@ class UnitaryVerifier:
     """
 
     def __init__(
-        self,
-        sequence: Sequence[Gate | R | Rz | VirtRz],
-        target: Gate,
-        dimensions: list[int],
-        nodes: list[int] | None = None,
-        initial_map: list[int] | None = None,
-        final_map: list[int] | None = None,
+            self,
+            sequence: Sequence[Gate | R | Rz | VirtRz],
+            target: Gate,
+            dimensions: list[int],
+            nodes: list[int] | None = None,
+            initial_map: list[int] | None = None,
+            final_map: list[int] | None = None,
     ) -> None:
         self.decomposition = sequence
         self.target = target.to_matrix().copy()

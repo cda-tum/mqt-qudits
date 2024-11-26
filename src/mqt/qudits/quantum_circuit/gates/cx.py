@@ -84,7 +84,11 @@ class CEx(Gate):
         return result
 
     def _dagger_properties(self) -> None:
-        self.phi *= -1
+        self.phi += np.pi
+        self.update_params([self._params[0],
+                            self._params[1],
+                            self._params[2],
+                            self.phi])
 
     @staticmethod
     def validate_parameter(parameter: Parameter) -> bool:
@@ -99,7 +103,7 @@ class CEx(Gate):
             assert 0 <= parameter[0] < parameter[1], (
                 f"lev_a and lev_b are out of range or in wrong order: {parameter[0]}, {parameter[1]}"
             )
-            assert 0 <= parameter[3] <= 2 * np.pi, f"Angle should be in the range [0, 2*pi]: {parameter[2]}"
+            # assert 0 <= parameter[3] <= 2 * np.pi, f"Angle should be in the range [0, 2*pi]: {parameter[2]}"
 
             return True
 

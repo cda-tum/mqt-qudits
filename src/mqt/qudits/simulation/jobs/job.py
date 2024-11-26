@@ -16,7 +16,7 @@ class Job:
         self._backend = backend
         self._job_id = job_id
         self._api_client = api_client
-        self._status = JobStatus.INITIALIZING
+        self.set_status(JobStatus.INITIALIZING)
         self._result = None
 
     @property
@@ -29,25 +29,46 @@ class Job:
 
     async def status(self) -> JobStatus:
         if self._api_client:
-            self._status = await self._api_client.get_job_status(self._job_id)
+            self.set_status(await self._api_client.get_job_status(self._job_id))
         else:
             # For local simulation, we assume the job is done immediately
-            self._status = JobStatus.DONE
+            self.set_status(JobStatus.DONE)
         return self._status
 
-    async def result(self) -> JobResult:
-        if self._result is None:
-            await self.wait_for_final_state()
+    def result(self) -> JobResult:
+        if self._result is not None:
+            return self._result
+
+        # Handle the async operations in a separate method
+        async def _get_result():
+            await self._wait_for_final_state()
             if self._api_client:
-                await self._api_client.get_job_result(self._job_id)
+                self._result = await self._api_client.get_job_result(self._job_id)
             else:
                 # For local simulation, we get the result directly from the backend
-                await self._backend.run_local_simulation(self._job_id)
-            # self._result = JobResult(self._job_id, result_data["state_vector"], result_data["counts"])
-        return self._result
+                self._result = await self._backend.run_local_simulation(self._job_id)
+            return self._result
 
-    async def wait_for_final_state(
-        self, timeout: float | None = None, callback: Callable[[str, JobStatus], None] | None = None
+        # Run the async operations in the event loop
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                # We're inside an event loop, create a task
+                return loop.run_until_complete(_get_result())
+            else:
+                # No loop is running, use this one
+                return loop.run_until_complete(_get_result())
+        except RuntimeError:
+            # No event loop exists, create a new one
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                return loop.run_until_complete(_get_result())
+            finally:
+                loop.close()
+
+    async def _wait_for_final_state(
+            self, timeout: float | None = None, callback: Callable[[str, JobStatus], None] | None = None
     ) -> None:
         if self._api_client:
             try:
@@ -57,7 +78,7 @@ class Job:
                 raise TimeoutError(msg)
         else:
             # For local simulation, we assume the job is done immediately
-            self._status = JobStatus.DONE
+            self.set_status(JobStatus.DONE)
             if callback:
                 callback(self._job_id, self._status)
 
@@ -75,3 +96,6 @@ class Job:
 
     def set_result(self, result: JobResult) -> None:
         self._result = result
+
+    def set_status(self, new_status: JobStatus) -> None:
+        self._status = new_status

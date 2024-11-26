@@ -20,9 +20,6 @@ class MatrixFactory:
 
     def generate_matrix(self) -> NDArray[np.complex128]:
         matrix = self.gate.__array__()
-        # these lines will be removed once the daggering is completely enabled by each class
-        # if self.gate.dagger:
-        #    matrix = matrix.conj().T
         from mqt.qudits.quantum_circuit.components.extensions.controls import ControlData
 
         control_info = typing.cast(typing.Optional[ControlData], self.gate.control_info["controls"])

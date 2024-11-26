@@ -106,12 +106,12 @@ class TestCliffordGroupGeneration(unittest.TestCase):
             return circuit
 
         circuit = create_rb_sequence(length=16)
-        print(mini_unitary_sim(circuit, circuit.instructions).round(4))
+        print(mini_unitary_sim(circuit).round(4))
 
         compiled_cirucit = circuit.compileO1("faketraps2trits", "adapt")
 
-        uni = mini_unitary_sim(compiled_cirucit, compiled_cirucit.instructions).round(4)
-        v = np.eye(DIM)[:, compiled_cirucit.mappings[0]]
+        uni = mini_unitary_sim(compiled_cirucit).round(4)
+        v = np.eye(DIM)[:, compiled_cirucit.final_mappings[0]]
         v2 = np.eye(DIM)
         tpuni = uni @ v
         tpuni = v2.T @ tpuni  # Pi dag
@@ -125,7 +125,7 @@ class TestCliffordGroupGeneration(unittest.TestCase):
         backend = provider.get_backend("faketraps2trits")
 
         print(backend.energy_level_graphs[0].edges)
-        print(compiled_cirucit.mappings[0])
+        print(compiled_cirucit.final_mappings[0])
 
         for instruction in compiled_cirucit.instructions:
             print(instruction.lev_a, instruction.lev_b)

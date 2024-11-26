@@ -51,6 +51,7 @@ class VirtRz(Gate):
 
     def _dagger_properties(self) -> None:
         self.phi *= -1
+        self.update_params([self.lev_a, self.phi])
 
     def validate_parameter(self, param: Parameter) -> bool:
         if param is None:

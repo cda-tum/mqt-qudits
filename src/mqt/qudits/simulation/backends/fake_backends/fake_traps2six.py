@@ -32,6 +32,7 @@ class FakeIonTraps2Six(TNSim):
             e_graphs: list[LevelGraph] = []
             # declare the edges on the energy level graph between logic states .
             edges = [
+                (1, 0, {"delta_m": 0, "sensitivity": 3}),
                 (2, 0, {"delta_m": 0, "sensitivity": 3}),
                 (3, 0, {"delta_m": 0, "sensitivity": 3}),
                 (4, 0, {"delta_m": 0, "sensitivity": 4}),
@@ -51,6 +52,7 @@ class FakeIonTraps2Six(TNSim):
             graph_0 = LevelGraph(edges, nodes, nmap, [1])
             # declare the edges on the energy level graph between logic states .
             edges_1 = [
+                (1, 0, {"delta_m": 0, "sensitivity": 3}),
                 (2, 0, {"delta_m": 0, "sensitivity": 3}),
                 (3, 0, {"delta_m": 0, "sensitivity": 3}),
                 (4, 0, {"delta_m": 0, "sensitivity": 4}),

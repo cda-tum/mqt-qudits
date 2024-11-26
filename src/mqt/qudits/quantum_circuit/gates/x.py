@@ -43,8 +43,8 @@ class X(Gate):
             array2[i] = 1
             matrix += np.outer(array1, array2)
 
-            if self.dagger:
-                return matrix.conj().T
+        if self.dagger:
+            return matrix.conj().T
 
         return matrix
 
@@ -52,3 +52,9 @@ class X(Gate):
     def dimensions(self) -> int:
         assert isinstance(self._dimensions, int), "Dimensions must be an integer"
         return self._dimensions
+
+    def to_qasm(self):
+        string_description = self.__qasm__()
+        if self.dagger:
+            return "inv @ " + string_description
+        return string_description

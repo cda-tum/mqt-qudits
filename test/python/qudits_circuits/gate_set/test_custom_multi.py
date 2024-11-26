@@ -5,20 +5,22 @@ from unittest import TestCase
 import numpy as np
 
 from mqt.qudits.quantum_circuit import QuantumCircuit
+from python.compiler.twodit.entangled_qr.test_entangled_qr import random_unitary_matrix
 
 
 class TestCustomMulti(TestCase):
     @staticmethod
     def test___array__():
-        # All 33 csum
         circuit_33 = QuantumCircuit(3, [3, 3, 3], 0)
-        cu = circuit_33.cu_multi([0, 1, 2], 1j * np.identity(27))
+        mru = 1j * np.identity(27) * random_unitary_matrix(27)
+
+        cu = circuit_33.cu_multi([0, 1, 2], mru)
 
         matrix = cu.to_matrix(identities=0)
-        assert np.allclose(1j * np.identity(27), matrix)
+        assert np.allclose(mru, matrix)
 
         matrix_dag = cu.dag().to_matrix()
-        assert np.allclose(-1j * np.identity(27), matrix_dag)
+        assert np.allclose(mru.conj().T, matrix_dag)
 
     @staticmethod
     def test_validate_parameter():

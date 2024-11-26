@@ -34,8 +34,8 @@ class TestZPropagationOptPass(TestCase):
         pass_z = ZPropagationOptPass(backend=self.backend_ion, back=True)
         new_circuit = pass_z.transpile(circ)
 
-        u1 = mini_unitary_sim(circ, circ.instructions)
-        u2 = mini_unitary_sim(new_circuit, new_circuit.instructions)
+        u1 = mini_unitary_sim(circ)
+        u2 = mini_unitary_sim(new_circuit)
 
         assert np.allclose(u1, u2)
 
@@ -60,7 +60,7 @@ class TestZPropagationOptPass(TestCase):
         assert new_circuit.instructions[4].phi == 4 * np.pi
         assert new_circuit.instructions[5].phi == 4 * np.pi
 
-        u1nb = mini_unitary_sim(circ, circ.instructions)
-        u2nb = mini_unitary_sim(new_circuit, new_circuit.instructions)
+        u1nb = mini_unitary_sim(circ)
+        u2nb = mini_unitary_sim(new_circuit)
 
         assert np.allclose(u1nb, u2nb)

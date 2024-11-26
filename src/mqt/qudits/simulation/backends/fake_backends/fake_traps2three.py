@@ -47,7 +47,7 @@ class FakeIonTraps2Trits(TNSim):
             nodes = [0, 1, 2]
             # declare physical levels in order of mapping of the logic states just declared .
             # i.e. here we will have Logic 0 -> Phys. 0, have Logic 1 -> Phys. 1, have Logic 2 -> Phys. 2 .
-            nmap = [0, 1, 2]
+            nmap = [1, 2, 0]
             # Construct the qudit energy level graph, the last field is the list of logic state that are used for the
             # calibrations of the operations. note: only the first is one counts in our current cost function.
             graph_0 = LevelGraph(edges, nodes, nmap, [1])
@@ -60,7 +60,7 @@ class FakeIonTraps2Trits(TNSim):
             nodes = [0, 1, 2]
             # declare physical levels in order of mapping of the logic states just declared .
             # i.e. here we will have Logic 0 -> Phys. 0, have Logic 1 -> Phys. 1, have Logic 2 -> Phys. 2 .
-            nmap = [1, 2, 0]
+            nmap = [0, 1, 2]
             # Construct the qudit energy level graph, the last field is the list of logic state that are used for the
             # calibrations of the operations. note: only the first is one counts in our current cost function.
             graph_1 = LevelGraph(edges, nodes, nmap, [1])

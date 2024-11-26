@@ -20,8 +20,55 @@ if typing.TYPE_CHECKING:
     from mqt.qudits.quantum_circuit.gate import Gate
 
 
+def random_sparse_unitary(n, density=0.4):
+    """
+    Generate a random sparse-like complex unitary matrix as a numpy array.
+
+    Parameters:
+    -----------
+    n : int
+        Size of the matrix (n x n)
+    density : float
+        Approximate density of non-zero elements (between 0 and 1)
+
+    Returns:
+    --------
+    numpy.ndarray
+        A complex unitary matrix with approximate sparsity
+    """
+    # Create a random complex matrix with mostly zeros
+    A = np.zeros((n, n), dtype=complex)
+
+    # Calculate number of non-zero elements
+    nnz = int(density * n * n)
+
+    # Generate random positions for non-zero elements
+    positions = np.random.choice(n * n, size=nnz, replace=False)
+    rows, cols = np.unravel_index(positions, (n, n))
+
+    # Generate random complex values with larger magnitude
+    values = (np.random.randn(nnz) + 1j * np.random.randn(nnz)) * np.sqrt(n)
+    A[rows, cols] = values
+
+    # Add a small random perturbation to all elements to avoid pure identity results
+    perturbation = (np.random.randn(n, n) + 1j * np.random.randn(n, n)) * 0.01
+    A = A + perturbation
+
+    # Perform QR decomposition to get unitary matrix
+    Q, R = np.linalg.qr(A)
+
+    # Make Q more sparse by zeroing out small elements
+    mask = np.abs(Q) < np.sqrt(density)  # Adaptive threshold
+    Q[mask] = 0
+
+    # Ensure unitarity by performing another QR
+    Q, R = np.linalg.qr(Q)
+
+    return Q
+
+
 def apply_rotations(
-    m: NDArray[np.complex128, np.complex128], params_list: list[float], dims: list[int]
+        m: NDArray[np.complex128, np.complex128], params_list: list[float], dims: list[int]
 ) -> NDArray[np.complex128, np.complex128]:
     params = params_splitter(params_list, dims)
     r1 = gate_expand_to_circuit(generic_sud(params[0], dims[0]), circuits_size=2, target=0, dims=dims)

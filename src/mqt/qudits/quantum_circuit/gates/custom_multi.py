@@ -30,7 +30,7 @@ class CustomMulti(Gate):
             circuit=circuit,
             name=name,
             gate_type=GateTypes.MULTI,
-            target_qudits=target_qudits,
+            target_qudits=sorted(target_qudits),
             dimensions=dimensions,
             control_set=controls,
             params=parameters,
@@ -41,10 +41,8 @@ class CustomMulti(Gate):
             self.__array_storage = parameters
 
     def __array__(self) -> NDArray:  # noqa: PLW3201
-        matrix = self.__array_storage
-        if self.dagger:
-            return matrix.conj().T
-        return matrix
+        return self.__array_storage
+
 
     @staticmethod
     def validate_parameter(parameter: NDArray | None = None) -> bool:
@@ -53,3 +51,9 @@ class CustomMulti(Gate):
         return isinstance(parameter, np.ndarray) and (
             parameter.dtype == np.complex128 or np.issubdtype(parameter.dtype, np.number)
         )
+
+    def _dagger_properties(self) -> None:
+        self.__array_storage = self.__array_storage.conj().T
+        self.update_params(self.__array_storage)
+
+

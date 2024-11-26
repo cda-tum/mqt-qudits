@@ -19,21 +19,21 @@ if TYPE_CHECKING:
 
 class CSum(Gate):
     def __init__(
-        self,
-        circuit: QuantumCircuit,
-        name: str,
-        target_qudits: list[int],
-        dimensions: list[int],
-        controls: ControlData | None = None,
+            self,
+            circuit: QuantumCircuit,
+            name: str,
+            target_qudits: list[int],
+            dimensions: list[int],
+            controls: ControlData | None = None,
     ) -> None:
         super().__init__(
-            circuit=circuit,
-            name=name,
-            gate_type=GateTypes.TWO,
-            target_qudits=target_qudits,
-            dimensions=dimensions,
-            control_set=controls,
-            qasm_tag="csum",
+                circuit=circuit,
+                name=name,
+                gate_type=GateTypes.TWO,
+                target_qudits=target_qudits,
+                dimensions=dimensions,
+                control_set=controls,
+                qasm_tag="csum",
         )
 
     def __array__(self) -> NDArray[np.complex128, np.complex128]:  # noqa: PLW3201
@@ -59,3 +59,9 @@ class CSum(Gate):
             return matrix.conj().T
 
         return matrix
+
+    def to_qasm(self):
+        string_description = self.__qasm__()
+        if self.dagger:
+            return "inv @ " + string_description
+        return string_description

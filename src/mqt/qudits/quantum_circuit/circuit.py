@@ -98,7 +98,8 @@ class QuantumCircuit:
         self.num_cl: int = 0
         self._num_qudits: int = 0
         self._dimensions: list[int] = []
-        self.mappings: list[list[int]] | None = None
+        self.final_mappings: list[list[int]] | None = None
+        self.initial_mappings: list[list[int]] | None = None
         self.path_save: str | None = None
 
         if len(args) == 0:
@@ -185,34 +186,34 @@ class QuantumCircuit:
     @add_gate_decorator
     def cu_two(self, qudits: list[int], parameters: NDArray, controls: ControlData | None = None) -> CustomTwo:
         return CustomTwo(
-            self,
-            "CUt" + str([self.dimensions[i] for i in qudits]),
-            qudits,
-            parameters,
-            [self.dimensions[i] for i in qudits],
-            controls,
+                self,
+                "CUt" + str([self.dimensions[i] for i in qudits]),
+                qudits,
+                parameters,
+                [self.dimensions[i] for i in qudits],
+                controls,
         )
 
     @add_gate_decorator
     def cu_multi(self, qudits: list[int], parameters: NDArray, controls: ControlData | None = None) -> CustomMulti:
         return CustomMulti(
-            self,
-            "CUm" + str([self.dimensions[i] for i in qudits]),
-            qudits,
-            parameters,
-            [self.dimensions[i] for i in qudits],
-            controls,
+                self,
+                "CUm" + str([self.dimensions[i] for i in qudits]),
+                qudits,
+                parameters,
+                [self.dimensions[i] for i in qudits],
+                controls,
         )
 
     @add_gate_decorator
     def cx(self, qudits: list[int], parameters: list[int | float] | None = None) -> CEx:
         return CEx(
-            self,
-            "CEx" + str([self.dimensions[i] for i in qudits]),
-            qudits,
-            parameters,
-            [self.dimensions[i] for i in qudits],
-            None,
+                self,
+                "CEx" + str([self.dimensions[i] for i in qudits]),
+                qudits,
+                parameters,
+                [self.dimensions[i] for i in qudits],
+                None,
         )
 
     # @add_gate_decorator # decide to make it usable for computations but only for constructions
@@ -231,23 +232,23 @@ class QuantumCircuit:
     @add_gate_decorator
     def ls(self, qudits: list[int], parameters: list[float]) -> LS:
         return LS(
-            self,
-            "LS" + str([self.dimensions[i] for i in qudits]),
-            qudits,
-            parameters,
-            [self.dimensions[i] for i in qudits],
-            None,
+                self,
+                "LS" + str([self.dimensions[i] for i in qudits]),
+                qudits,
+                parameters,
+                [self.dimensions[i] for i in qudits],
+                None,
         )
 
     @add_gate_decorator
     def ms(self, qudits: list[int], parameters: list[float]) -> MS:
         return MS(
-            self,
-            "MS" + str([self.dimensions[i] for i in qudits]),
-            qudits,
-            parameters,
-            [self.dimensions[i] for i in qudits],
-            None,
+                self,
+                "MS" + str([self.dimensions[i] for i in qudits]),
+                qudits,
+                parameters,
+                [self.dimensions[i] for i in qudits],
+                None,
         )
 
     @add_gate_decorator
@@ -261,7 +262,7 @@ class QuantumCircuit:
     @add_gate_decorator
     def randu(self, qudits: list[int]) -> RandU:
         return RandU(
-            self, "RandU" + str([self.dimensions[i] for i in qudits]), qudits, [self.dimensions[i] for i in qudits]
+                self, "RandU" + str([self.dimensions[i] for i in qudits]), qudits, [self.dimensions[i] for i in qudits]
         )
 
     @add_gate_decorator
@@ -294,8 +295,12 @@ class QuantumCircuit:
         self.number_gates = len(sequence)
         return self
 
-    def set_mapping(self, mappings: list[list[int]]) -> QuantumCircuit:
-        self.mappings = mappings
+    def set_final_mappings(self, mappings: list[list[int]]) -> QuantumCircuit:
+        self.final_mappings = mappings
+        return self
+
+    def set_initial_mappings(self, mappings: list[list[int]]) -> QuantumCircuit:
+        self.initial_mappings = mappings
         return self
 
     def from_qasm(self, qasm_prog: str) -> None:
@@ -317,6 +322,7 @@ class QuantumCircuit:
         for op in instructions:
             if op["name"] in qasm_set:
                 gate_constructor_name = qasm_set[op["name"]]
+                gate = {}
                 if hasattr(self, gate_constructor_name):
                     function = getattr(self, gate_constructor_name)
 
@@ -332,16 +338,18 @@ class QuantumCircuit:
                         qudits_call = [t[0] for t in list(tuples_qudits)]
                     if is_not_none_or_empty(op["params"]):
                         if op["controls"]:
-                            function(qudits_call, op["params"], op["controls"])
+                            gate = function(qudits_call, op["params"], op["controls"])
                         else:
-                            function(qudits_call, op["params"])
+                            gate = function(qudits_call, op["params"])
                     elif op["controls"]:
-                        function(qudits_call, op["controls"])
+                        gate = function(qudits_call, op["controls"])
                     else:
-                        function(qudits_call)
+                        gate = function(qudits_call)
                 else:
                     msg = "the required gate_matrix is not available anymore."
                     raise NotImplementedError(msg)
+                if op["dagger"]:
+                    gate.dag()
 
     def to_qasm(self) -> str:
         text = ""
@@ -352,7 +360,9 @@ class QuantumCircuit:
         text += f"creg meas[{len(self.dimensions)}];\n"
 
         for op in self.instructions:
-            text += op.__qasm__()
+            if op.to_qasm() is None:
+                pass
+            text += op.to_qasm()
 
         cregs_indices = iter(list(range(len(self.dimensions))))
         for qreg in self.quantum_registers:

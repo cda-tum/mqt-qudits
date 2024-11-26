@@ -3,6 +3,8 @@ from __future__ import annotations
 import typing
 from typing import Optional
 
+from .multidit.transpile.phy_multi_control_transp import PhyMultiSimplePass
+from .twodit.transpile.phy_two_control_transp import PhyEntSimplePass
 from ..core.custom_python_utils import append_to_front
 from ..quantum_circuit.components.extensions.gate_types import GateTypes
 from . import CompilerPass
@@ -19,16 +21,18 @@ if typing.TYPE_CHECKING:
 
 class QuditCompiler:
     passes_enabled: typing.ClassVar = {
-        "PhyLocQRPass": PhyLocQRPass,
-        "PhyLocAdaPass": PhyLocAdaPass,
-        "LocQRPass": PhyLocQRPass,
-        "LocAdaPass": PhyLocAdaPass,
-        "LogLocQRPass": LogLocQRPass,
-        "ZPropagationOptPass": ZPropagationOptPass,
-        "ZRemovalOptPass": ZRemovalOptPass,
-        "LogEntQRCEXPass": LogEntQRCEXPass,
-        "PhyEntQRCEXPass": PhyEntQRCEXPass,
+        "PhyLocQRPass":           PhyLocQRPass,
+        "PhyLocAdaPass":          PhyLocAdaPass,
+        "LocQRPass":              PhyLocQRPass,
+        "LocAdaPass":             PhyLocAdaPass,
+        "LogLocQRPass":           LogLocQRPass,
+        "ZPropagationOptPass":    ZPropagationOptPass,
+        "ZRemovalOptPass":        ZRemovalOptPass,
+        "LogEntQRCEXPass":        LogEntQRCEXPass,
+        "PhyEntQRCEXPass":        PhyEntQRCEXPass,
         "NaiveLocResynthOptPass": NaiveLocResynthOptPass,
+        "PhyEntSimplePass":       PhyEntSimplePass,
+        "PhyMultiSimplePass":     PhyMultiSimplePass,
     }
 
     def __init__(self) -> None:
@@ -36,6 +40,13 @@ class QuditCompiler:
 
     def compile(self, backend: Backend, circuit: QuantumCircuit, passes_names: list[str]) -> QuantumCircuit:
         """Method compiles with passes chosen."""
+        transpiled_circuit = circuit.copy()
+        final_mappings = []
+        for i, graph in enumerate(backend.energy_level_graphs):
+            if i < circuit.num_qudits:
+                final_mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
+        transpiled_circuit.set_final_mappings(final_mappings)
+
         passes_dict = {}
         new_instr = []
         # Instantiate and execute created classes
@@ -54,29 +65,31 @@ class QuditCompiler:
             if decomposer is not None:
                 new_instructions = decomposer.transpile_gate(gate)
                 append_to_front(new_instr, new_instructions)
-                # new_instr.extend(new_instructions)
             else:
                 append_to_front(new_instr, gate)
-                # new_instr.append(gate)
-
-        transpiled_circuit = circuit.copy()
-        mappings = []
+        initial_mappings = []
         for i, graph in enumerate(backend.energy_level_graphs):
             if i < circuit.num_qudits:
-                mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
-        transpiled_circuit.set_mapping(mappings)
+                initial_mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
+        transpiled_circuit.set_initial_mappings(initial_mappings)
         return transpiled_circuit.set_instructions(new_instr)
 
     def compile_O0(self, backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  # noqa: N802
         """Method compiles with PHY LOC QR and PHY ENT QR CEX with no optimization."""
+        final_mappings = []
+        for i, graph in enumerate(backend.energy_level_graphs):
+            if i < circuit.num_qudits:
+                final_mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
+
         passes = ["PhyLocQRPass", "PhyEntQRCEXPass"]
         compiled = self.compile(backend, circuit, passes)
 
-        mappings = []
+        initial_mappings = []
         for i, graph in enumerate(backend.energy_level_graphs):
             if i < circuit.num_qudits:
-                mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
-        compiled.set_mapping(mappings)
+                initial_mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
+        compiled.set_initial_mappings(initial_mappings)
+        compiled.set_final_mappings(final_mappings)
         return compiled
 
     @staticmethod
@@ -85,6 +98,13 @@ class QuditCompiler:
         phyloc = PhyLocQRPass(backend)
         phyent = PhyEntQRCEXPass(backend)
         resynth = NaiveLocResynthOptPass(backend)
+
+        transpiled_circuit = circuit.copy()
+        final_mappings = []
+        for i, graph in enumerate(backend.energy_level_graphs):
+            if i < circuit.num_qudits:
+                final_mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
+        transpiled_circuit.set_final_mappings(final_mappings)
 
         circuit = resynth.transpile(circuit)
         new_instructions = []
@@ -97,12 +117,11 @@ class QuditCompiler:
                 ins = phyent.transpile_gate(gate)
                 append_to_front(new_instructions, ins)
 
-        transpiled_circuit = circuit.copy()
-        mappings = []
+        initial_mappings = []
         for i, graph in enumerate(backend.energy_level_graphs):
             if i < circuit.num_qudits:
-                mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
-        transpiled_circuit.set_mapping(mappings)
+                initial_mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
+        transpiled_circuit.set_initial_mappings(initial_mappings)
         return transpiled_circuit.set_instructions(new_instructions)
 
     @staticmethod
@@ -110,6 +129,13 @@ class QuditCompiler:
         """Method compiles with PHY LOC ADA and PHY ENT QR CEX."""
         phyent = PhyEntQRCEXPass(backend)
         phyloc = PhyLocAdaPass(backend)
+        transpiled_circuit = circuit.copy()
+        final_mappings = []
+        for i, graph in enumerate(backend.energy_level_graphs):
+            if i < circuit.num_qudits:
+                final_mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
+        transpiled_circuit.set_final_mappings(final_mappings)
+
         new_instructions = []
         for gate in reversed(circuit.instructions):
             ins: list[Gate] = []
@@ -120,13 +146,12 @@ class QuditCompiler:
                 ins = phyent.transpile_gate(gate)
                 append_to_front(new_instructions, ins)
 
-        transpiled_circuit = circuit.copy()
         transpiled_circuit.set_instructions(new_instructions)
-        mappings = []
+        initial_mappings = []
         for i, graph in enumerate(backend.energy_level_graphs):
             if i < circuit.num_qudits:
-                mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
-        transpiled_circuit.set_mapping(mappings)
+                initial_mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
+        transpiled_circuit.set_initial_mappings(initial_mappings)
 
         z_propagation_pass = ZPropagationOptPass(backend=backend, back=False)
         return z_propagation_pass.transpile(transpiled_circuit)
@@ -137,6 +162,10 @@ class QuditCompiler:
         phyloc = PhyLocAdaPass(backend)
         phyent = PhyEntQRCEXPass(backend)
         resynth = NaiveLocResynthOptPass(backend)
+        final_mappings = []
+        for i, graph in enumerate(backend.energy_level_graphs):
+            if i < circuit.num_qudits:
+                final_mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
 
         circuit = resynth.transpile(circuit)
         new_instructions = []
@@ -150,9 +179,10 @@ class QuditCompiler:
                 append_to_front(new_instructions, ins)
 
         transpiled_circuit = circuit.copy()
-        mappings = []
+        initial_mappings = []
         for i, graph in enumerate(backend.energy_level_graphs):
             if i < circuit.num_qudits:
-                mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
-        transpiled_circuit.set_mapping(mappings)
+                initial_mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
+        transpiled_circuit.set_initial_mappings(initial_mappings)
+        transpiled_circuit.set_final_mappings(final_mappings)
         return transpiled_circuit.set_instructions(new_instructions)

@@ -77,18 +77,25 @@ class Gate(Instruction):
         if len(lines) == 0:
             msg = "Gate has no target or control lines"
             raise CircuitError(msg)
+
         return lines
 
     @abstractmethod
     def __array__(self) -> NDArray:  # noqa: PLW3201
         pass
 
+    def update_params(self, params: Parameter) -> None:
+        self._params = params
+
     def _dagger_properties(self) -> None:
         pass
 
     def dag(self) -> Gate:
-        self._name += "_dag"
-        self.dagger = True
+        if self.dagger:
+            self._name = self._name.replace("_dag", "")
+        else:
+            self._name += "_dag"
+        self.dagger = not self.dagger
         self._dagger_properties()
         return self
 
@@ -114,7 +121,7 @@ class Gate(Instruction):
         # AT THE MOMENT WE SUPPORT CONTROL OF SINGLE QUDIT GATES
         assert self.gate_type == GateTypes.SINGLE
         if len(indices) > self.parent_circuit.num_qudits or any(
-            idx >= self.parent_circuit.num_qudits for idx in indices
+                idx >= self.parent_circuit.num_qudits for idx in indices
         ):
             msg = "Indices or Number of Controls is beyond the Quantum Circuit Size"
             raise IndexError(msg)
@@ -136,7 +143,7 @@ class Gate(Instruction):
             self.set_gate_type_two()
         elif len(self.reference_lines) > 2:
             self.set_gate_type_multi()
-        self.check_long_range()
+        self.is_long_range = self.check_long_range()
         return self
 
     def validate_parameter(self, param: Parameter) -> bool:  # noqa: PLR6301 ARG002
@@ -188,6 +195,9 @@ class Gate(Instruction):
             string += str(self._controls_data.ctrl_states)
 
         return string + ";\n"
+
+    def to_qasm(self):
+        return self.__qasm__()
 
     def check_long_range(self) -> bool:
         target_qudits: list[int] = self.reference_lines
