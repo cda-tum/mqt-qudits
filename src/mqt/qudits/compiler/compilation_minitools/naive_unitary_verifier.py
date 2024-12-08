@@ -30,7 +30,6 @@ def mini_unitary_sim(circuit: QuantumCircuit) -> NDArray[np.complex128, np.compl
     size = reduce(operator.mul, circuit.dimensions)
     id_mat = np.identity(size)
     for gate in circuit.instructions:
-        gatedb = gate.to_matrix(identities=2).round(3)
         id_mat = gate.to_matrix(identities=2) @ id_mat
     return id_mat
 
@@ -49,7 +48,6 @@ def mini_phy_unitary_sim(circuit: QuantumCircuit) -> NDArray[np.complex128, np.c
     assert circuit.initial_mappings is not None
 
     dimensions = circuit.dimensions
-    lines = list(range(circuit.num_qudits))
     id_mat = np.identity(np.prod(dimensions))
 
     final_permutation = permute_according_to_mapping(circuit, circuit.final_mappings)
@@ -67,7 +65,6 @@ def naive_phy_sim(circuit: QuantumCircuit) -> NDArray[np.complex128]:
     assert circuit.initial_mappings is not None
 
     dimensions = circuit.dimensions
-    lines = list(range(circuit.num_qudits))
     state = np.array(np.prod(dimensions) * [0.0 + 0.0j])
     state[0] = 1.0 + 0.0j
 

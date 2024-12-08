@@ -23,7 +23,7 @@ class TestZPropagationOptPass(TestCase):
         qreg = QuantumRegister("test_reg", 1, [3])
         circ = QuantumCircuit(qreg)
 
-        circ.r(qreg[0], [0, 1, np.pi, np.pi / 3])
+        circ.r(qreg[0], [0, 1, np.pi, np.pi / 3]).dag()
         circ.virtrz(qreg[0], [0, np.pi / 3])
         circ.r(qreg[0], [0, 1, np.pi, np.pi / 3])
         circ.r(qreg[0], [0, 1, np.pi, np.pi / 3])

@@ -3,6 +3,8 @@ from __future__ import annotations
 import gc
 from typing import List, TYPE_CHECKING, cast
 
+import numpy as np
+
 from mqt.qudits.compiler import CompilerPass
 from mqt.qudits.compiler.twodit.entanglement_qr import EntangledQRCEX
 from mqt.qudits.core.custom_python_utils import append_to_front

@@ -29,6 +29,11 @@ class ZPropagationOptPass(CompilerPass):
         self.circuit = circuit
         self.lanes = Lanes(self.circuit)
 
+        final_mappings = []
+        for i, graph in enumerate(self.backend.energy_level_graphs):
+            if i < circuit.num_qudits:
+                final_mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
+
         for line in sorted(self.lanes.index_dict.keys()):
             extracted_line: list[tuple[int, Gate]] = self.lanes.index_dict[line]
             grouped_line: dict[int, list[list[tuple[int, Gate]]]] = self.lanes.find_consecutive_singles(extracted_line)
@@ -42,13 +47,14 @@ class ZPropagationOptPass(CompilerPass):
             self.lanes.index_dict[line] = new_line
 
         new_instructions = self.lanes.extract_instructions()
-
         transpiled_circuit = circuit.copy()
-        mappings = []
+        initial_mappings = []
         for i, graph in enumerate(self.backend.energy_level_graphs):
             if i < circuit.num_qudits:
-                mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
-        transpiled_circuit.set_final_mappings(mappings)
+                initial_mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
+        transpiled_circuit.set_initial_mappings(initial_mappings)
+        transpiled_circuit.set_final_mappings(final_mappings)
+
         return transpiled_circuit.set_instructions(new_instructions)
 
     @staticmethod
@@ -72,20 +78,20 @@ class ZPropagationOptPass(CompilerPass):
             if isinstance(line[gate_index], R):
                 if back:
                     new_phi = pi_mod(
-                        line[gate_index].phi + z_angles[line[gate_index].lev_a] - z_angles[line[gate_index].lev_b]
+                            line[gate_index].phi + z_angles[line[gate_index].lev_a] - z_angles[line[gate_index].lev_b]
                     )
                 else:
                     new_phi = pi_mod(
-                        line[gate_index].phi - z_angles[line[gate_index].lev_a] + z_angles[line[gate_index].lev_b]
+                            line[gate_index].phi - z_angles[line[gate_index].lev_a] + z_angles[line[gate_index].lev_b]
                     )
                 list_of_x_yrots.append(
-                    gates.R(
-                        circuit,
-                        "R",
-                        qudit_index,
-                        [line[gate_index].lev_a, line[gate_index].lev_b, line[gate_index].theta, new_phi],
-                        dimension,
-                    )
+                        gates.R(
+                                circuit,
+                                "R",
+                                qudit_index,
+                                [line[gate_index].lev_a, line[gate_index].lev_b, line[gate_index].theta, new_phi],
+                                dimension,
+                        )
                 )
             elif isinstance(line[gate_index], VirtRz):
                 z_angles[line[gate_index].lev_a] = pi_mod(z_angles[line[gate_index].lev_a] + line[gate_index].phi)

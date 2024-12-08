@@ -13,7 +13,7 @@ from .backendv2 import Backend
 if TYPE_CHECKING:
     from ...quantum_circuit import QuantumCircuit
     from .. import MQTQuditProvider
-    from ..noise_tools import NoiseModel
+    from ..noise_tools import Noise, NoiseModel, SubspaceNoise
 
 
 class Innsbruck01(Backend):
@@ -27,10 +27,10 @@ class Innsbruck01(Backend):
         **fields: Unpack[Backend.DefaultOptions],
     ) -> None:
         super().__init__(
-            provider=provider,
-            name="Innsbruck01",
-            description="Interface to the Innsbruck machine 01. Interface prototype with MVP.",
-            **fields,
+                provider=provider,
+                name="Innsbruck01",
+                description="Interface to the Innsbruck machine 01. Interface prototype with MVP.",
+                **fields,
         )
         self.outcome: list[int] = []
         self.options["noise_model"] = self.__noise_model()
@@ -42,31 +42,40 @@ class Innsbruck01(Backend):
     def energy_level_graphs(self) -> list[LevelGraph]:
         if len(self._energy_level_graphs) == 0:
             e_graphs: list[LevelGraph] = []
-            # declare the edges on the energy level graph between logic states .
-            edges = [
-                (0, 1, {"delta_m": 0, "sensitivity": 3, "carrier": 0}),
-                (1, 2, {"delta_m": 0, "sensitivity": 4, "carrier": 1}),
-            ]
-            # name explicitly the logic states .
-            nodes = [0, 1, 2]
-            # declare physical levels in order of mapping of the logic states just declared .
-            # i.e. here we will have Logic 0 -> Phys. 0, have Logic 1 -> Phys. 1, have Logic 2 -> Phys. 2 .
-            nmap = [0, 1, 2]
-            graph_0 = LevelGraph(edges, nodes, nmap, [1])
 
-            edges_1 = [
-                (0, 1, {"delta_m": 0, "sensitivity": 3, "carrier": 0}),
-                (1, 2, {"delta_m": 0, "sensitivity": 4, "carrier": 1}),
-            ]
-            # name explicitly the logic states .
-            nodes_1 = [0, 1, 2]
-            # declare physical levels in order of mapping of the logic states just declared .
-            # i.e. here we will have Logic 0 -> Phys. 0, have Logic 1 -> Phys. 1, have Logic 2 -> Phys. 2 .
-            nmap_1 = [0, 1, 2]
+            # Create graphs for all 8 ions
+            for i in range(8):
+                # declare the edges on the energy level graph between logic states
+                # we have to fake a direct connection between 0 and 1 to make transpilations
+                # physically compatible also for small systems
+                edges = [
+                    (0, 1, {"delta_m": 0, "sensitivity": 4}),
+                    (2, 0, {"delta_m": 0, "sensitivity": 3}),
+                    # (3, 0, {"delta_m": 0, "sensitivity": 3}),
+                    (4, 0, {"delta_m": 0, "sensitivity": 3}),
+                    (5, 0, {"delta_m": 0, "sensitivity": 4}),
+                    (6, 0, {"delta_m": 0, "sensitivity": 4}),
+                    (1, 2, {"delta_m": 0, "sensitivity": 4}),
+                    (1, 3, {"delta_m": 0, "sensitivity": 3}),
+                    (1, 4, {"delta_m": 0, "sensitivity": 3}),
+                    (1, 5, {"delta_m": 0, "sensitivity": 4}),
+                    (1, 6, {"delta_m": 0, "sensitivity": 4}),
+                ]
 
-            graph_1 = LevelGraph(edges_1, nodes_1, nmap_1, [1])
+                # name explicitly the logic states (0 through 6 for seven levels)
+                nodes = list(range(7))
 
-            e_graphs.extend((graph_0, graph_1))
+                # Different mappings for different ions
+                if i % 3 == 0:
+                    nmap = [1, 0, 2, 3, 4, 5, 6]  # Similar to graph_0 in original
+                elif i % 3 == 1:
+                    nmap = [2, 1, 0, 3, 4, 5, 6]  # Similar to graph_1 in original
+                else:
+                    nmap = [0, 2, 1, 3, 4, 5, 6]  # Similar to graph_2 in original
+
+                # Construct the qudit energy level graph
+                graph = LevelGraph(edges, nodes, nmap, [1])
+                e_graphs.append(graph)
 
             self._energy_level_graphs = e_graphs
         return self._energy_level_graphs
@@ -76,10 +85,37 @@ class Innsbruck01(Backend):
         edge_data: dict[str, int] = e_graph.get_edge_data(leva, levb)
         return edge_data["carrier"]
 
-    def __noise_model(self) -> NoiseModel | None:
-        return self.noise_model
+    def __noise_model(self) -> NoiseModel:
+        # Depolarizing and Dephasing quantum errors
+        basic_error = Noise(probability_depolarizing=0.005, probability_dephasing=0.005)
+        basic_subspace_dynamic_error = SubspaceNoise(probability_depolarizing=2e-4,
+                                                     probability_dephasing=2e-4,
+                                                     levels=[])
 
-    async def run(self, circuit: QuantumCircuit, **options: Unpack[Backend.DefaultOptions]) -> Job:
+        basic_subspace_dynamic_error_rz = SubspaceNoise(probability_depolarizing=6e-4,
+                                                        probability_dephasing=4e-4,
+                                                        levels=[])
+        subspace_error_01 = SubspaceNoise(probability_depolarizing=0.005, probability_dephasing=0.005,
+                                          levels=(0, 1))
+        subspace_error_01_cex = SubspaceNoise(probability_depolarizing=0.010, probability_dephasing=0.010,
+                                              levels=(0, 1))
+
+        # Add errors to noise_tools model
+        noise_model = NoiseModel()  # We know that the architecture is only two qudits
+        # Very noisy gate_matrix
+        noise_model.add_nonlocal_quantum_error(basic_error, ["csum", "ls"])
+        noise_model.add_quantum_error_locally(basic_error, ["cuone", "cutwo", "cumulti", "h",
+                                                            "perm", "rdu", "s", "x", "z"])
+
+        # Physical gates
+        noise_model.add_nonlocal_quantum_error(subspace_error_01, ["ms"])
+        noise_model.add_nonlocal_quantum_error(subspace_error_01_cex, ["cx"])
+        noise_model.add_quantum_error_locally(basic_subspace_dynamic_error, ["rxy", "rh"])
+        noise_model.add_quantum_error_locally(basic_subspace_dynamic_error_rz, ["rz"])
+        self.noise_model = noise_model
+        return noise_model
+
+    def run(self, circuit: QuantumCircuit, **options: Unpack[Backend.DefaultOptions]) -> Job:
         Job(self)
 
         self._options.update(options)
@@ -90,18 +126,18 @@ class Innsbruck01(Backend):
         self.file_path = self._options.get("file_path", None)
         self.file_name = self._options.get("file_name", None)
 
-        assert self.shots >= 50, "Number of shots should be above 50"
         # asyncio.run(self.execute(circuit))  # Call the async execute method
         # job.set_result(JobResult(state_vector=np.array([]), counts=self.outcome))
         # return job
 
-        job_id = await self._api_client.submit_job(circuit, self.shots, self.energy_level_graphs)
+        job_id = self._api_client.submit_job(circuit, self.shots, self.energy_level_graphs)
         return Job(self, job_id, self._api_client)
 
-    async def close(self) -> None:
-        await self._api_client.close()
+    def close(self) -> None:
+        self._api_client.close()
 
     def execute(self, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> None:
+        pass
         """self.system_sizes = circuit.dimensions
         self.circ_operations = circuit.instructions.
 

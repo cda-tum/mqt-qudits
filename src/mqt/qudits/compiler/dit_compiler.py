@@ -81,7 +81,7 @@ class QuditCompiler:
             if i < circuit.num_qudits:
                 final_mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
 
-        passes = ["PhyLocQRPass", "PhyEntQRCEXPass"]
+        passes = ["PhyLocQRPass", "PhyEntQRCEXPass", "PhyMultiSimplePass"]
         compiled = self.compile(backend, circuit, passes)
 
         initial_mappings = []
@@ -98,6 +98,7 @@ class QuditCompiler:
         phyloc = PhyLocQRPass(backend)
         phyent = PhyEntQRCEXPass(backend)
         resynth = NaiveLocResynthOptPass(backend)
+        phymulti = PhyMultiSimplePass(backend)
 
         transpiled_circuit = circuit.copy()
         final_mappings = []
@@ -113,8 +114,11 @@ class QuditCompiler:
             if gate.gate_type is GateTypes.SINGLE:
                 ins = phyloc.transpile_gate(gate)
                 append_to_front(new_instructions, ins)
-            else:
+            elif gate.gate_type is GateTypes.TWO:
                 ins = phyent.transpile_gate(gate)
+                append_to_front(new_instructions, ins)
+            else:
+                ins = phymulti.transpile_gate(gate)
                 append_to_front(new_instructions, ins)
 
         initial_mappings = []
@@ -129,12 +133,12 @@ class QuditCompiler:
         """Method compiles with PHY LOC ADA and PHY ENT QR CEX."""
         phyent = PhyEntQRCEXPass(backend)
         phyloc = PhyLocAdaPass(backend)
+        phymulti = PhyMultiSimplePass(backend)
         transpiled_circuit = circuit.copy()
         final_mappings = []
         for i, graph in enumerate(backend.energy_level_graphs):
             if i < circuit.num_qudits:
                 final_mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
-        transpiled_circuit.set_final_mappings(final_mappings)
 
         new_instructions = []
         for gate in reversed(circuit.instructions):
@@ -142,19 +146,25 @@ class QuditCompiler:
             if gate.gate_type is GateTypes.SINGLE:
                 ins = phyloc.transpile_gate(gate)
                 append_to_front(new_instructions, ins)
-            else:
+            elif gate.gate_type is GateTypes.TWO:
                 ins = phyent.transpile_gate(gate)
+                append_to_front(new_instructions, ins)
+            else:
+                ins = phymulti.transpile_gate(gate)
                 append_to_front(new_instructions, ins)
 
         transpiled_circuit.set_instructions(new_instructions)
+        z_propagation_pass = ZPropagationOptPass(backend=backend, back=False)
+        transpiled_circuit = z_propagation_pass.transpile(transpiled_circuit)
+
         initial_mappings = []
         for i, graph in enumerate(backend.energy_level_graphs):
             if i < circuit.num_qudits:
                 initial_mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
         transpiled_circuit.set_initial_mappings(initial_mappings)
+        transpiled_circuit.set_final_mappings(final_mappings)
 
-        z_propagation_pass = ZPropagationOptPass(backend=backend, back=False)
-        return z_propagation_pass.transpile(transpiled_circuit)
+        return transpiled_circuit
 
     @staticmethod
     def compile_O2(backend: Backend, circuit: QuantumCircuit) -> QuantumCircuit:  # noqa: N802
@@ -162,6 +172,9 @@ class QuditCompiler:
         phyloc = PhyLocAdaPass(backend)
         phyent = PhyEntQRCEXPass(backend)
         resynth = NaiveLocResynthOptPass(backend)
+        phymulti = PhyMultiSimplePass(backend)
+        transpiled_circuit = circuit.copy()
+
         final_mappings = []
         for i, graph in enumerate(backend.energy_level_graphs):
             if i < circuit.num_qudits:
@@ -174,11 +187,17 @@ class QuditCompiler:
             if gate.gate_type is GateTypes.SINGLE:
                 ins = phyloc.transpile_gate(gate)
                 append_to_front(new_instructions, ins)
-            else:
+            elif gate.gate_type is GateTypes.TWO:
                 ins = phyent.transpile_gate(gate)
                 append_to_front(new_instructions, ins)
+            else:
+                ins = phymulti.transpile_gate(gate)
+                append_to_front(new_instructions, ins)
 
-        transpiled_circuit = circuit.copy()
+        transpiled_circuit.set_instructions(new_instructions)
+        z_propagation_pass = ZPropagationOptPass(backend=backend, back=False)
+        transpiled_circuit = z_propagation_pass.transpile(transpiled_circuit)
+
         initial_mappings = []
         for i, graph in enumerate(backend.energy_level_graphs):
             if i < circuit.num_qudits:

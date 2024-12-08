@@ -86,6 +86,9 @@ class QuantumCircuit:
         "s": "s",
         "x": "x",
         "z": "z",
+        "noisex": "noisex",
+        "noisey": "noisey",
+        "noisez": "noisez",
     }
 
     def __init__(self, *args: int | QuantumRegister | list[int] | None) -> None:
@@ -158,10 +161,13 @@ class QuantumCircuit:
         self._dimensions += qreg.dimensions
 
         num_lines_stored = len(self.sitemap)
-        for i in range(qreg.size):
-            qreg.local_sitemap[i] = num_lines_stored + i
-            self.sitemap[str(qreg.label), i] = (num_lines_stored + i, qreg.dimensions[i])
-            self.inverse_sitemap[num_lines_stored + i] = (str(qreg.label), i)
+        try:
+            for i in range(qreg.size):
+                qreg.local_sitemap[i] = num_lines_stored + i
+                self.sitemap[str(qreg.label), i] = (num_lines_stored + i, qreg.dimensions[i])
+                self.inverse_sitemap[num_lines_stored + i] = (str(qreg.label), i)
+        except IndexError:
+            raise IndexError("Check your Quantum Register to have the right number of lines and number of dimensions")
 
     def append_classic(self, creg: ClassicRegister) -> None:
         self.classic_registers.append(creg)
@@ -176,13 +182,13 @@ class QuantumCircuit:
     @add_gate_decorator
     def csum(self, qudits: list[int]) -> CSum:
         return CSum(
-            self, "CSum" + str([self.dimensions[i] for i in qudits]), qudits, [self.dimensions[i] for i in qudits], None
+                self, "CSum" + str([self.dimensions[i] for i in qudits]), qudits, [self.dimensions[i] for i in qudits], None
         )
 
     @add_gate_decorator
     def cu_one(self, qudits: int, parameters: NDArray, controls: ControlData | None = None) -> CustomOne:
         return CustomOne(
-            self, "CUo" + str(self.dimensions[qudits]), qudits, parameters, self.dimensions[qudits], controls
+                self, "CUo" + str(self.dimensions[qudits]), qudits, parameters, self.dimensions[qudits], controls
         )
 
     @add_gate_decorator
@@ -462,6 +468,16 @@ class QuantumCircuit:
             raise ValueError(msg)
 
         return new_circuit
+
+    def compileO2(self, backend_name: str) -> QuantumCircuit:  # noqa: N802
+        from mqt.qudits.compiler import QuditCompiler
+        from mqt.qudits.simulation import MQTQuditProvider
+
+        qudit_compiler = QuditCompiler()
+        provider = MQTQuditProvider()
+        backend_ion = provider.get_backend(backend_name)
+
+        return qudit_compiler.compile_O2(backend_ion, self)
 
     def set_initial_state(self, state: ArrayLike, approx: bool = False) -> QuantumCircuit:
         from mqt.qudits.compiler.state_compilation.state_preparation import StatePrep

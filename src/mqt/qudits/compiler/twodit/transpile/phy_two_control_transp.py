@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from mqt.qudits.quantum_circuit.gate import Gate
     from mqt.qudits.simulation.backends.backendv2 import Backend
     from mqt.qudits.core import LevelGraph
+    from mqt.qudits.quantum_circuit.gates import R, Rz
 
 
 class PhyEntSimplePass(CompilerPass):
@@ -60,10 +61,10 @@ class PhyEntSimplePass(CompilerPass):
 
     def transpile_gate(self, gate: Gate) -> list[Gate]:
         assert gate.gate_type == GateTypes.TWO
-        from mqt.qudits.quantum_circuit.gates import CEx, R
+        from mqt.qudits.quantum_circuit.gates import CEx, R, Rz
         self.circuit = gate.parent_circuit
 
-        if isinstance(gate.target_qudits, int) and isinstance(gate, R):
+        if isinstance(gate.target_qudits, int) and isinstance(gate, (R, Rz)):
             gate_controls = gate.control_info["controls"]
             indices = gate_controls.indices
             states = gate_controls.ctrl_states
@@ -110,6 +111,25 @@ class PhyEntSimplePass(CompilerPass):
                          dimensions[1],
                          ControlData(indices=indices, ctrl_states=[new_ctrl_lev]))
                 return pi_pulses + [newr] + pi_backs
+        elif isinstance(gate, Rz):
+            if len(indices) == 1:
+                assert len(states) == 1
+                ghost_rotation = R(self.circuit, "R_ghost_t" + str(target_qudits[1]),
+                                   target_qudits[1],
+                                   [gate.lev_a, gate.lev_b, gate.phi, np.pi],
+                                   dimensions[1],
+                                   None)
+                pi_pulses, rot, pi_backs = self.__routing(ghost_rotation, energy_graph_t)
+                new_ctrl_lev = lp_map_0[states[0]]
+                new_parameters = [rot.lev_a, rot.lev_b, rot.theta]
+                if (rot.theta * rot.phi) * (gate.phi) < 0:
+                    new_parameters = [rot.lev_a, rot.lev_b, -rot.theta]
+                newr = Rz(self.circuit, "Rzt" + str(target_qudits),
+                          target_qudits[1],
+                          new_parameters,
+                          dimensions[1],
+                          ControlData(indices=indices, ctrl_states=[new_ctrl_lev]))
+                return pi_backs + [newr] + pi_pulses
         return []
 
     def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:

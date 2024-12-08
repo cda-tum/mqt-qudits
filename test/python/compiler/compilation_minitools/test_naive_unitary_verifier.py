@@ -1,12 +1,20 @@
 from __future__ import annotations
 
+import operator
+from functools import reduce
 from unittest import TestCase
+import pytest
 
 import numpy as np
+from numpy.random import choice
 
 from mqt.qudits.compiler.compilation_minitools import UnitaryVerifier
+from mqt.qudits.compiler.compilation_minitools.naive_unitary_verifier import mini_phy_unitary_sim, mini_sim, \
+    mini_unitary_sim, naive_phy_sim
+from mqt.qudits.compiler.twodit.variational_twodit_compilation.sparsifier import random_sparse_unitary
 from mqt.qudits.core import LevelGraph
 from mqt.qudits.quantum_circuit import QuantumCircuit
+from python.compiler.twodit.entangled_qr.test_entangled_qr import random_unitary_matrix
 
 
 class TestUnitaryVerifier(TestCase):
@@ -61,3 +69,93 @@ class TestUnitaryVerifier(TestCase):
         v1 = UnitaryVerifier(sequence_3, target_3, [dimension], nodes_3, initial_map_3, final_map_3)
 
         assert v1.verify()
+
+    @staticmethod
+    def test_mini_sim():
+        circuit = QuantumCircuit(3, [3, 4, 5], 0)
+        for i in range(2):
+            for i in range(3):
+                for j in range(3):
+                    if i != j:
+                        if choice([True, False]):
+                            circuit.cu_one(i, random_sparse_unitary(circuit.dimensions[i]))
+                        if choice([True, False]):
+                            circuit.cu_two([i, j], random_unitary_matrix(circuit.dimensions[i] * circuit.dimensions[j]))
+
+        size = reduce(operator.mul, circuit.dimensions)
+        state = np.array(size * [0.0 + 0.0j])
+        state[0] = 1.0 + 0.0j
+        for gate in circuit.instructions:
+            state = gate.to_matrix(identities=2) @ state
+
+        assert np.allclose(state, mini_sim(circuit))
+
+    @staticmethod
+    def test_mini_unitary_sim():
+        circuit = QuantumCircuit(3, [3, 4, 5], 0)
+        for i in range(2):
+            for i in range(3):
+                for j in range(3):
+                    if i != j:
+                        if choice([True, False]):
+                            circuit.cu_one(i, random_sparse_unitary(circuit.dimensions[i]))
+                        if choice([True, False]):
+                            circuit.cu_two([i, j], random_unitary_matrix(circuit.dimensions[i] * circuit.dimensions[j]))
+
+        size = reduce(operator.mul, circuit.dimensions)
+        id_mat = np.identity(size)
+        for gate in circuit.instructions:
+            id_mat = gate.to_matrix(identities=2) @ id_mat
+
+        assert np.allclose(id_mat, mini_unitary_sim(circuit))
+
+    @staticmethod
+    def test_naive_phy_sim():
+        circuit = QuantumCircuit(3, [3, 4, 5], 0)
+        for i in range(2):
+            for i in range(3):
+                for j in range(3):
+                    if i != j:
+                        if choice([True, False]):
+                            circuit.cu_one(i, random_sparse_unitary(circuit.dimensions[i]))
+                        if choice([True, False]):
+                            circuit.cu_two([i, j], random_unitary_matrix(circuit.dimensions[i] * circuit.dimensions[j]))
+
+        size = reduce(operator.mul, circuit.dimensions)
+        state = np.array(size * [0.0 + 0.0j])
+        state[0] = 1.0 + 0.0j
+        for gate in circuit.instructions:
+            state = gate.to_matrix(identities=2) @ state
+
+        with pytest.raises(AssertionError):
+            assert np.allclose(state, naive_phy_sim(circuit))
+
+        circuit.set_initial_mappings([[0, 1, 2], [0, 1, 2, 3], [0, 1, 2, 3, 4]])
+        circuit.set_final_mappings([[0, 1, 2], [0, 1, 2, 3], [0, 1, 2, 3, 4]])
+        phstate = naive_phy_sim(circuit)
+        assert np.allclose(state, phstate)
+
+    @staticmethod
+    def test_mini_phy_unitary_sim():
+        circuit = QuantumCircuit(3, [3, 4, 5], 0)
+        for i in range(2):
+            for i in range(3):
+                for j in range(3):
+                    if i != j:
+                        if choice([True, False]):
+                            circuit.cu_one(i, random_sparse_unitary(circuit.dimensions[i]))
+                        if choice([True, False]):
+                            circuit.cu_two([i, j], random_unitary_matrix(circuit.dimensions[i] * circuit.dimensions[j]))
+
+        size = reduce(operator.mul, circuit.dimensions)
+        id_mat = np.identity(size)
+        for gate in circuit.instructions:
+            id_mat = gate.to_matrix(identities=2) @ id_mat
+
+        with pytest.raises(AssertionError):
+            assert np.allclose(id_mat, mini_phy_unitary_sim(circuit))
+
+        circuit.set_initial_mappings([[0, 1, 2], [0, 1, 2, 3], [0, 1, 2, 3, 4]])
+        circuit.set_final_mappings([[0, 1, 2], [0, 1, 2, 3], [0, 1, 2, 3, 4]])
+        phstate = mini_phy_unitary_sim(circuit)
+        assert np.allclose(id_mat, phstate)

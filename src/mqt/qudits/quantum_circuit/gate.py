@@ -123,18 +123,18 @@ class Gate(Instruction):
         if len(indices) > self.parent_circuit.num_qudits or any(
                 idx >= self.parent_circuit.num_qudits for idx in indices
         ):
-            msg = "Indices or Number of Controls is beyond the Quantum Circuit Size"
+            msg = "Indices or Number of Controls is beyond the Quantum Circuit Size "
             raise IndexError(msg)
         if isinstance(self.target_qudits, int):
             if self.target_qudits in indices:
-                msg = "Controls overlap with targets"
+                msg = "Controls overlap with targets "
                 raise IndexError(msg)
         elif any(idx in list(self.target_qudits) for idx in indices):
             msg = "Controls overlap with targets"
             raise IndexError(msg)
-        # if isinstance(self._dimensions, int):
-        #    dimensions = [self._dimensions]
-        if any(ctrl >= self.parent_circuit.dimensions[i] for i, ctrl in enumerate(ctrl_states)):
+
+        control_dimensions = [self.parent_circuit.dimensions[ind] for ind in indices]
+        if any(ctrl >= control_dimensions[i] for i, ctrl in enumerate(ctrl_states)):
             msg = "Controls States beyond qudit size "
             raise IndexError(msg)
         self._controls_data = ControlData(indices, ctrl_states)

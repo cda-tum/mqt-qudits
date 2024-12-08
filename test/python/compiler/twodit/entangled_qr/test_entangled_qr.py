@@ -62,9 +62,6 @@ class TestEntangledQR(TestCase):
 
         # Simulate the original circuit
         original_state = circuit.simulate()
-        print("Original circuit simulation result:")
-        print(original_state.round(3))
-
         # Set up the provider and backend
         provider = MQTQuditProvider()
         backend_ion = provider.get_backend("faketraps2trits")
@@ -80,30 +77,23 @@ class TestEntangledQR(TestCase):
 
         # Simulate the compiled circuit
         compiled_state = new_circuit.simulate()
-        print("\nCompiled circuit simulation result:")
-        print(compiled_state.round(3))
-
         # Compare the results
         is_close = np.allclose(original_state, compiled_state)
-        print(f"\nAre the simulation results close? {is_close}")
         assert is_close
 
     @staticmethod
     def test_physical_entangling_qr():
-        for i in range(20):
+        for i in range(3):
             # Create the original circuit
-            circuit = QuantumCircuit(3, [3, 4, 4], 0)
-            # circuit.rh(0, [0, 1]).control([1], [1])
+            circuit = QuantumCircuit(3, [3, 4, 7], 0)
             circuit.cu_two([0, 1], random_unitary_matrix(12))
-            #circuit.cu_two([0, 2], random_unitary_matrix(12))
-            circuit.cu_two([1, 2], random_unitary_matrix(16))
-            #circuit.cu_two([0, 2], random_unitary_matrix(12))
-            #circuit.cu_two([1, 0], random_unitary_matrix(12))
+            circuit.cu_two([0, 2], random_unitary_matrix(21))
+            circuit.cu_two([1, 2], random_unitary_matrix(28))
+            circuit.cu_two([0, 2], random_unitary_matrix(21))
+            circuit.cu_two([1, 0], random_unitary_matrix(12))
 
             # Simulate the original circuit
             original_state = circuit.simulate()
-            print("Original circuit simulation result:")
-            print(original_state.round(3))
 
             # Set up the provider and backend
             provider = MQTQuditProvider()
@@ -114,26 +104,6 @@ class TestEntangledQR(TestCase):
             passes = ["PhyEntQRCEXPass"]
             new_circuit = qudit_compiler.compile(backend_ion, circuit, passes)
 
-            # Simulate the compiled circuit
             compiled_state = naive_phy_sim(new_circuit)
-            print("\nCompiled circuit simulation result:")
-            print(compiled_state.round(3))
-
-            try:
-                uni_l = mini_unitary_sim(circuit)
-                uni_cl = mini_phy_unitary_sim(new_circuit)
-                # Compare the results
-                assert np.allclose(original_state, compiled_state)
-                print(f"\nAre the unitaries close? True")
-            except AssertionError:
-                diff_mask = ~np.isclose(uni_l, uni_cl, rtol=1e-10, atol=1e-10)
-                diff_positions = np.where(diff_mask)
-                pass
-
-            try:
-                # Compare the results
-                assert np.allclose(original_state, compiled_state)
-                print(f"\nAre the simulation results close? True")
-            except AssertionError:
-                pass
-
+            assert np.allclose(original_state, compiled_state, rtol=1e-6, atol=1e-6)
+            assert np.allclose(original_state, compiled_state, rtol=1e-5, atol=1e-5)
