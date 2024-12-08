@@ -42,6 +42,10 @@ class X(Gate):
             array1[i_plus_1] = 1
             array2[i] = 1
             matrix += np.outer(array1, array2)
+
+            if self.dagger:
+                return matrix.conj().T
+
         return matrix
 
     @property

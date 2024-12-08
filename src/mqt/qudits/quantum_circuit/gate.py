@@ -83,9 +83,13 @@ class Gate(Instruction):
     def __array__(self) -> NDArray:  # noqa: PLW3201
         pass
 
+    def _dagger_properties(self) -> None:
+        pass
+
     def dag(self) -> Gate:
         self._name += "_dag"
         self.dagger = True
+        self._dagger_properties()
         return self
 
     def to_matrix(self, identities: int = 0) -> NDArray:

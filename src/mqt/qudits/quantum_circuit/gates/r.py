@@ -67,6 +67,9 @@ class R(Gate):
             * GellMann(self.parent_circuit, "Gellman_s", qudit_targeted, ps, self.dimensions, None).to_matrix()
         )
 
+    def _dagger_properties(self) -> None:
+        self.theta *= -1
+
     @staticmethod
     def levels_setter(la: int, lb: int) -> tuple[int, int]:
         if la < lb:

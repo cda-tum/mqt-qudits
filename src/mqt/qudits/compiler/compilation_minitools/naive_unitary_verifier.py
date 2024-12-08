@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from mqt.qudits.quantum_circuit import QuantumCircuit
     from mqt.qudits.quantum_circuit.gate import Gate
     from mqt.qudits.quantum_circuit.gates import R, Rz, VirtRz
+    from mqt.qudits.simulation.backends.backendv2 import Backend
 
 
 def mini_unitary_sim(circuit: QuantumCircuit, list_of_op: list[Gate]) -> NDArray[np.complex128, np.complex128]:
@@ -34,17 +35,28 @@ def mini_sim(circuit: QuantumCircuit) -> NDArray[np.complex128]:
     return state
 
 
-def phy_sdit_sim(circuit: QuantumCircuit) -> NDArray[np.complex128]:
+def naive_phy_sim(backend: Backend, circuit: QuantumCircuit) -> NDArray[np.complex128]:
     assert circuit.mappings is not None
-    dim = circuit.dimensions[0]
-    permutation = np.eye(dim)[:, circuit.mappings[0]]
-    state = np.array(dim * [0.0 + 0.0j])
+    dimensions = circuit.dimensions
+    lines = list(range(circuit.num_qudits))
+    state = np.array(np.prod(dimensions) * [0.0 + 0.0j])
     state[0] = 1.0 + 0.0j
-    state = permutation @ state
 
+    final_permutation = np.eye(dimensions[0])[:, circuit.mappings[0]]
+    for line in lines[1:]:
+        final_permutation = np.kron(final_permutation, np.eye(dimensions[line])[:, circuit.mappings[line]])
+
+    state = final_permutation @ state
     for gate in circuit.instructions:
         state = gate.to_matrix(identities=2) @ state
-    return state
+
+    init_permutation = np.eye(dimensions[0])[:, backend.energy_level_graphs[0].log_phy_map]
+    for line in lines[1:]:
+        init_permutation = np.kron(
+            init_permutation, np.eye(dimensions[line])[:, backend.energy_level_graphs[line].log_phy_map]
+        )
+
+    return init_permutation.T @ state
 
 
 class UnitaryVerifier:
@@ -103,7 +115,9 @@ class UnitaryVerifier:
 
         if self.permutation_matrix_final is not None:
             target = np.linalg.inv(self.permutation_matrix_final) @ target
+            target.round(3)
 
         target /= target[0][0]
+        target.round(3)
 
         return bool((abs(target - np.identity(self.dimension, dtype="complex")) < 1e-4).all())

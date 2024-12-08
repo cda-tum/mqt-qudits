@@ -67,6 +67,9 @@ class MS(Gate):
         )
         return expm(-1j * theta * gate_part_1 @ gate_part_2 / 4)
 
+    def _dagger_properties(self) -> None:
+        self.theta *= -1
+
     @staticmethod
     def validate_parameter(parameter: Parameter) -> bool:
         if parameter is None:
