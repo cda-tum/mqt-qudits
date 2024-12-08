@@ -5,5 +5,5 @@ from .dit_compiler import QuditCompiler
 
 __all__ = [
     "CompilerPass",
-    "QuditCompiler",
+    "QuditCompiler"
 ]
