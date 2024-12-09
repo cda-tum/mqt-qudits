@@ -20,14 +20,6 @@ from mqt.qudits.compiler.twodit.variational_twodit_compilation.sparsifier import
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.simulation import MQTQuditProvider
 
-"""
-                                                                !WARNING!
-                                                                
-  We are using 1e-6 tolerance due to 17-27k circuit operations on the compiled circuits - 
-  numerical errors compound across this many operations.
-  Once the compiler methods have been improved the threshold should become tighter!
-
-"""
 rng = np.random.default_rng()
 
 
