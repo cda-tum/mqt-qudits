@@ -23,6 +23,7 @@ class PhyEntQRCEXPass(CompilerPass):
 
     def __transpile_local_ops(self, gate: Gate) -> list[Gate]:
         from mqt.qudits.compiler.onedit.mapping_aware_transpilation import PhyQrDecomp
+
         energy_graph_i = self.backend.energy_level_graphs[cast(int, gate.target_qudits)]
         qr = PhyQrDecomp(gate, energy_graph_i, not_stand_alone=False)
         decomp, _algorithmic_cost, _total_cost = qr.execute()
@@ -32,6 +33,7 @@ class PhyEntQRCEXPass(CompilerPass):
     def __transpile_two_ops(backend: Backend, gate: Gate) -> tuple[bool, list[Gate]]:
         assert gate.gate_type == GateTypes.TWO
         from mqt.qudits.compiler.twodit.transpile.phy_two_control_transp import PhyEntSimplePass
+
         phy_two_simple = PhyEntSimplePass(backend)
         transpiled = phy_two_simple.transpile_gate(gate)
         return (len(transpiled) > 0), transpiled

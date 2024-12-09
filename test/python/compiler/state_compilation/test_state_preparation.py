@@ -79,5 +79,3 @@ class TestStatePrep(TestCase):
         circuit_fragments.set_initial_state(psi)
         statesim_f = circuit_fragments.simulate()
         assert np.allclose(statesim_f, psi)
-
-

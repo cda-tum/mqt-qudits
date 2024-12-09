@@ -103,7 +103,7 @@ class QASM:
             ctl_qudits = match.group(7)
             ctl_levels = match.group(9)
 
-            gate_is_dagger =  inv is not None
+            gate_is_dagger = inv is not None
             # Evaluate params using NumPy and NumExpr
             if params:
                 if ".npy" in params:
@@ -147,7 +147,13 @@ class QASM:
                 controls = None
             else:
                 controls = ControlData(qudits_control_list, qudits_levels_list)
-            gate_dict = {"name": label, "params": params, "qudits": qudits_list, "controls": controls, "dagger": gate_is_dagger}
+            gate_dict = {
+                "name": label,
+                "params": params,
+                "qudits": qudits_list,
+                "controls": controls,
+                "dagger": gate_is_dagger,
+            }
 
             gates.append(gate_dict)
 

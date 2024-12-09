@@ -92,13 +92,13 @@ class UnitaryVerifier:
     """
 
     def __init__(
-            self,
-            sequence: Sequence[Gate | R | Rz | VirtRz],
-            target: Gate,
-            dimensions: list[int],
-            nodes: list[int] | None = None,
-            initial_map: list[int] | None = None,
-            final_map: list[int] | None = None,
+        self,
+        sequence: Sequence[Gate | R | Rz | VirtRz],
+        target: Gate,
+        dimensions: list[int],
+        nodes: list[int] | None = None,
+        initial_map: list[int] | None = None,
+        final_map: list[int] | None = None,
     ) -> None:
         self.decomposition = sequence
         self.target = target.to_matrix().copy()

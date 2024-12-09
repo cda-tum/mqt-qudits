@@ -21,18 +21,18 @@ if typing.TYPE_CHECKING:
 
 class QuditCompiler:
     passes_enabled: typing.ClassVar = {
-        "PhyLocQRPass":           PhyLocQRPass,
-        "PhyLocAdaPass":          PhyLocAdaPass,
-        "LocQRPass":              PhyLocQRPass,
-        "LocAdaPass":             PhyLocAdaPass,
-        "LogLocQRPass":           LogLocQRPass,
-        "ZPropagationOptPass":    ZPropagationOptPass,
-        "ZRemovalOptPass":        ZRemovalOptPass,
-        "LogEntQRCEXPass":        LogEntQRCEXPass,
-        "PhyEntQRCEXPass":        PhyEntQRCEXPass,
+        "PhyLocQRPass": PhyLocQRPass,
+        "PhyLocAdaPass": PhyLocAdaPass,
+        "LocQRPass": PhyLocQRPass,
+        "LocAdaPass": PhyLocAdaPass,
+        "LogLocQRPass": LogLocQRPass,
+        "ZPropagationOptPass": ZPropagationOptPass,
+        "ZRemovalOptPass": ZRemovalOptPass,
+        "LogEntQRCEXPass": LogEntQRCEXPass,
+        "PhyEntQRCEXPass": PhyEntQRCEXPass,
         "NaiveLocResynthOptPass": NaiveLocResynthOptPass,
-        "PhyEntSimplePass":       PhyEntSimplePass,
-        "PhyMultiSimplePass":     PhyMultiSimplePass,
+        "PhyEntSimplePass": PhyEntSimplePass,
+        "PhyMultiSimplePass": PhyMultiSimplePass,
     }
 
     def __init__(self) -> None:

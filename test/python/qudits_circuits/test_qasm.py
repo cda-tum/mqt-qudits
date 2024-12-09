@@ -62,4 +62,3 @@ class TestQASM(TestCase):
         ]
         assert sum(1 if s.dagger else 0 for s in circuit.instructions) == 3  # checking that there are three dagger
         # ops
-

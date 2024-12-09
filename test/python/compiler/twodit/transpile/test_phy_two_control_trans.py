@@ -11,7 +11,6 @@ from mqt.qudits.simulation import MQTQuditProvider
 
 
 class TestPhyTwoSimplePass(TestCase):
-
     @staticmethod
     def test_two_transpile_rctrl():
         # Create the original circuit
@@ -82,8 +81,8 @@ class TestPhyTwoSimplePass(TestCase):
         circuit = QuantumCircuit(3, [3, 3, 4], 0)
         circuit.cx([0, 2], [1, 2, 2, np.pi / 7])
         circuit.cx([0, 1], [0, 2, 2, np.pi / 5])
-        circuit.cx([1, 2], [1, 3, 1, - np.pi / 7])
-        circuit.cx([0, 2], [0, 2, 0, - np.pi / 7])
+        circuit.cx([1, 2], [1, 3, 1, -np.pi / 7])
+        circuit.cx([0, 2], [0, 2, 0, -np.pi / 7])
 
         # Set up the provider and backend
         provider = MQTQuditProvider()
@@ -128,5 +127,3 @@ class TestPhyTwoSimplePass(TestCase):
         uni_l = mini_unitary_sim(circuit)
         uni_cl = mini_phy_unitary_sim(new_circuit)
         assert np.allclose(uni_l, uni_cl)
-
-

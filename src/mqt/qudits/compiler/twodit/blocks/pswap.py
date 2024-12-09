@@ -96,14 +96,15 @@ class PSwapGen:
         compose.extend((h_0_0, h_1_0, zpiov2_0_0))
 
         if CEX_SEQUENCE is None:
-            compose.append(gates.CEx(
+            compose.append(
+                gates.CEx(
                     self.circuit,
                     "CEx" + str([self.circuit.dimensions[i] for i in self.indices]),
                     self.indices,
                     None,
                     [self.circuit.dimensions[i] for i in self.indices],
                     None,
-            )
+                )
             )
         else:
             compose += cex_s
@@ -118,14 +119,15 @@ class PSwapGen:
         compose.append(rphi_there_1)  # (on1(rphi_there, d))  # ----------
 
         if CEX_SEQUENCE is None:
-            compose.append(gates.CEx(
+            compose.append(
+                gates.CEx(
                     self.circuit,
                     "CEx" + str([self.circuit.dimensions[i] for i in self.indices]),
                     self.indices,
                     None,
                     [self.circuit.dimensions[i] for i in self.indices],
                     None,
-            )
+                )
             )
         else:
             compose += cex_s
@@ -133,14 +135,15 @@ class PSwapGen:
         compose.append(tminus)
 
         if CEX_SEQUENCE is None:
-            compose.append(gates.CEx(
+            compose.append(
+                gates.CEx(
                     self.circuit,
                     "CEx" + str([self.circuit.dimensions[i] for i in self.indices]),
                     self.indices,
                     None,
                     [self.circuit.dimensions[i] for i in self.indices],
                     None,
-            )
+                )
             )
         else:
             compose += cex_s
@@ -158,14 +161,15 @@ class PSwapGen:
         compose.append(zpiov2_0_1)  # (on0(zpiov2, d))
 
         if CEX_SEQUENCE is None:
-            compose.append(gates.CEx(
+            compose.append(
+                gates.CEx(
                     self.circuit,
                     "CEx" + str([self.circuit.dimensions[i] for i in self.indices]),
                     self.indices,
                     None,
                     [self.circuit.dimensions[i] for i in self.indices],
                     None,
-            )
+                )
             )
         else:
             compose += cex_s
@@ -175,15 +179,19 @@ class PSwapGen:
 
         if dim_target != 2:
             r_flip_back_1 = gates.R(
-                    self.circuit, "R_flip_back", index_target, [1, dim_target - 1, -np.pi, np.pi / 2], dim_target
+                self.circuit, "R_flip_back", index_target, [1, dim_target - 1, -np.pi, np.pi / 2], dim_target
             )
             compose.append(r_flip_back_1)  # (on1(R(-np.pi, np.pi / 2, 1, d - 1, d).matrix, d))
 
         return compose
 
     def pswap_101_as_list_no_phases(self, theta: float, phi: float) -> list[Gate]:
-        return (self.pswap_101_as_list_phases(-theta / 4, phi) + self.pswap_101_as_list_phases(-theta / 4, phi) +
-                self.pswap_101_as_list_phases(-theta / 4, phi) + self.pswap_101_as_list_phases(-theta / 4, phi))
+        return (
+            self.pswap_101_as_list_phases(-theta / 4, phi)
+            + self.pswap_101_as_list_phases(-theta / 4, phi)
+            + self.pswap_101_as_list_phases(-theta / 4, phi)
+            + self.pswap_101_as_list_phases(-theta / 4, phi)
+        )
 
     def permute_pswap_101_as_list(self, pos: int, theta: float, phase: float, with_phase: bool = False) -> list[Gate]:
         index_ctrl = self.indices[0]

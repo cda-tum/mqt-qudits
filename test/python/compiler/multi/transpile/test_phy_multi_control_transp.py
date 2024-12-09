@@ -88,4 +88,3 @@ class TestPhyMultiSimplePass(TestCase):
         uni_l = mini_unitary_sim(circuit).round(10)
         uni_cl = mini_phy_unitary_sim(new_circuit).round(10)
         assert np.allclose(uni_l, uni_cl, rtol=1e-8, atol=1e-8)
-
