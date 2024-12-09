@@ -20,7 +20,6 @@ class CRotGen:
         self.indices: list[int] = indices
 
     def crot_101_as_list(self, theta: float, phi: float) -> list[Gate]:
-
         phi = -phi
         # Assuming that 0 was control and 1 was target
         index_target = self.indices[1]
@@ -51,14 +50,15 @@ class CRotGen:
         compose: list[Gate] = [frame_there]
 
         if CEX_SEQUENCE is None:
-            compose.append(gates.CEx(
+            compose.append(
+                gates.CEx(
                     self.circuit,
                     "CEx" + str([self.circuit.dimensions[i] for i in self.indices]),
                     self.indices,
                     None,
                     [self.circuit.dimensions[i] for i in self.indices],
                     None,
-            )
+                )
             )
         else:
             compose += cex_s
@@ -66,13 +66,14 @@ class CRotGen:
         compose.append(tminus)
 
         if CEX_SEQUENCE is None:
-            compose.append(gates.CEx(
-                        self.circuit,
-                        "CEx" + str([self.circuit.dimensions[i] for i in self.indices]),
-                        self.indices,
-                        None,
-                        [self.circuit.dimensions[i] for i in self.indices],
-                        None,
+            compose.append(
+                gates.CEx(
+                    self.circuit,
+                    "CEx" + str([self.circuit.dimensions[i] for i in self.indices]),
+                    self.indices,
+                    None,
+                    [self.circuit.dimensions[i] for i in self.indices],
+                    None,
                 )
             )
         else:
@@ -110,10 +111,10 @@ class CRotGen:
             # on1(R(-np.pi, np.pi / 2, 1, q1_i + 1, d).matrix, d)
 
             permute_there_10_dag = gates.R(
-                    self.circuit, "R", index_target, [0, q1_i, np.pi, -np.pi / 2], dim_target
+                self.circuit, "R", index_target, [0, q1_i, np.pi, -np.pi / 2], dim_target
             ).dag()
             permute_there_11_dag = gates.R(
-                    self.circuit, "R", index_target, [1, q1_i + 1, -np.pi, np.pi / 2], dim_target
+                self.circuit, "R", index_target, [1, q1_i + 1, -np.pi, np.pi / 2], dim_target
             ).dag()
 
             perm = [permute_there_10, permute_there_11]  # matmul(permute_there_10, permute_there_11)

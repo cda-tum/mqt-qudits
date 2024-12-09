@@ -28,13 +28,11 @@ class APIClient:
     def close(self) -> None:
         self.session.close()
 
-    def submit_job(
-            self, circuit: QuantumCircuit, shots: int, energy_level_graphs: list[LevelGraph]
-    ) -> str:
+    def submit_job(self, circuit: QuantumCircuit, shots: int, energy_level_graphs: list[LevelGraph]) -> str:
         url = f"{BASE_URL}{SUBMIT_JOB_ENDPOINT}"
         payload = {
-            "circuit":             circuit.to_qasm(),
-            "shots":               shots,
+            "circuit": circuit.to_qasm(),
+            "shots": shots,
             "energy_level_graphs": list(energy_level_graphs),
         }
         response = self.session.post(url, json=payload)
@@ -63,10 +61,10 @@ class APIClient:
         raise RuntimeError(msg)
 
     def wait_for_job_completion(
-            self,
-            job_id: str,
-            callback: Callable[[str, JobStatus], None] | None = None,
-            polling_interval: float = 5,
+        self,
+        job_id: str,
+        callback: Callable[[str, JobStatus], None] | None = None,
+        polling_interval: float = 5,
     ) -> JobStatus:
         while True:
             status = self.get_job_status(job_id)

@@ -19,10 +19,10 @@ class JobResultJSON(TypedDict):
 
 class JobResult:
     def __init__(
-            self,
-            job_id: str | JobResultJSON,
-            state_vector: NDArray[np.complex128] | None = None,
-            counts: Sequence[int] | None = None
+        self,
+        job_id: str | JobResultJSON,
+        state_vector: NDArray[np.complex128] | None = None,
+        counts: Sequence[int] | None = None,
     ) -> None:
         # If first argument is a dict, treat it as JSON data
         if isinstance(job_id, dict):

@@ -184,46 +184,46 @@ class QuantumCircuit:
     @add_gate_decorator
     def csum(self, qudits: list[int]) -> CSum:
         return CSum(
-                self, "CSum" + str([self.dimensions[i] for i in qudits]), qudits, [self.dimensions[i] for i in qudits], None
+            self, "CSum" + str([self.dimensions[i] for i in qudits]), qudits, [self.dimensions[i] for i in qudits], None
         )
 
     @add_gate_decorator
     def cu_one(self, qudits: int, parameters: NDArray, controls: ControlData | None = None) -> CustomOne:
         return CustomOne(
-                self, "CUo" + str(self.dimensions[qudits]), qudits, parameters, self.dimensions[qudits], controls
+            self, "CUo" + str(self.dimensions[qudits]), qudits, parameters, self.dimensions[qudits], controls
         )
 
     @add_gate_decorator
     def cu_two(self, qudits: list[int], parameters: NDArray, controls: ControlData | None = None) -> CustomTwo:
         return CustomTwo(
-                self,
-                "CUt" + str([self.dimensions[i] for i in qudits]),
-                qudits,
-                parameters,
-                [self.dimensions[i] for i in qudits],
-                controls,
+            self,
+            "CUt" + str([self.dimensions[i] for i in qudits]),
+            qudits,
+            parameters,
+            [self.dimensions[i] for i in qudits],
+            controls,
         )
 
     @add_gate_decorator
     def cu_multi(self, qudits: list[int], parameters: NDArray, controls: ControlData | None = None) -> CustomMulti:
         return CustomMulti(
-                self,
-                "CUm" + str([self.dimensions[i] for i in qudits]),
-                qudits,
-                parameters,
-                [self.dimensions[i] for i in qudits],
-                controls,
+            self,
+            "CUm" + str([self.dimensions[i] for i in qudits]),
+            qudits,
+            parameters,
+            [self.dimensions[i] for i in qudits],
+            controls,
         )
 
     @add_gate_decorator
     def cx(self, qudits: list[int], parameters: list[int | float] | None = None) -> CEx:
         return CEx(
-                self,
-                "CEx" + str([self.dimensions[i] for i in qudits]),
-                qudits,
-                parameters,
-                [self.dimensions[i] for i in qudits],
-                None,
+            self,
+            "CEx" + str([self.dimensions[i] for i in qudits]),
+            qudits,
+            parameters,
+            [self.dimensions[i] for i in qudits],
+            None,
         )
 
     # @add_gate_decorator # decide to make it usable for computations but only for constructions
@@ -242,23 +242,23 @@ class QuantumCircuit:
     @add_gate_decorator
     def ls(self, qudits: list[int], parameters: list[float]) -> LS:
         return LS(
-                self,
-                "LS" + str([self.dimensions[i] for i in qudits]),
-                qudits,
-                parameters,
-                [self.dimensions[i] for i in qudits],
-                None,
+            self,
+            "LS" + str([self.dimensions[i] for i in qudits]),
+            qudits,
+            parameters,
+            [self.dimensions[i] for i in qudits],
+            None,
         )
 
     @add_gate_decorator
     def ms(self, qudits: list[int], parameters: list[float]) -> MS:
         return MS(
-                self,
-                "MS" + str([self.dimensions[i] for i in qudits]),
-                qudits,
-                parameters,
-                [self.dimensions[i] for i in qudits],
-                None,
+            self,
+            "MS" + str([self.dimensions[i] for i in qudits]),
+            qudits,
+            parameters,
+            [self.dimensions[i] for i in qudits],
+            None,
         )
 
     @add_gate_decorator
@@ -272,7 +272,7 @@ class QuantumCircuit:
     @add_gate_decorator
     def randu(self, qudits: list[int]) -> RandU:
         return RandU(
-                self, "RandU" + str([self.dimensions[i] for i in qudits]), qudits, [self.dimensions[i] for i in qudits]
+            self, "RandU" + str([self.dimensions[i] for i in qudits]), qudits, [self.dimensions[i] for i in qudits]
         )
 
     @add_gate_decorator

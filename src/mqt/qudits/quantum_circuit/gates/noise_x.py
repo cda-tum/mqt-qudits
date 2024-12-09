@@ -90,5 +90,5 @@ class NoiseX(Gate):
     def to_qasm(self) -> str:
         string_description = self.__qasm__()
         if self.dagger:
-            return "inv @ "+string_description
+            return "inv @ " + string_description
         return string_description

@@ -10,7 +10,6 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
 class TestPSwapGen(TestCase):
-
     @staticmethod
     def test_pswap_101_as_list_no_phases():
         # Create reference circuit and matrix

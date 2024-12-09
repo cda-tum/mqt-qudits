@@ -10,7 +10,6 @@ from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
 class TestCRot(TestCase):
-
     @staticmethod
     def test_czrot_101_as_list_ctrlop():
         circuit_1 = QuantumCircuit(2, [3, 3], 0)

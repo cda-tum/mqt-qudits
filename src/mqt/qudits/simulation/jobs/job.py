@@ -46,18 +46,12 @@ class Job:
         if self._api_client:
             self._result = self._api_client.get_job_result(self._job_id)
         else:
-            msg = (
-                "If the job is not run on the machine,"
-                               " then the result should be given by the simulation already. "
-            )
+            msg = "If the job is not run on the machine, then the result should be given by the simulation already. "
             raise RuntimeError(msg)
 
         return self._result
 
-    def _wait_for_final_state(
-            self,
-            callback: Callable[[str, JobStatus], None] | None = None
-    ) -> None:
+    def _wait_for_final_state(self, callback: Callable[[str, JobStatus], None] | None = None) -> None:
         if self._api_client:
             try:
                 # Using a synchronous wait implementation

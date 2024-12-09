@@ -19,15 +19,15 @@ class FakeIonTraps8Seven(TNSim):
         return 0
 
     def __init__(
-            self,
-            provider: MQTQuditProvider,
-            **fields: Unpack[Backend.DefaultOptions],
+        self,
+        provider: MQTQuditProvider,
+        **fields: Unpack[Backend.DefaultOptions],
     ) -> None:
         super().__init__(
-                provider=provider,
-                name="FakeTrap8Seven",
-                description="A Fake backend of an ion trap qudit machine with 8 ions and 7 levels each",
-                **fields,
+            provider=provider,
+            name="FakeTrap8Seven",
+            description="A Fake backend of an ion trap qudit machine with 8 ions and 7 levels each",
+            **fields,
         )
         self.options["noise_model"] = self.__noise_model()
         self.author = "<Kevin Mato>"
@@ -78,24 +78,25 @@ class FakeIonTraps8Seven(TNSim):
     def __noise_model(self) -> NoiseModel:
         # Depolarizing and Dephasing quantum errors
         basic_error = Noise(probability_depolarizing=0.005, probability_dephasing=0.005)
-        basic_subspace_dynamic_error = SubspaceNoise(probability_depolarizing=2e-4,
-                                                     probability_dephasing=2e-4,
-                                                     levels=[])
+        basic_subspace_dynamic_error = SubspaceNoise(
+            probability_depolarizing=2e-4, probability_dephasing=2e-4, levels=[]
+        )
 
-        basic_subspace_dynamic_error_rz = SubspaceNoise(probability_depolarizing=6e-4,
-                                                        probability_dephasing=4e-4,
-                                                        levels=[])
-        subspace_error_01 = SubspaceNoise(probability_depolarizing=0.005, probability_dephasing=0.005,
-                                          levels=(0, 1))
-        subspace_error_01_cex = SubspaceNoise(probability_depolarizing=0.010, probability_dephasing=0.010,
-                                              levels=(0, 1))
+        basic_subspace_dynamic_error_rz = SubspaceNoise(
+            probability_depolarizing=6e-4, probability_dephasing=4e-4, levels=[]
+        )
+        subspace_error_01 = SubspaceNoise(probability_depolarizing=0.005, probability_dephasing=0.005, levels=(0, 1))
+        subspace_error_01_cex = SubspaceNoise(
+            probability_depolarizing=0.010, probability_dephasing=0.010, levels=(0, 1)
+        )
 
         # Add errors to noise_tools model
         noise_model = NoiseModel()  # We know that the architecture is only two qudits
         # Very noisy gate_matrix
         noise_model.add_nonlocal_quantum_error(basic_error, ["csum", "ls"])
-        noise_model.add_quantum_error_locally(basic_error, ["cuone", "cutwo", "cumulti", "h",
-                                                            "perm", "rdu", "s", "x", "z"])
+        noise_model.add_quantum_error_locally(
+            basic_error, ["cuone", "cutwo", "cumulti", "h", "perm", "rdu", "s", "x", "z"]
+        )
 
         # Physical gates
         noise_model.add_nonlocal_quantum_error(subspace_error_01, ["ms"])

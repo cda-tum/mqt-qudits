@@ -121,7 +121,7 @@ class Gate(Instruction):
         # AT THE MOMENT WE SUPPORT CONTROL OF SINGLE QUDIT GATES
         assert self.gate_type == GateTypes.SINGLE
         if len(indices) > self.parent_circuit.num_qudits or any(
-                idx >= self.parent_circuit.num_qudits for idx in indices
+            idx >= self.parent_circuit.num_qudits for idx in indices
         ):
             msg = "Indices or Number of Controls is beyond the Quantum Circuit Size "
             raise IndexError(msg)

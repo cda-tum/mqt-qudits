@@ -78,20 +78,20 @@ class ZPropagationOptPass(CompilerPass):
             if isinstance(line[gate_index], R):
                 if back:
                     new_phi = pi_mod(
-                            line[gate_index].phi + z_angles[line[gate_index].lev_a] - z_angles[line[gate_index].lev_b]
+                        line[gate_index].phi + z_angles[line[gate_index].lev_a] - z_angles[line[gate_index].lev_b]
                     )
                 else:
                     new_phi = pi_mod(
-                            line[gate_index].phi - z_angles[line[gate_index].lev_a] + z_angles[line[gate_index].lev_b]
+                        line[gate_index].phi - z_angles[line[gate_index].lev_a] + z_angles[line[gate_index].lev_b]
                     )
                 list_of_x_yrots.append(
-                        gates.R(
-                                circuit,
-                                "R",
-                                qudit_index,
-                                [line[gate_index].lev_a, line[gate_index].lev_b, line[gate_index].theta, new_phi],
-                                dimension,
-                        )
+                    gates.R(
+                        circuit,
+                        "R",
+                        qudit_index,
+                        [line[gate_index].lev_a, line[gate_index].lev_b, line[gate_index].theta, new_phi],
+                        dimension,
+                    )
                 )
             elif isinstance(line[gate_index], VirtRz):
                 z_angles[line[gate_index].lev_a] = pi_mod(z_angles[line[gate_index].lev_a] + line[gate_index].phi)

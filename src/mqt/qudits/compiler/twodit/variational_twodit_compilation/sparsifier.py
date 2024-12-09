@@ -25,7 +25,7 @@ def random_unitary_matrix(n: int) -> NDArray[np.complex128, np.complex128]:
     return unitary_group.rvs(n)
 
 
-def random_sparse_unitary(n: int, density: float=0.4) -> NDArray:
+def random_sparse_unitary(n: int, density: float = 0.4) -> NDArray:
     """Generate a random sparse-like complex unitary matrix as a numpy array.
 
     Parameters:
@@ -72,7 +72,7 @@ def random_sparse_unitary(n: int, density: float=0.4) -> NDArray:
 
 
 def apply_rotations(
-        m: NDArray[np.complex128, np.complex128], params_list: list[float], dims: list[int]
+    m: NDArray[np.complex128, np.complex128], params_list: list[float], dims: list[int]
 ) -> NDArray[np.complex128, np.complex128]:
     params = params_splitter(params_list, dims)
     r1 = gate_expand_to_circuit(generic_sud(params[0], dims[0]), circuits_size=2, target=0, dims=dims)

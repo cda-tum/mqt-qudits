@@ -56,19 +56,21 @@ class TestQuantumCircuit(TestCase):
         circ.cu_multi([qreg_field[0], qreg_matter[1], qreg_matter[0]], np.identity(7 * 2 * 2))
 
         qasm_program = circ.to_qasm()
-        expected_ditqasm = ("DITQASM 2.0;qreg field [7][7,7,7,7,7,7,7];qreg matter [2][2,2];creg meas[9];"
-                            "x field[0];h matter[0];cx (0, 1, 1, 0.0) field[0], field[1];"
-                            "cx (0, 1, 1, 0.0) field[1], field[2];"
-                            "rxy (0, 1, 3.141592653589793, 1.5707963267948966) matter[1];csum field[2], matter[1];"
-                            "pm (1, 0) matter[0];rh (0, 1) field[2];ls (1.0471975511965976) field[2], matter[0];"
-                            "ms (1.0471975511965976) field[2], matter[0];rz (0, 1, 0.6283185307179586) matter[1];"
-                            "s field[6];virtrz (1, 0.6283185307179586) field[6];z field[4];"
-                            "rdu field[0], matter[0], field[1];"
-                            "cuone (custom_data) field[0];cutwo (custom_data) field[0], matter[1];"
-                            "cumulti (custom_data) field[0], matter[0], matter[1];measure field[0] -> meas[0];"
-                            "measure field[1] -> meas[1];measure field[2] -> meas[2];measure field[3] -> meas[3];"
-                            "measure field[4] -> meas[4];measure field[5] -> meas[5];measure field[6] -> meas[6];"
-                            "measure matter[0] -> meas[7];measure matter[1] -> meas[8];")
+        expected_ditqasm = (
+            "DITQASM 2.0;qreg field [7][7,7,7,7,7,7,7];qreg matter [2][2,2];creg meas[9];"
+            "x field[0];h matter[0];cx (0, 1, 1, 0.0) field[0], field[1];"
+            "cx (0, 1, 1, 0.0) field[1], field[2];"
+            "rxy (0, 1, 3.141592653589793, 1.5707963267948966) matter[1];csum field[2], matter[1];"
+            "pm (1, 0) matter[0];rh (0, 1) field[2];ls (1.0471975511965976) field[2], matter[0];"
+            "ms (1.0471975511965976) field[2], matter[0];rz (0, 1, 0.6283185307179586) matter[1];"
+            "s field[6];virtrz (1, 0.6283185307179586) field[6];z field[4];"
+            "rdu field[0], matter[0], field[1];"
+            "cuone (custom_data) field[0];cutwo (custom_data) field[0], matter[1];"
+            "cumulti (custom_data) field[0], matter[0], matter[1];measure field[0] -> meas[0];"
+            "measure field[1] -> meas[1];measure field[2] -> meas[2];measure field[3] -> meas[3];"
+            "measure field[4] -> meas[4];measure field[5] -> meas[5];measure field[6] -> meas[6];"
+            "measure matter[0] -> meas[7];measure matter[1] -> meas[8];"
+        )
 
         generated_ditqasm = qasm_program.replace("\n", "")
         assert generated_ditqasm == expected_ditqasm
@@ -80,8 +82,9 @@ class TestQuantumCircuit(TestCase):
         ClassicRegister("classic", 3)
 
         # Initialize the circuit
-        with pytest.raises(IndexError, match="Check your Quantum Register to have the right number of lines and "
-                                             "number of dimensions"):
+        with pytest.raises(
+            IndexError, match="Check your Quantum Register to have the right number of lines and number of dimensions"
+        ):
             QuantumCircuit(qreg_field)
 
     @staticmethod

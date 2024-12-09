@@ -85,10 +85,7 @@ class CEx(Gate):
 
     def _dagger_properties(self) -> None:
         self.phi += np.pi
-        self.update_params([self._params[0],
-                            self._params[1],
-                            self._params[2],
-                            self.phi])
+        self.update_params([self._params[0], self._params[1], self._params[2], self.phi])
 
     @staticmethod
     def validate_parameter(parameter: Parameter) -> bool:

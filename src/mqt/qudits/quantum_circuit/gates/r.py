@@ -87,13 +87,17 @@ class R(Gate):
             assert isinstance(parameter[2], float)
             assert isinstance(parameter[3], float)
             assert parameter[0] >= 0
-            assert parameter[0] < self.dimensions, ("Choice of levels is non-physical, or "
-                                                    "logic states require routing through an ancilla state in the "
-                                                    "energy-level-graph, due to long-range interactions.")
+            assert parameter[0] < self.dimensions, (
+                "Choice of levels is non-physical, or "
+                "logic states require routing through an ancilla state in the "
+                "energy-level-graph, due to long-range interactions."
+            )
             assert parameter[1] >= 0
-            assert parameter[1] < self.dimensions, ("Choice of levels is non-physical, or "
-                                                    "logic states require routing through an ancilla state in the "
-                                                    "energy-level-graph, due to long-range interactions.")
+            assert parameter[1] < self.dimensions, (
+                "Choice of levels is non-physical, or "
+                "logic states require routing through an ancilla state in the "
+                "energy-level-graph, due to long-range interactions."
+            )
             assert parameter[0] != parameter[1]
             # Useful to remember direction of the rotation
             self.original_lev_a = parameter[0]
