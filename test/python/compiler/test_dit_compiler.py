@@ -22,8 +22,8 @@ from mqt.qudits.simulation import MQTQuditProvider
 
 """
                                                                 !WARNING!
-                                                                
-  We are using 1e-6 tolerance due to 17-27k circuit operations on the compiled circuits - 
+
+  We are using 1e-6 tolerance due to 17-27k circuit operations on the compiled circuits -
   numerical errors compound across this many operations.
   Once the compiler methods have been improved the threshold should become tighter!
 
@@ -36,7 +36,6 @@ def choice(x: list[bool]) -> bool:
 
 
 class TestQuditCompiler(TestCase):
-
     @staticmethod
     def test_compile():
         """!WARNING!
