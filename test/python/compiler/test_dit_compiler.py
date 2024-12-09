@@ -28,7 +28,6 @@ def choice(x: list[bool]) -> bool:
 
 
 class TestQuditCompiler(TestCase):
-
     @staticmethod
     def test_compile():
         """!WARNING!
