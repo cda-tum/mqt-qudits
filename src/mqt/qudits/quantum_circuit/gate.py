@@ -77,15 +77,26 @@ class Gate(Instruction):
         if len(lines) == 0:
             msg = "Gate has no target or control lines"
             raise CircuitError(msg)
+
         return lines
 
     @abstractmethod
     def __array__(self) -> NDArray:  # noqa: PLW3201
         pass
 
+    def update_params(self, params: Parameter) -> None:
+        self._params = params
+
+    def _dagger_properties(self) -> None:
+        pass
+
     def dag(self) -> Gate:
-        self._name += "_dag"
-        self.dagger = True
+        if self.dagger:
+            self._name = self._name.replace("_dag", "")
+        else:
+            self._name += "_dag"
+        self.dagger = not self.dagger
+        self._dagger_properties()
         return self
 
     def to_matrix(self, identities: int = 0) -> NDArray:
@@ -112,18 +123,18 @@ class Gate(Instruction):
         if len(indices) > self.parent_circuit.num_qudits or any(
             idx >= self.parent_circuit.num_qudits for idx in indices
         ):
-            msg = "Indices or Number of Controls is beyond the Quantum Circuit Size"
+            msg = "Indices or Number of Controls is beyond the Quantum Circuit Size "
             raise IndexError(msg)
         if isinstance(self.target_qudits, int):
             if self.target_qudits in indices:
-                msg = "Controls overlap with targets"
+                msg = "Controls overlap with targets "
                 raise IndexError(msg)
         elif any(idx in list(self.target_qudits) for idx in indices):
             msg = "Controls overlap with targets"
             raise IndexError(msg)
-        # if isinstance(self._dimensions, int):
-        #    dimensions = [self._dimensions]
-        if any(ctrl >= self.parent_circuit.dimensions[i] for i, ctrl in enumerate(ctrl_states)):
+
+        control_dimensions = [self.parent_circuit.dimensions[ind] for ind in indices]
+        if any(ctrl >= control_dimensions[i] for i, ctrl in enumerate(ctrl_states)):
             msg = "Controls States beyond qudit size "
             raise IndexError(msg)
         self._controls_data = ControlData(indices, ctrl_states)
@@ -132,7 +143,7 @@ class Gate(Instruction):
             self.set_gate_type_two()
         elif len(self.reference_lines) > 2:
             self.set_gate_type_multi()
-        self.check_long_range()
+        self.is_long_range = self.check_long_range()
         return self
 
     def validate_parameter(self, param: Parameter) -> bool:  # noqa: PLR6301 ARG002
@@ -184,6 +195,9 @@ class Gate(Instruction):
             string += str(self._controls_data.ctrl_states)
 
         return string + ";\n"
+
+    def to_qasm(self) -> str:
+        return self.__qasm__()
 
     def check_long_range(self) -> bool:
         target_qudits: list[int] = self.reference_lines

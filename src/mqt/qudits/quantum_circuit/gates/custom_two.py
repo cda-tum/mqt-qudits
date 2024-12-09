@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 
@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 
     from ..circuit import QuantumCircuit
     from ..components.extensions.controls import ControlData
+    from ..gate import Parameter
 
 
 class CustomTwo(Gate):
@@ -30,7 +31,7 @@ class CustomTwo(Gate):
             circuit=circuit,
             name=name,
             gate_type=GateTypes.TWO,
-            target_qudits=target_qudits,
+            target_qudits=sorted(target_qudits),
             dimensions=dimensions,
             control_set=controls,
             params=parameters,
@@ -44,9 +45,15 @@ class CustomTwo(Gate):
         return self.__array_storage
 
     @staticmethod
-    def validate_parameter(parameter: NDArray | None = None) -> bool:
+    def validate_parameter(parameter: Parameter) -> bool:
         if parameter is None:
             return True  # or False, depending on whether None is considered valid
-        return isinstance(parameter, np.ndarray) and (
-            parameter.dtype == np.complex128 or np.issubdtype(parameter.dtype, np.number)
+        return cast(
+            bool,
+            isinstance(parameter, np.ndarray)
+            and (parameter.dtype == np.complex128 or np.issubdtype(parameter.dtype, np.number)),
         )
+
+    def _dagger_properties(self) -> None:
+        self.__array_storage = self.__array_storage.conj().T
+        self.update_params(self.__array_storage)
