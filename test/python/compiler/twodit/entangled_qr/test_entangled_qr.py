@@ -1,28 +1,23 @@
 from __future__ import annotations
 
-import typing
 from unittest import TestCase
 
 import numpy as np
-from scipy.stats import unitary_group  # type: ignore[import-not-found]
 
 from mqt.qudits.compiler import QuditCompiler
-from mqt.qudits.compiler.compilation_minitools.naive_unitary_verifier import mini_phy_unitary_sim, mini_unitary_sim, \
-    naive_phy_sim
+from mqt.qudits.compiler.compilation_minitools.naive_unitary_verifier import (
+    mini_unitary_sim,
+    naive_phy_sim,
+)
 from mqt.qudits.compiler.twodit.entanglement_qr import EntangledQRCEX
+from mqt.qudits.compiler.twodit.variational_twodit_compilation.sparsifier import random_unitary_matrix
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.simulation import MQTQuditProvider
 
-if typing.TYPE_CHECKING:
-    from numpy.typing import NDArray
-
-
-def random_unitary_matrix(n: int) -> NDArray[np.complex128, np.complex128]:
-    return unitary_group.rvs(n)
-
 
 class TestEntangledQR(TestCase):
-    def test_entangling_qr(self):
+    @staticmethod
+    def test_entangling_qr():
         circuit_53 = QuantumCircuit(2, [5, 3], 0)
         target_u = random_unitary_matrix(15)
         t = circuit_53.cu_two([0, 1], target_u)
@@ -83,7 +78,7 @@ class TestEntangledQR(TestCase):
 
     @staticmethod
     def test_physical_entangling_qr():
-        for i in range(3):
+        for _i in range(3):
             # Create the original circuit
             circuit = QuantumCircuit(3, [3, 4, 7], 0)
             circuit.cu_two([0, 1], random_unitary_matrix(12))

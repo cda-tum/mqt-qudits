@@ -2,19 +2,31 @@ from __future__ import annotations
 
 import operator
 from functools import reduce
+from typing import cast
 from unittest import TestCase
-import pytest
 
 import numpy as np
-from numpy.random import choice
+import pytest
 
 from mqt.qudits.compiler.compilation_minitools import UnitaryVerifier
-from mqt.qudits.compiler.compilation_minitools.naive_unitary_verifier import mini_phy_unitary_sim, mini_sim, \
-    mini_unitary_sim, naive_phy_sim
-from mqt.qudits.compiler.twodit.variational_twodit_compilation.sparsifier import random_sparse_unitary
+from mqt.qudits.compiler.compilation_minitools.naive_unitary_verifier import (
+    mini_phy_unitary_sim,
+    mini_sim,
+    mini_unitary_sim,
+    naive_phy_sim,
+)
+from mqt.qudits.compiler.twodit.variational_twodit_compilation.sparsifier import (
+    random_sparse_unitary,
+    random_unitary_matrix,
+)
 from mqt.qudits.core import LevelGraph
 from mqt.qudits.quantum_circuit import QuantumCircuit
-from python.compiler.twodit.entangled_qr.test_entangled_qr import random_unitary_matrix
+
+rng = np.random.default_rng()
+
+
+def choice(x: list[bool]) -> bool:
+    return cast(bool, rng.choice(x, size=1)[0])
 
 
 class TestUnitaryVerifier(TestCase):
@@ -73,7 +85,7 @@ class TestUnitaryVerifier(TestCase):
     @staticmethod
     def test_mini_sim():
         circuit = QuantumCircuit(3, [3, 4, 5], 0)
-        for i in range(2):
+        for _k in range(2):
             for i in range(3):
                 for j in range(3):
                     if i != j:
@@ -93,7 +105,7 @@ class TestUnitaryVerifier(TestCase):
     @staticmethod
     def test_mini_unitary_sim():
         circuit = QuantumCircuit(3, [3, 4, 5], 0)
-        for i in range(2):
+        for _k in range(2):
             for i in range(3):
                 for j in range(3):
                     if i != j:
@@ -112,7 +124,7 @@ class TestUnitaryVerifier(TestCase):
     @staticmethod
     def test_naive_phy_sim():
         circuit = QuantumCircuit(3, [3, 4, 5], 0)
-        for i in range(2):
+        for _k in range(2):
             for i in range(3):
                 for j in range(3):
                     if i != j:
@@ -138,7 +150,7 @@ class TestUnitaryVerifier(TestCase):
     @staticmethod
     def test_mini_phy_unitary_sim():
         circuit = QuantumCircuit(3, [3, 4, 5], 0)
-        for i in range(2):
+        for _k in range(2):
             for i in range(3):
                 for j in range(3):
                     if i != j:

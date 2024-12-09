@@ -196,7 +196,7 @@ class Gate(Instruction):
 
         return string + ";\n"
 
-    def to_qasm(self):
+    def to_qasm(self) -> str:
         return self.__qasm__()
 
     def check_long_range(self) -> bool:

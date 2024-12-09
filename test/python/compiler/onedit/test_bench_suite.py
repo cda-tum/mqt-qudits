@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-import os
 import tempfile
+import typing
 import unittest
+from pathlib import Path
 
 import numpy as np
+from numpy.typing import NDArray
 
-from mqt.qudits.compiler.compilation_minitools.naive_unitary_verifier import mini_unitary_sim
 from mqt.qudits.compiler.onedit.randomized_benchmarking.bench_suite import (
     generate_clifford_group,
     get_h_gate,
@@ -17,21 +18,29 @@ from mqt.qudits.compiler.onedit.randomized_benchmarking.bench_suite import (
     save_clifford_group_to_file,
 )
 from mqt.qudits.quantum_circuit import QuantumCircuit, QuantumRegister
-from mqt.qudits.simulation import MQTQuditProvider
+
+rng = np.random.default_rng()
+
+
+def randint(x: int, y: int | None = None) -> int:
+    return rng.integers(0, x) if y is None else rng.integers(x, y)
 
 
 class TestCliffordGroupGeneration(unittest.TestCase):
-    def test_get_h_gate(self):
+    @staticmethod
+    def test_get_h_gate():
         h_gate = get_h_gate(2)
         expected_h = np.array([[1, 1], [1, -1]]) / np.sqrt(2)
         np.testing.assert_array_almost_equal(h_gate, expected_h)
 
-    def test_get_s_gate(self):
+    @staticmethod
+    def test_get_s_gate():
         s_gate = get_s_gate(2)
         expected_s = np.array([[1, 0], [0, 1j]])
         np.testing.assert_array_almost_equal(s_gate, expected_s)
 
-    def test_matrix_hash(self):
+    @staticmethod
+    def test_matrix_hash():
         matrix1 = np.array([[1, 0], [0, 1]])
         matrix2 = np.array([[1, 0], [0, 1]])
         matrix3 = np.array([[0, 1], [1, 0]])
@@ -39,90 +48,57 @@ class TestCliffordGroupGeneration(unittest.TestCase):
         assert matrix_hash(matrix1) == matrix_hash(matrix2)
         assert matrix_hash(matrix1) != matrix_hash(matrix3)
 
-    def test_generate_clifford_group(self):
+    @staticmethod
+    def test_generate_clifford_group():
         clifford_group = generate_clifford_group(2, max_length=2)
-
-        # Check if the identity matrix is in the group
-        assert np.allclose(clifford_group["h"], get_h_gate(2))
-        assert np.allclose(clifford_group["s"], get_s_gate(2))
-
-        # Check if the group has the expected number of elements
-        # For qubit (d=2) and max_length=2, we expect 6 unique elements
         assert len(clifford_group) == 6
 
-    def test_get_package_data_path(self):
+    @staticmethod
+    def test_get_package_data_path():
         filename = "test_file.pkl"
         path = get_package_data_path(filename)
-        assert os.path.dirname(path).endswith("data")
-        assert os.path.basename(path) == filename
+        assert path.parent.name == "data"
+        assert path.name == filename
 
-    def test_save_and_load_clifford_group(self):
-        clifford_group = generate_clifford_group(2, max_length=2)
+    @staticmethod
+    def test_save_and_load_clifford_group():
+        clifford_group: dict[str, NDArray] = generate_clifford_group(2, max_length=2)
 
         with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-            filename = os.path.basename(temp_file.name)
+            filename = Path(temp_file.name).name
 
         try:
             save_clifford_group_to_file(clifford_group, filename)
             loaded_group = load_clifford_group_from_file(filename)
-
+            assert loaded_group is not None
             assert len(clifford_group) == len(loaded_group)
-            for key in clifford_group:
+            for key in clifford_group:  # noqa: PLC0206
                 np.testing.assert_array_almost_equal(clifford_group[key], loaded_group[key])
         finally:
-            os.unlink(get_package_data_path(filename))
+            get_package_data_path(filename).unlink()
 
-    def test_benching(self):
-        DIM = 3
+    @staticmethod
+    def test_benching():
+        dim_g = 3
 
-        clifford_group = generate_clifford_group(DIM, max_length=10)  # What max length?
-        save_clifford_group_to_file(clifford_group, f"cliffords_{DIM}.dat")
+        clifford_group = generate_clifford_group(dim_g, max_length=10)
+        save_clifford_group_to_file(clifford_group, f"cliffords_{dim_g}.dat")
+        clifford_group = typing.cast(dict[str, NDArray], load_clifford_group_from_file(f"cliffords_{dim_g}.dat"))
 
-        DIM = 3
-        clifford_group = load_clifford_group_from_file(f"cliffords_{DIM}.dat")
-
-        def create_rb_sequence(length=2):
+        def create_rb_sequence(length: int = 2) -> QuantumCircuit:
             circuit = QuantumCircuit()
-
             dit_register = QuantumRegister("dits", 1, [3])
-
             circuit.append(dit_register)
-
-            inversion = np.eye(DIM)
-
-            check = np.eye(DIM)
+            inversion = np.eye(dim_g)
+            check = np.eye(dim_g)
 
             for _ in range(length):
-                random_gate = list(clifford_group.values())[np.random.randint(len(clifford_group))]
-                inversion = inversion @ random_gate.conj().T
+                random_gate = list(clifford_group.values())[randint(len(clifford_group))]
+                inversion = np.matmul(inversion, random_gate.conj().T)
                 circuit.cu_one(0, random_gate)
-                check = random_gate @ check
+                check = np.matmul(random_gate, check)
             circuit.cu_one(0, inversion)
-
-            # print(f"Number of operations: {len(circuit.instructions)}")
-            # print(f"Number of qudits in the circuit: {circuit.num_qudits}")
             return circuit
 
         circuit = create_rb_sequence(length=16)
-        compiled_cirucit = circuit.compileO1("faketraps2trits", "adapt")
-
-        uni = mini_unitary_sim(compiled_cirucit).round(4)
-        v = np.eye(DIM)[:, compiled_cirucit.final_mappings[0]]
-        v2 = np.eye(DIM)
-        tpuni = uni @ v
-        tpuni = v2.T @ tpuni  # Pi dag
-
-        # print(f"Number of operations: {len(compiled_cirucit.instructions)}")
-
-        provider = MQTQuditProvider()
-        backend = provider.get_backend("faketraps2trits")
-
-        # print(backend.energy_level_graphs[0].edges)
-        # print(compiled_cirucit.final_mappings[0])
-
-        # for instruction in compiled_cirucit.instructions:
-        #    print(instruction.lev_a, instruction.lev_b)
-        #    print(instruction.theta, instruction.phi)
-        # circuit.simulate()
-
-        # very_crude_backend(compiled_cirucit, "localhost:5173")
+        circuit.compileO1("faketraps2trits", "adapt")

@@ -4,8 +4,8 @@ from unittest import TestCase
 
 import numpy as np
 
+from mqt.qudits.compiler.twodit.variational_twodit_compilation.sparsifier import random_unitary_matrix
 from mqt.qudits.quantum_circuit import QuantumCircuit
-from python.compiler.twodit.entangled_qr.test_entangled_qr import random_unitary_matrix
 
 
 class TestCustomMulti(TestCase):

@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 T = TypeVar("T")
 
 
-def check_lev(lev, dim):
+def check_lev(lev : int, dim : int) -> int:
     if lev < dim:
         return lev
     msg = "Mapping Not Compatible with Circuit."

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import typing
-from typing import Optional
 
 import numpy as np
 
@@ -18,6 +17,7 @@ from mqt.qudits.quantum_circuit.gates import R
 
 if typing.TYPE_CHECKING:
     from numpy.typing import NDArray
+
     from mqt.qudits.core.micro_dd import MicroDDNode, NodeContribution
     from mqt.qudits.quantum_circuit import QuantumCircuit
 

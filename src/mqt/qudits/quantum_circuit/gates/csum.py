@@ -60,7 +60,7 @@ class CSum(Gate):
 
         return matrix
 
-    def to_qasm(self):
+    def to_qasm(self) -> str:
         string_description = self.__qasm__()
         if self.dagger:
             return "inv @ " + string_description

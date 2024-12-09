@@ -54,7 +54,7 @@ class Z(Gate):
         assert isinstance(self._dimensions, int), "Dimensions must be an integer in Z gate"
         return self._dimensions
 
-    def to_qasm(self):
+    def to_qasm(self) -> str:
         string_description = self.__qasm__()
         if self.dagger:
             return "inv @ " + string_description

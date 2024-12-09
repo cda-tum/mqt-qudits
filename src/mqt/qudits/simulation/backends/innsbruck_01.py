@@ -8,12 +8,12 @@ from typing_extensions import Unpack
 from ...core import LevelGraph
 from ..jobs import Job
 from ..jobs.client_api import APIClient
+from ..noise_tools import Noise, NoiseModel, SubspaceNoise
 from .backendv2 import Backend
 
 if TYPE_CHECKING:
     from ...quantum_circuit import QuantumCircuit
     from .. import MQTQuditProvider
-    from ..noise_tools import Noise, NoiseModel, SubspaceNoise
 
 
 class Innsbruck01(Backend):
@@ -22,9 +22,9 @@ class Innsbruck01(Backend):
         return 0
 
     def __init__(
-        self,
-        provider: MQTQuditProvider,
-        **fields: Unpack[Backend.DefaultOptions],
+            self,
+            provider: MQTQuditProvider,
+            **fields: Unpack[Backend.DefaultOptions],
     ) -> None:
         super().__init__(
                 provider=provider,
@@ -126,10 +126,6 @@ class Innsbruck01(Backend):
         self.file_path = self._options.get("file_path", None)
         self.file_name = self._options.get("file_name", None)
 
-        # asyncio.run(self.execute(circuit))  # Call the async execute method
-        # job.set_result(JobResult(state_vector=np.array([]), counts=self.outcome))
-        # return job
-
         job_id = self._api_client.submit_job(circuit, self.shots, self.energy_level_graphs)
         return Job(self, job_id, self._api_client)
 
@@ -138,28 +134,3 @@ class Innsbruck01(Backend):
 
     def execute(self, circuit: QuantumCircuit, noise_model: NoiseModel | None = None) -> None:
         pass
-        """self.system_sizes = circuit.dimensions
-        self.circ_operations = circuit.instructions.
-
-        client = APIClient()
-        try:
-            # Single API call with notification
-            payload = {"key1": "value1", "key2": "value2"}
-            await client.notify_on_completion('submit', payload, self.notify)
-
-            # Multiple API calls
-            payloads = [
-                {"key1": "value1", "key2": "value2"},
-                {"key1": "value3", "key2": "value4"},
-            ]
-            results = await client.fetch_multiple('submit', payloads)
-
-            for result in results:
-                self.notify(result)
-
-        finally:
-            await client.close()  # Ensure session is closed
-
-        # Placeholder for assigning outcome from the quantum circuit execution
-        # self.outcome = quantum_circuit_runner(metadata, self.system_sizes)
-        """

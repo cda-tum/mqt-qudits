@@ -1,17 +1,25 @@
 from __future__ import annotations
 
+from typing import cast
 from unittest import TestCase
-import pytest
 
 import numpy as np
-from numpy.random import choice
+import pytest
 
 from mqt.qudits.compiler.compilation_minitools.naive_unitary_verifier import mini_sim, naive_phy_sim
 from mqt.qudits.compiler.state_compilation.retrieve_state import generate_random_quantum_state
-from mqt.qudits.compiler.twodit.variational_twodit_compilation.sparsifier import random_sparse_unitary
+from mqt.qudits.compiler.twodit.variational_twodit_compilation.sparsifier import (
+    random_sparse_unitary,
+    random_unitary_matrix,
+)
 from mqt.qudits.quantum_circuit import QuantumCircuit, QuantumRegister
 from mqt.qudits.quantum_circuit.components import ClassicRegister
-from python.compiler.twodit.entangled_qr.test_entangled_qr import random_unitary_matrix
+
+rng = np.random.default_rng()
+
+
+def choice(x: list[bool]) -> bool:
+    return cast(bool, rng.choice(x, size=1)[0])
 
 
 class TestQuantumCircuit(TestCase):
@@ -65,17 +73,19 @@ class TestQuantumCircuit(TestCase):
         generated_ditqasm = qasm_program.replace("\n", "")
         assert generated_ditqasm == expected_ditqasm
 
-    def test_append(self):
+    @staticmethod
+    def test_append():
         qreg_field = QuantumRegister("field", 7, [7, 7])
-        qreg_matter = QuantumRegister("matter", 2, [2, 2])
-        cl_reg = ClassicRegister("classic", 3)
+        QuantumRegister("matter", 2, [2, 2])
+        ClassicRegister("classic", 3)
 
         # Initialize the circuit
         with pytest.raises(IndexError, match="Check your Quantum Register to have the right number of lines and "
                                              "number of dimensions"):
-            circ = QuantumCircuit(qreg_field)
+            QuantumCircuit(qreg_field)
 
-    def test_save_qasm(self):
+    @staticmethod
+    def test_save_qasm():
         """Export circuit as QASM program."""
         qreg_field = QuantumRegister("field", 7, [7, 7, 7, 7, 7, 7, 7])
         qreg_matter = QuantumRegister("matter", 2, [2, 2])
@@ -107,16 +117,17 @@ class TestQuantumCircuit(TestCase):
         circ.cu_multi([qreg_field[0], qreg_matter[1], qreg_matter[0]], np.identity(7 * 2 * 2))
 
         file = circ.save_to_file(file_name="test")
-        qasm_program = circ.to_qasm()
+        circ.to_qasm()
         circ_new = QuantumCircuit()
         circ_new.load_from_file(file)
 
-    def test_simulate(self):
+    @staticmethod
+    def test_simulate():
         final_state = generate_random_quantum_state([3, 4, 5])
         circuit = QuantumCircuit(3, [3, 4, 5], 0)
         circuit.set_initial_state(final_state)
 
-        for i in range(2):
+        for _k in range(2):
             for i in range(3):
                 for j in range(3):
                     if i != j:
@@ -129,12 +140,13 @@ class TestQuantumCircuit(TestCase):
         compiled_state = mini_sim(circuit)
         assert np.allclose(og_state, compiled_state, rtol=1e-6, atol=1e-6)
 
-    def test_compileO0(self):
+    @staticmethod
+    def test_compileo0():
         final_state = generate_random_quantum_state([3, 4, 5])
         circuit = QuantumCircuit(3, [3, 4, 5], 0)
         circuit.set_initial_state(final_state)
 
-        for i in range(2):
+        for _k in range(2):
             for i in range(3):
                 for j in range(3):
                     if i != j:
@@ -148,12 +160,13 @@ class TestQuantumCircuit(TestCase):
         compiled_state = naive_phy_sim(compiled_circuit)
         assert np.allclose(og_state, compiled_state, rtol=1e-6, atol=1e-6)
 
-    def test_compileO1_re(self):
+    @staticmethod
+    def test_compileo1_re():
         final_state = generate_random_quantum_state([3, 4, 5])
         circuit = QuantumCircuit(3, [3, 4, 5], 0)
         circuit.set_initial_state(final_state)
 
-        for i in range(2):
+        for _k in range(2):
             for i in range(3):
                 for j in range(3):
                     if i != j:
@@ -167,12 +180,13 @@ class TestQuantumCircuit(TestCase):
         compiled_state = naive_phy_sim(compiled_circuit)
         assert np.allclose(og_state, compiled_state, rtol=1e-6, atol=1e-6)
 
-    def test_compileO1_ada(self):
+    @staticmethod
+    def test_compileo1_ada():
         final_state = generate_random_quantum_state([3, 4, 5])
         circuit = QuantumCircuit(3, [3, 4, 5], 0)
         circuit.set_initial_state(final_state)
 
-        for i in range(2):
+        for _k in range(2):
             for i in range(3):
                 for j in range(3):
                     if i != j:
@@ -186,12 +200,13 @@ class TestQuantumCircuit(TestCase):
         compiled_state = naive_phy_sim(compiled_circuit)
         assert np.allclose(og_state, compiled_state, rtol=1e-6, atol=1e-6)
 
-    def test_compileO2(self):
+    @staticmethod
+    def test_compileo2():
         final_state = generate_random_quantum_state([3, 4, 5])
         circuit = QuantumCircuit(3, [3, 4, 5], 0)
         circuit.set_initial_state(final_state)
 
-        for i in range(2):
+        for _k in range(2):
             for i in range(3):
                 for j in range(3):
                     if i != j:
@@ -205,7 +220,8 @@ class TestQuantumCircuit(TestCase):
         compiled_state = naive_phy_sim(compiled_circuit)
         assert np.allclose(og_state, compiled_state, rtol=1e-6, atol=1e-6)
 
-    def test_set_initial_state(self):
+    @staticmethod
+    def test_set_initial_state():
         final_state = generate_random_quantum_state([3, 4, 5])
         circuit = QuantumCircuit(3, [3, 4, 5], 0)
         circuit.set_initial_state(final_state)

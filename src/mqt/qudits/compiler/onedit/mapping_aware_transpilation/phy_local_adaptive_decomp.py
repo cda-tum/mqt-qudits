@@ -58,7 +58,7 @@ class PhyLocAdaPass(CompilerPass):
     def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:
         self.circuit: QuantumCircuit = circuit
         instructions: list[Gate] = circuit.instructions
-        new_instructions = []
+        new_instructions: list[Gate] = []
 
         for gate in reversed(instructions):
             if gate.gate_type == GateTypes.SINGLE:
@@ -280,12 +280,12 @@ class PhyAdaptiveDecomposition:
                         pi_pulses_routing,
                     )
 
-        def calculate_sparsity(matrix):
+        def calculate_sparsity(matrix: NDArray) -> float:
             total_elements = matrix.size
             non_zero_elements = np.count_nonzero(np.abs(matrix) > 1e-8)  # np.count_nonzero(matrix)
-            return non_zero_elements / total_elements
+            return cast(float, non_zero_elements / total_elements)
 
-        def change_kids(lst):
+        def change_kids(lst: list[TreeNode]) -> list[TreeNode]:
             # Check if the list is non-empty
             if not lst:
                 return lst

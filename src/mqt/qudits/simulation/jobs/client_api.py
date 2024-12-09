@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-import asyncio
-from typing import Callable
+from time import sleep
+from typing import TYPE_CHECKING, cast
 
-import aiohttp
+import requests  # type: ignore[import-untyped]
 
+from mqt.qudits.simulation.jobs import JobResult
 from mqt.qudits.simulation.jobs.config_api import (
     BASE_URL,
     JOB_RESULT_ENDPOINT,
@@ -13,52 +14,64 @@ from mqt.qudits.simulation.jobs.config_api import (
 )
 from mqt.qudits.simulation.jobs.jobstatus import JobStatus
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from mqt.qudits.core import LevelGraph
+    from mqt.qudits.quantum_circuit import QuantumCircuit
+
 
 class APIClient:
     def __init__(self) -> None:
-        self.session = aiohttp.ClientSession()
+        self.session = requests.Session()
 
-    async def close(self) -> None:
-        await self.session.close()
+    def close(self) -> None:
+        self.session.close()
 
-    async def submit_job(self, circuit, shots, energy_level_graphs):
+    def submit_job(
+            self, circuit: QuantumCircuit, shots: int, energy_level_graphs: list[LevelGraph]
+    ) -> str:
         url = f"{BASE_URL}{SUBMIT_JOB_ENDPOINT}"
         payload = {
-            "circuit": circuit.to_dict(),
-            "shots": shots,
-            "energy_level_graphs": [graph.to_dict() for graph in energy_level_graphs],
+            "circuit":             circuit.to_qasm(),
+            "shots":               shots,
+            "energy_level_graphs": list(energy_level_graphs),
         }
-        async with self.session.post(url, json=payload) as response:
-            if response.status == 200:
-                data = await response.json()
-                return data.get("job_id")
-            msg = f"Job submission failed with status code {response.status}"
-            raise Exception(msg)
+        response = self.session.post(url, json=payload)
+        if response.status_code == 200:
+            data = response.json()
+            return cast(str, data.get("job_id"))
+        msg = f"Job submission failed with status code {response.status_code}"
+        raise RuntimeError(msg)
 
-    async def get_job_status(self, job_id: str) -> JobStatus:
+    def get_job_status(self, job_id: str) -> JobStatus:
         url = f"{BASE_URL}{JOB_STATUS_ENDPOINT}/{job_id}"
-        async with self.session.get(url) as response:
-            if response.status == 200:
-                data = await response.json()
-                return JobStatus.from_string(data.get("status"))
-            msg = f"Failed to get job status with status code {response.status}"
-            raise Exception(msg)
+        response = self.session.get(url)
+        if response.status_code == 200:
+            data = response.json()
+            return JobStatus.from_string(data.get("status"))
+        msg = f"Failed to get job status with status code {response.status_code}"
+        raise RuntimeError(msg)
 
-    async def get_job_result(self, job_id: str):
+    def get_job_result(self, job_id: str) -> JobResult:
         url = f"{BASE_URL}{JOB_RESULT_ENDPOINT}/{job_id}"
-        async with self.session.get(url) as response:
-            if response.status == 200:
-                return await response.json()
-            msg = f"Failed to get job result with status code {response.status}"
-            raise Exception(msg)
+        response = self.session.get(url)
+        if response.status_code == 200:
+            data = response.json()
+            return JobResult(data)
+        msg = f"Failed to get job result with status code {response.status_code}"
+        raise RuntimeError(msg)
 
-    async def wait_for_job_completion(
-        self, job_id: str, callback: Callable[[str, JobStatus], None] | None = None, polling_interval: float = 5
-    ):
+    def wait_for_job_completion(
+            self,
+            job_id: str,
+            callback: Callable[[str, JobStatus], None] | None = None,
+            polling_interval: float = 5,
+    ) -> JobStatus:
         while True:
-            status = await self.get_job_status(job_id)
+            status = self.get_job_status(job_id)
             if callback:
                 callback(job_id, status)
             if status.is_final:
                 return status
-            await asyncio.sleep(polling_interval)
+            sleep(polling_interval)

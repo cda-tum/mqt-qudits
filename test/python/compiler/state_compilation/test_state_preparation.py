@@ -53,14 +53,15 @@ class TestStatePrep(TestCase):
             state = mini_sim(new_circuit)
             assert naive_state_fidelity(state, final_state) > 0.975
 
-    def test_state_set_initial_state(self):
+    @staticmethod
+    def test_state_set_initial_state():
         dimensions = [4, 6, 4, 6, 4]
         hilbert_space = QuantumRegister("hilbert_space", len(dimensions), dimensions)
         circuit = QuantumCircuit()
         circuit.append(hilbert_space)
         current_dir = Path(__file__).parent
-        FILE = current_dir / "state_preparation.npy"
-        psi = np.load(FILE)
+        filef = current_dir / "state_preparation.npy"
+        psi = np.load(filef)
         circuit.set_initial_state(psi)
         statesim = circuit.simulate()
         assert np.allclose(statesim, psi)
@@ -73,8 +74,8 @@ class TestStatePrep(TestCase):
         circuit_fragments.append(hilbert_space_0)
         circuit_fragments.append(hilbert_space_1)
         current_dir = Path(__file__).parent
-        FILE = current_dir / "state_preparation.npy"
-        psi = np.load(FILE)
+        filef = current_dir / "state_preparation.npy"
+        psi = np.load(filef)
         circuit_fragments.set_initial_state(psi)
         statesim_f = circuit_fragments.simulate()
         assert np.allclose(statesim_f, psi)

@@ -1,19 +1,24 @@
 from __future__ import annotations
 
 import random
+from typing import cast
 from unittest import TestCase
 
 import numpy as np
-from numpy.random import choice
 
 from mqt.qudits.compiler import QuditCompiler
-from mqt.qudits.compiler.compilation_minitools.naive_unitary_verifier import mini_phy_unitary_sim, mini_unitary_sim, \
-    naive_phy_sim
+from mqt.qudits.compiler.compilation_minitools.naive_unitary_verifier import (
+    mini_phy_unitary_sim,
+    mini_unitary_sim,
+    naive_phy_sim,
+)
 from mqt.qudits.compiler.state_compilation.retrieve_state import generate_random_quantum_state
-from mqt.qudits.compiler.twodit.variational_twodit_compilation.sparsifier import random_sparse_unitary
+from mqt.qudits.compiler.twodit.variational_twodit_compilation.sparsifier import (
+    random_sparse_unitary,
+    random_unitary_matrix,
+)
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.simulation import MQTQuditProvider
-from python.compiler.twodit.entangled_qr.test_entangled_qr import random_unitary_matrix
 
 """
                                                                 !WARNING!
@@ -23,6 +28,11 @@ from python.compiler.twodit.entangled_qr.test_entangled_qr import random_unitary
   Once the compiler methods have been improved the threshold should become tighter!
 
 """
+rng = np.random.default_rng()
+
+
+def choice(x: list[bool]) -> bool:
+    return cast(bool, rng.choice(x, size=1)[0])
 
 
 class TestQuditCompiler(TestCase):
@@ -99,7 +109,7 @@ class TestQuditCompiler(TestCase):
         assert np.allclose(og_state, compiled_state, rtol=1e-6, atol=1e-6)
 
     @staticmethod
-    def test_compile_O1_resynth():
+    def test_compile_o1_resynth():
         provider = MQTQuditProvider()
         backend_ion = provider.get_backend("faketraps8seven")
 
@@ -124,7 +134,7 @@ class TestQuditCompiler(TestCase):
         assert np.allclose(og_state, compiled_state, rtol=1e-6, atol=1e-6)
 
     @staticmethod
-    def test_compile_O1_adaptive():
+    def test_compile_o1_adaptive():
         provider = MQTQuditProvider()
         backend_ion = provider.get_backend("faketraps8seven")
 
@@ -154,7 +164,7 @@ class TestQuditCompiler(TestCase):
         backend_ion = provider.get_backend("faketraps8seven")
 
         circuit = QuantumCircuit(3, [3, 4, 5], 0)
-        for i in range(2):
+        for _k in range(2):
             for i in range(3):
                 for j in range(3):
                     if i != j:
@@ -182,7 +192,7 @@ class TestQuditCompiler(TestCase):
         circuit = QuantumCircuit(3, [3, 4, 5], 0)
         circuit.set_initial_state(final_state)
 
-        for i in range(2):
+        for _k in range(2):
             for i in range(3):
                 for j in range(3):
                     if i != j:
@@ -201,4 +211,3 @@ class TestQuditCompiler(TestCase):
         og_state = circuit.simulate()
         compiled_state = naive_phy_sim(new_circuit)
         assert np.allclose(og_state, compiled_state, rtol=1e-6, atol=1e-6)
-

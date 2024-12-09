@@ -1,39 +1,41 @@
 from __future__ import annotations
 
 import itertools
-import os
-import pickle
+import pickle  # noqa: S403
+import typing
+from pathlib import Path
 
 import numpy as np
+from numpy.typing import NDArray
 
 from mqt.qudits.quantum_circuit import QuantumCircuit
 
 
 # Define H and S gates for a specific qudit dimension
-def get_h_gate(dim):
+def get_h_gate(dim: int) -> NDArray:
     circuit_d = QuantumCircuit(1, [dim], 0)
     h = circuit_d.h(0)
     return h.to_matrix()
 
 
-def get_s_gate(dim):
+def get_s_gate(dim: int) -> NDArray:
     circuit_d = QuantumCircuit(1, [dim], 0)
     s = circuit_d.s(0)
     return s.to_matrix()
 
 
-def matrix_hash(matrix):
+def matrix_hash(matrix: NDArray) -> int:
     """Hash a numpy matrix using its byte representation."""
     return hash(matrix.tobytes())
 
 
-def generate_clifford_group(d, max_length=5):
+def generate_clifford_group(d: int, max_length: int = 5) -> dict[str, NDArray]:
     # Initialize H and S gates
     h_gate = get_h_gate(d)
     s_gate = get_s_gate(d)
 
     gates = {"h": h_gate, "s": s_gate}
-    clifford_group = {}
+    clifford_group: dict[str, NDArray] = {}
     hash_table = set()  # To store matrix hashes for fast lookups
 
     # Iterate over different combination lengths
@@ -57,26 +59,23 @@ def generate_clifford_group(d, max_length=5):
     return clifford_group
 
 
-def get_package_data_path(filename):
-    """Get the relative path to the data directory within the package."""
-    current_dir = os.path.dirname(__file__)
-    data_dir = os.path.join(current_dir, "data")
-    if not os.path.exists(data_dir):
-        os.makedirs(data_dir)
-    return os.path.join(data_dir, filename)
+def get_package_data_path(filename: str) -> Path:
+    """Get the path to the data directory within the package."""
+    current_dir = Path(__file__).parent
+    data_dir = current_dir / "data"
+    data_dir.mkdir(exist_ok=True)
+    return data_dir / filename
 
 
-def save_clifford_group_to_file(clifford_group, filename) -> None:
+def save_clifford_group_to_file(clifford_group: dict[str, NDArray], filename: str) -> None:
     """Save the Clifford group to the 'data' directory in the current package."""
     filepath = get_package_data_path(filename)
-    with open(filepath, "wb") as f:
-        pickle.dump(clifford_group, f)
+    filepath.write_bytes(pickle.dumps(clifford_group))
 
 
-def load_clifford_group_from_file(filename):
+def load_clifford_group_from_file(filename: str) -> dict[str, NDArray] | None:
     """Load the Clifford group from the 'data' directory in the current package."""
     filepath = get_package_data_path(filename)
-    if os.path.exists(filepath):
-        with open(filepath, "rb") as f:
-            return pickle.load(f)
+    if filepath.exists():
+        return typing.cast(dict[str, NDArray], pickle.loads(filepath.read_bytes()))  # noqa: S301
     return None

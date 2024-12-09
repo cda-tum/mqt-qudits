@@ -3,7 +3,6 @@ from __future__ import annotations
 from unittest import TestCase
 
 from mqt.qudits.quantum_circuit import QuantumCircuit
-from mqt.qudits.quantum_circuit.gates import x
 
 
 class TestQASM(TestCase):
@@ -61,6 +60,6 @@ class TestQASM(TestCase):
             "z",
             "rdu",
         ]
-        assert 3 == sum([1 if s.dagger else 0 for s in circuit.instructions])  # checking that there are three dagger
+        assert sum(1 if s.dagger else 0 for s in circuit.instructions) == 3  # checking that there are three dagger
         # ops
 

@@ -7,6 +7,7 @@ from random import uniform
 
 import numpy as np
 from scipy.optimize import minimize  # type: ignore[import-not-found]
+from scipy.stats import unitary_group  # type: ignore[import-not-found]
 
 from mqt.qudits.compiler.compilation_minitools import gate_expand_to_circuit
 from mqt.qudits.compiler.twodit.variational_twodit_compilation.opt import Optimizer
@@ -20,9 +21,12 @@ if typing.TYPE_CHECKING:
     from mqt.qudits.quantum_circuit.gate import Gate
 
 
-def random_sparse_unitary(n, density=0.4):
-    """
-    Generate a random sparse-like complex unitary matrix as a numpy array.
+def random_unitary_matrix(n: int) -> NDArray[np.complex128, np.complex128]:
+    return unitary_group.rvs(n)
+
+
+def random_sparse_unitary(n: int, density: float=0.4) -> NDArray:
+    """Generate a random sparse-like complex unitary matrix as a numpy array.
 
     Parameters:
     -----------
@@ -37,34 +41,34 @@ def random_sparse_unitary(n, density=0.4):
         A complex unitary matrix with approximate sparsity
     """
     # Create a random complex matrix with mostly zeros
-    A = np.zeros((n, n), dtype=complex)
+    mat_a = np.zeros((n, n), dtype=complex)
 
     # Calculate number of non-zero elements
     nnz = int(density * n * n)
 
+    rng = np.random.default_rng()
     # Generate random positions for non-zero elements
-    positions = np.random.choice(n * n, size=nnz, replace=False)
+    positions = rng.choice(n * n, size=nnz, replace=False)
     rows, cols = np.unravel_index(positions, (n, n))
 
-    # Generate random complex values with larger magnitude
-    values = (np.random.randn(nnz) + 1j * np.random.randn(nnz)) * np.sqrt(n)
-    A[rows, cols] = values
+    values = (rng.standard_normal(nnz) + 1j * rng.standard_normal(nnz)) * np.sqrt(n)
+    mat_a[rows, cols] = values
 
     # Add a small random perturbation to all elements to avoid pure identity results
-    perturbation = (np.random.randn(n, n) + 1j * np.random.randn(n, n)) * 0.01
-    A = A + perturbation
+    perturbation = (rng.standard_normal((n, n)) + 1j * rng.standard_normal((n, n))) * 0.01
+    mat_a += perturbation
 
     # Perform QR decomposition to get unitary matrix
-    Q, R = np.linalg.qr(A)
+    q, _r = np.linalg.qr(mat_a)
 
     # Make Q more sparse by zeroing out small elements
-    mask = np.abs(Q) < np.sqrt(density)  # Adaptive threshold
-    Q[mask] = 0
+    mask = np.abs(q) < np.sqrt(density)  # Adaptive threshold
+    q[mask] = 0
 
     # Ensure unitarity by performing another QR
-    Q, R = np.linalg.qr(Q)
+    q_, _ = np.linalg.qr(q)
 
-    return Q
+    return q_
 
 
 def apply_rotations(

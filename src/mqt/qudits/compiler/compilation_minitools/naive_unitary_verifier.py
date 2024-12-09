@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import operator
 from functools import reduce
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from mqt.qudits.quantum_circuit.gates import R, Rz, VirtRz
 
 
-def permute_according_to_mapping(circuit: QuantumCircuit, mappings: list[int]) -> NDArray:
+def permute_according_to_mapping(circuit: QuantumCircuit, mappings: list[list[int]]) -> NDArray:
     lines = list(range(circuit.num_qudits))
     dimensions = circuit.dimensions
     permutation = np.eye(dimensions[0])[:, mappings[0]]
@@ -48,7 +48,8 @@ def mini_phy_unitary_sim(circuit: QuantumCircuit) -> NDArray[np.complex128, np.c
     assert circuit.initial_mappings is not None
 
     dimensions = circuit.dimensions
-    id_mat = np.identity(np.prod(dimensions))
+    size = reduce(operator.mul, dimensions)
+    id_mat = np.identity(size)
 
     final_permutation = permute_according_to_mapping(circuit, circuit.final_mappings)
     init_permutation = permute_according_to_mapping(circuit, circuit.initial_mappings)

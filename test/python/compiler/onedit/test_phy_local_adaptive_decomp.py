@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import cast
 from unittest import TestCase
 
 import numpy as np
@@ -88,8 +89,8 @@ class TestPhyAdaptiveDecomposition(TestCase):
 
         v = UnitaryVerifier(new_circuit.instructions, r3, [dim], list(range(dim)), inimap, fmap)
 
-        uni_l = mini_unitary_sim(circuit_d).round(4)
-        uni = mini_unitary_sim(new_circuit).round(4)
+        uni_l = mini_unitary_sim(circuit_d)
+        uni = mini_unitary_sim(new_circuit)
         tpuni = uni @ v.get_perm_matrix(list(range(dim)), fmap)  # Pf
         tpuni = v.get_perm_matrix(list(range(dim)), inimap).T @ tpuni  # Pi dag
         assert np.allclose(tpuni, uni_l)
@@ -98,11 +99,11 @@ class TestPhyAdaptiveDecomposition(TestCase):
         new_transpiled_circuit = z_propagation_pass.transpile(new_circuit)
         mini_unitary_sim(new_transpiled_circuit).round(4)
         tpuni2 = uni @ v.get_perm_matrix(list(range(dim)), fmap)  # Pf
-        tpuni2 = v.get_perm_matrix(list(range(dim)), inimap).T @ tpuni  # Pi dag
+        tpuni2 = v.get_perm_matrix(list(range(dim)), inimap).T @ tpuni2  # Pi dag
         assert np.allclose(tpuni2, uni_l)
 
         adapt_circ = test_circ.compileO1("faketraps2six", "adapt")
         u2a = mini_unitary_sim(adapt_circ)
-        tpuni2a = u2a @ v.get_perm_matrix(list(range(dim)), adapt_circ.final_mappings[0])  # Pf
+        tpuni2a = u2a @ v.get_perm_matrix(list(range(dim)), cast(list[list[int]], adapt_circ.final_mappings)[0])  # Pf
         tpuni2a = v.get_perm_matrix(list(range(dim)), inimap).T @ tpuni2a  # Pi dag
-        assert np.allclose(tpuni, uni_l)
+        assert np.allclose(tpuni2a, uni_l, rtol=1e-6, atol=1e-6)

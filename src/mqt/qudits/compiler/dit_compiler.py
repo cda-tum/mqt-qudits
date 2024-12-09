@@ -3,15 +3,15 @@ from __future__ import annotations
 import typing
 from typing import Optional
 
-from .multidit.transpile.phy_multi_control_transp import PhyMultiSimplePass
-from .twodit.transpile.phy_two_control_transp import PhyEntSimplePass
 from ..core.custom_python_utils import append_to_front
 from ..quantum_circuit.components.extensions.gate_types import GateTypes
 from . import CompilerPass
+from .multidit.transpile.phy_multi_control_transp import PhyMultiSimplePass
 from .naive_local_resynth import NaiveLocResynthOptPass
 from .onedit import LogLocQRPass, PhyLocAdaPass, PhyLocQRPass, ZPropagationOptPass, ZRemovalOptPass
 from .twodit import LogEntQRCEXPass
 from .twodit.entanglement_qr.phy_ent_qr_cex_decomp import PhyEntQRCEXPass
+from .twodit.transpile.phy_two_control_transp import PhyEntSimplePass
 
 if typing.TYPE_CHECKING:
     from ..quantum_circuit import QuantumCircuit
@@ -48,7 +48,7 @@ class QuditCompiler:
         transpiled_circuit.set_final_mappings(final_mappings)
 
         passes_dict = {}
-        new_instr = []
+        new_instr: list[Gate] = []
         # Instantiate and execute created classes
         for compiler_pass_name in passes_names:
             compiler_pass = self.passes_enabled[compiler_pass_name]
@@ -108,7 +108,7 @@ class QuditCompiler:
         transpiled_circuit.set_final_mappings(final_mappings)
 
         circuit = resynth.transpile(circuit)
-        new_instructions = []
+        new_instructions: list[Gate] = []
         for gate in reversed(circuit.instructions):
             ins: list[Gate] = []
             if gate.gate_type is GateTypes.SINGLE:
@@ -140,7 +140,7 @@ class QuditCompiler:
             if i < circuit.num_qudits:
                 final_mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
 
-        new_instructions = []
+        new_instructions: list[Gate] = []
         for gate in reversed(circuit.instructions):
             ins: list[Gate] = []
             if gate.gate_type is GateTypes.SINGLE:
@@ -181,7 +181,7 @@ class QuditCompiler:
                 final_mappings.append([lev for lev in graph.log_phy_map if lev < circuit.dimensions[i]])
 
         circuit = resynth.transpile(circuit)
-        new_instructions = []
+        new_instructions: list[Gate] = []
         for gate in reversed(circuit.instructions):
             ins: list[Gate] = []
             if gate.gate_type is GateTypes.SINGLE:

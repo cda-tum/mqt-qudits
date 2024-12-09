@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, TypeVar, cast
 import numpy as np
 
 from .components import ClassicRegister, QuantumRegister
+from .gate import Gate
 from .gates import (
     LS,
     MS,
@@ -39,7 +40,7 @@ if TYPE_CHECKING:
 
     from .components.extensions.controls import ControlData
     from .components.quantum_register import SiteMap
-    from .gate import Gate, Parameter
+    from .gate import Parameter
 
     InverseSitemap = dict[int, tuple[str, int]]
     from .components.classic_register import ClSitemap
@@ -167,7 +168,8 @@ class QuantumCircuit:
                 self.sitemap[str(qreg.label), i] = (num_lines_stored + i, qreg.dimensions[i])
                 self.inverse_sitemap[num_lines_stored + i] = (str(qreg.label), i)
         except IndexError:
-            raise IndexError("Check your Quantum Register to have the right number of lines and number of dimensions")
+            msg = "Check your Quantum Register to have the right number of lines and number of dimensions"
+            raise IndexError(msg) from None
 
     def append_classic(self, creg: ClassicRegister) -> None:
         self.classic_registers.append(creg)
@@ -344,7 +346,6 @@ class QuantumCircuit:
         for op in instructions:
             if op["name"] in qasm_set:
                 gate_constructor_name = qasm_set[op["name"]]
-                gate = {}
                 if hasattr(self, gate_constructor_name):
                     function = getattr(self, gate_constructor_name)
 
@@ -371,7 +372,7 @@ class QuantumCircuit:
                     msg = "the required gate_matrix is not available anymore."
                     raise NotImplementedError(msg)
                 if op["dagger"]:
-                    gate.dag()
+                    cast(Gate, gate).dag()
 
     def to_qasm(self) -> str:
         text = ""

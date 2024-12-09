@@ -18,7 +18,7 @@ class TestAnsatzSearch(TestCase):
         sparsity_initial = compute_f(check)
 
         u = self.circuit.cu_two([0, 1], check)
-        circuit = sparsify(u)
+        sparsify(u)
         op = mini_unitary_sim(self.circuit)
         sparsity_final = compute_f(op)
         assert sparsity_final <= sparsity_initial
