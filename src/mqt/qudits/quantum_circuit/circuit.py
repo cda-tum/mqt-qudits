@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Any, ClassVar, TypeVar, cast
 import numpy as np
 
 from .components import ClassicRegister, QuantumRegister
-from .gate import Gate
 from .gates import (
     LS,
     MS,
@@ -40,7 +39,7 @@ if TYPE_CHECKING:
 
     from .components.extensions.controls import ControlData
     from .components.quantum_register import SiteMap
-    from .gate import Parameter
+    from .gate import Gate, Parameter
 
     InverseSitemap = dict[int, tuple[str, int]]
     from .components.classic_register import ClSitemap
@@ -372,7 +371,7 @@ class QuantumCircuit:
                     msg = "the required gate_matrix is not available anymore."
                     raise NotImplementedError(msg)
                 if op["dagger"]:
-                    cast(Gate, gate).dag()
+                    gate.dag()
 
     def to_qasm(self) -> str:
         text = ""

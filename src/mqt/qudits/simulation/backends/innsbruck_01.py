@@ -97,15 +97,15 @@ class Innsbruck01(Backend):
         )
         subspace_error_01 = SubspaceNoise(probability_depolarizing=0.005, probability_dephasing=0.005, levels=(0, 1))
         subspace_error_01_cex = SubspaceNoise(
-            probability_depolarizing=0.010, probability_dephasing=0.010, levels=(0, 1)
+                probability_depolarizing=0.010, probability_dephasing=0.010, levels=(0, 1)
         )
 
         # Add errors to noise_tools model
-        noise_model = NoiseModel()  # We know that the architecture is only two qudits
+        noise_model = NoiseModel()
         # Very noisy gate_matrix
         noise_model.add_nonlocal_quantum_error(basic_error, ["csum", "ls"])
         noise_model.add_quantum_error_locally(
-            basic_error, ["cuone", "cutwo", "cumulti", "h", "perm", "rdu", "s", "x", "z"]
+                basic_error, ["cuone", "cutwo", "cumulti", "h", "perm", "rdu", "s", "x", "z"]
         )
 
         # Physical gates
