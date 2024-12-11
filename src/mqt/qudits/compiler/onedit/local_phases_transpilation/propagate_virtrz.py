@@ -63,8 +63,8 @@ class ZPropagationOptPass(CompilerPass):
         line = [couple[1] for couple in group]
         z_angles: dict[int, float] = {}
         list_of_x_yrots: list[R] = []
-        qudit_index = cast(int, line[0].target_qudits)
-        dimension = cast(int, line[0].dimensions)
+        qudit_index = cast("int", line[0].target_qudits)
+        dimension = line[0].dimensions
 
         for i in range(dimension):
             z_angles[i] = 0.0
@@ -145,6 +145,7 @@ class ZPropagationOptPass(CompilerPass):
                 from ....quantum_circuit.gates import R, VirtRz
 
                 sequence = cast(list[Union[R, VirtRz]], circuit.instructions[interval[0]: interval[-1] + 1])
+                sequence = cast("list[Union[R, VirtRz]]", circuit.instructions[interval[0] : interval[-1] + 1])
                 fixed_seq: list[R] = []
                 z_tail: list[VirtRz] = []
                 combined_seq = self.propagate_z(circuit, sequence, back)

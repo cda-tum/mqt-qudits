@@ -48,10 +48,9 @@ class CustomTwo(Gate):
     def validate_parameter(parameter: Parameter) -> bool:
         if parameter is None:
             return True  # or False, depending on whether None is considered valid
-        return cast(
-            bool,
+        return bool(
             isinstance(parameter, np.ndarray)
-            and (parameter.dtype == np.complex128 or np.issubdtype(parameter.dtype, np.number)),
+            and (parameter.dtype == np.complex128 or np.issubdtype(parameter.dtype, np.number))
         )
 
     def _dagger_properties(self) -> None:

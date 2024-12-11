@@ -81,4 +81,4 @@ class LS(Gate):
 
     @property
     def dimensions(self) -> list[int]:
-        return cast(list[int], self._dimensions)
+        return cast("list[int]", self._dimensions)

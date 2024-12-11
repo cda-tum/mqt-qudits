@@ -17,6 +17,7 @@ if typing.TYPE_CHECKING:
     from ..quantum_circuit import QuantumCircuit
     from ..quantum_circuit.gate import Gate
     from ..simulation.backends.backendv2 import Backend
+    from . import CompilerPass
 
 
 class QuditCompiler:
@@ -61,7 +62,7 @@ class QuditCompiler:
                 passes_dict[GateTypes.MULTI] = decomposition
 
         for gate in reversed(circuit.instructions):
-            decomposer = typing.cast(Optional[CompilerPass], passes_dict.get(gate.gate_type))
+            decomposer = typing.cast("Optional[CompilerPass]", passes_dict.get(gate.gate_type))
             if decomposer is not None:
                 new_instructions = decomposer.transpile_gate(gate)
                 append_to_front(new_instr, new_instructions)
