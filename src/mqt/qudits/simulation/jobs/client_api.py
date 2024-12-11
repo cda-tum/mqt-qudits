@@ -3,7 +3,7 @@ from __future__ import annotations
 from time import sleep
 from typing import TYPE_CHECKING, cast
 
-import requests  # type: ignore[import-untyped]
+import requests
 
 from mqt.qudits.simulation.jobs import JobResult
 from mqt.qudits.simulation.jobs.config_api import (
