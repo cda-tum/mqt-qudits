@@ -36,7 +36,7 @@ class JobResult:
             # Traditional initialization with direct parameters
             self.job_id = job_id
             self.state_vector = state_vector
-            self.counts = cast(list[int], counts)
+            self.counts = cast("list[int]", counts)
 
     def get_counts(self) -> Sequence[int]:
         return self.counts

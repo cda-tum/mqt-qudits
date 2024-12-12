@@ -6,7 +6,6 @@ import unittest
 from pathlib import Path
 
 import numpy as np
-from numpy.typing import NDArray
 
 from mqt.qudits.compiler.onedit.randomized_benchmarking.bench_suite import (
     generate_clifford_group,
@@ -18,6 +17,9 @@ from mqt.qudits.compiler.onedit.randomized_benchmarking.bench_suite import (
     save_clifford_group_to_file,
 )
 from mqt.qudits.quantum_circuit import QuantumCircuit, QuantumRegister
+
+if typing.TYPE_CHECKING:
+    from numpy.typing import NDArray
 
 rng = np.random.default_rng()
 
@@ -83,7 +85,7 @@ class TestCliffordGroupGeneration(unittest.TestCase):
 
         clifford_group = generate_clifford_group(dim_g, max_length=10)
         save_clifford_group_to_file(clifford_group, f"cliffords_{dim_g}.dat")
-        clifford_group = typing.cast(dict[str, NDArray], load_clifford_group_from_file(f"cliffords_{dim_g}.dat"))
+        clifford_group = typing.cast("dict[str, NDArray]", load_clifford_group_from_file(f"cliffords_{dim_g}.dat"))
 
         def create_rb_sequence(length: int = 2) -> QuantumCircuit:
             circuit = QuantumCircuit()

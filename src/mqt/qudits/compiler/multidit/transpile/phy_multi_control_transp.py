@@ -39,7 +39,7 @@ class PhyMultiSimplePass(CompilerPass):
         physical_rotation = R(
             self.circuit,
             "R",
-            cast(int, gate.target_qudits),
+            cast("int", gate.target_qudits),
             [temp_placement.nodes[gate.lev_a]["lpmap"], temp_placement.nodes[gate.lev_b]["lpmap"], gate.theta, phi],
             gate.dimensions,
         )
@@ -49,7 +49,7 @@ class PhyMultiSimplePass(CompilerPass):
             R(
                 self.circuit,
                 "R",
-                cast(int, gate.target_qudits),
+                cast("int", gate.target_qudits),
                 [pi_g.lev_a, pi_g.lev_b, pi_g.theta, -pi_g.phi],
                 gate.dimensions,
             )
@@ -65,14 +65,14 @@ class PhyMultiSimplePass(CompilerPass):
         self.circuit = gate.parent_circuit
 
         if isinstance(gate.target_qudits, int):
-            gate_controls = cast(ControlData, gate.control_info["controls"])
+            gate_controls = cast("ControlData", gate.control_info["controls"])
             indices = gate_controls.indices
             states = gate_controls.ctrl_states
             target_qudits = [*indices, gate.target_qudits]
             dimensions = [gate.parent_circuit.dimensions[i] for i in target_qudits]
         else:
             target_qudits = gate.target_qudits
-            dimensions = cast(list[int], gate.dimensions)
+            dimensions = cast("list[int]", gate.dimensions)
 
         # Get energy graphs for all control qudits and target qudit
         energy_graphs = {qudit: self.backend.energy_level_graphs[qudit] for qudit in target_qudits}
@@ -84,7 +84,7 @@ class PhyMultiSimplePass(CompilerPass):
         }
 
         if isinstance(gate, R):
-            gate_controls = cast(ControlData, gate.control_info["controls"])
+            gate_controls = cast("ControlData", gate.control_info["controls"])
             indices = gate_controls.indices
             states = gate_controls.ctrl_states
             if len(indices) > 0:
@@ -123,7 +123,7 @@ class PhyMultiSimplePass(CompilerPass):
                 return [*pi_pulses, newr, *pi_backs]
 
         if isinstance(gate, Rz):
-            gate_controls = cast(ControlData, gate.control_info["controls"])
+            gate_controls = cast("ControlData", gate.control_info["controls"])
             indices = gate_controls.indices
             states = gate_controls.ctrl_states
             if len(indices) > 0:

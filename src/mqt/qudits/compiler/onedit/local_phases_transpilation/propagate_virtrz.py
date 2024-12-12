@@ -64,7 +64,7 @@ class ZPropagationOptPass(CompilerPass):
         z_angles: dict[int, float] = {}
         list_of_x_yrots: list[R] = []
         qudit_index = cast("int", line[0].target_qudits)
-        dimension = line[0].dimensions
+        dimension = cast("int", line[0].dimensions)
 
         for i in range(dimension):
             z_angles[i] = 0.0

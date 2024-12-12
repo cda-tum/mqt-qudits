@@ -283,7 +283,7 @@ class PhyAdaptiveDecomposition:
         def calculate_sparsity(matrix: NDArray) -> float:
             total_elements = matrix.size
             non_zero_elements = np.count_nonzero(np.abs(matrix) > 1e-8)  # np.count_nonzero(matrix)
-            return cast(float, non_zero_elements / total_elements)
+            return cast("float", non_zero_elements / total_elements)
 
         def change_kids(lst: list[TreeNode]) -> list[TreeNode]:
             # Check if the list is non-empty

@@ -39,7 +39,7 @@ class PhyEntSimplePass(CompilerPass):
         physical_rotation = R(
             self.circuit,
             "R",
-            cast(int, gate.target_qudits),
+            cast("int", gate.target_qudits),
             [temp_placement.nodes[gate.lev_a]["lpmap"], temp_placement.nodes[gate.lev_b]["lpmap"], gate.theta, phi],
             gate.dimensions,
         )
@@ -49,7 +49,7 @@ class PhyEntSimplePass(CompilerPass):
             R(
                 self.circuit,
                 "R",
-                cast(int, gate.target_qudits),
+                cast("int", gate.target_qudits),
                 [pi_g.lev_a, pi_g.lev_b, pi_g.theta, -pi_g.phi],
                 gate.dimensions,
             )
@@ -65,14 +65,14 @@ class PhyEntSimplePass(CompilerPass):
         self.circuit = gate.parent_circuit
 
         if isinstance(gate.target_qudits, int) and isinstance(gate, (R, Rz)):
-            gate_controls = cast(ControlData, gate.control_info["controls"])
+            gate_controls = cast("ControlData", gate.control_info["controls"])
             indices = gate_controls.indices
             states = gate_controls.ctrl_states
             target_qudits = [*indices, gate.target_qudits]
             dimensions = [gate.parent_circuit.dimensions[i] for i in target_qudits]
         else:
-            target_qudits = cast(list[int], gate.target_qudits)
-            dimensions = cast(list[int], gate.dimensions)
+            target_qudits = cast("list[int]", gate.target_qudits)
+            dimensions = cast("list[int]", gate.dimensions)
 
         energy_graph_c = self.backend.energy_level_graphs[target_qudits[0]]
         energy_graph_t = self.backend.energy_level_graphs[target_qudits[1]]
@@ -94,7 +94,7 @@ class PhyEntSimplePass(CompilerPass):
             tcex = CEx(self.circuit, "CEx_t" + str(target_qudits), target_qudits, new_parameters, dimensions, None)
             return [*pi_pulses, tcex, *pi_backs]
         if isinstance(gate, R):
-            gate_controls = cast(ControlData, gate.control_info["controls"])
+            gate_controls = cast("ControlData", gate.control_info["controls"])
             indices = gate_controls.indices
             states = gate_controls.ctrl_states
             if len(indices) == 1:
@@ -120,7 +120,7 @@ class PhyEntSimplePass(CompilerPass):
                 )
                 return [*pi_pulses, newr, *pi_backs]
         elif isinstance(gate, Rz):
-            gate_controls = cast(ControlData, gate.control_info["controls"])
+            gate_controls = cast("ControlData", gate.control_info["controls"])
             indices = gate_controls.indices
             states = gate_controls.ctrl_states
             if len(indices) == 1:

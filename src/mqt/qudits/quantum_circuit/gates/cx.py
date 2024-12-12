@@ -54,7 +54,7 @@ class CEx(Gate):
         levels_swap_low: int = cast("int", self._params[0])
         levels_swap_high: int = cast("int", self._params[1])
         ctrl_level: int = cast("int", self._params[2])
-        ang: float = cast("float", self.phi)
+        ang: float = self.phi
         dimension = reduce(operator.mul, self.dimensions)
         dimension_ctrl, dimension_target = self.dimensions
         qudits_targeted = cast("list[int]", self.target_qudits)

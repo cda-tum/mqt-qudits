@@ -26,7 +26,7 @@ rng = np.random.default_rng()
 
 
 def choice(x: list[bool]) -> bool:
-    return cast(bool, rng.choice(x, size=1)[0])
+    return cast("bool", rng.choice(x, size=1)[0])
 
 
 class TestUnitaryVerifier(TestCase):

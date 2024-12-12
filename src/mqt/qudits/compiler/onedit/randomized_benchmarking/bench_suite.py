@@ -6,9 +6,11 @@ import typing
 from pathlib import Path
 
 import numpy as np
-from numpy.typing import NDArray
 
 from mqt.qudits.quantum_circuit import QuantumCircuit
+
+if typing.TYPE_CHECKING:
+    from numpy.typing import NDArray
 
 
 # Define H and S gates for a specific qudit dimension
@@ -77,5 +79,5 @@ def load_clifford_group_from_file(filename: str) -> dict[str, NDArray] | None:
     """Load the Clifford group from the 'data' directory in the current package."""
     filepath = get_package_data_path(filename)
     if filepath.exists():
-        return typing.cast(dict[str, NDArray], pickle.loads(filepath.read_bytes()))  # noqa: S301
+        return typing.cast("dict[str, NDArray]", pickle.loads(filepath.read_bytes()))  # noqa: S301
     return None

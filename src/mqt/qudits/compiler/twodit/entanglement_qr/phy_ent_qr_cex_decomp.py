@@ -24,7 +24,7 @@ class PhyEntQRCEXPass(CompilerPass):
     def __transpile_local_ops(self, gate: Gate) -> list[Gate]:
         from mqt.qudits.compiler.onedit.mapping_aware_transpilation import PhyQrDecomp
 
-        energy_graph_i = self.backend.energy_level_graphs[cast(int, gate.target_qudits)]
+        energy_graph_i = self.backend.energy_level_graphs[cast("int", gate.target_qudits)]
         qr = PhyQrDecomp(gate, energy_graph_i, not_stand_alone=False)
         decomp, _algorithmic_cost, _total_cost = qr.execute()
         return decomp

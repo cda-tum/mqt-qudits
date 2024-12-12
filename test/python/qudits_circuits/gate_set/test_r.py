@@ -1,14 +1,16 @@
 from __future__ import annotations
 
-from typing import cast
+from typing import TYPE_CHECKING, cast
 from unittest import TestCase
 
 import numpy as np
 
 from mqt.qudits.quantum_circuit import QuantumCircuit
-from mqt.qudits.quantum_circuit.components.extensions.controls import ControlData
 from mqt.qudits.quantum_circuit.components.extensions.gate_types import GateTypes
 from mqt.qudits.quantum_circuit.gates import R
+
+if TYPE_CHECKING:
+    from mqt.qudits.quantum_circuit.components.extensions.controls import ControlData
 
 
 class TestR(TestCase):
@@ -98,7 +100,7 @@ class TestR(TestCase):
     def test_control():
         circuit_3 = QuantumCircuit(2, [2, 3], 0)
         r = circuit_3.r(0, [1, 0, np.pi, np.pi / 7]).control([1], [1])
-        ci = cast(ControlData, r.control_info["controls"])
+        ci = cast("ControlData", r.control_info["controls"])
         assert ci.indices == [1]
         assert ci.ctrl_states == [1]
         assert r.gate_type == GateTypes.TWO
@@ -106,7 +108,7 @@ class TestR(TestCase):
 
         circuit_3_2 = QuantumCircuit(3, [2, 3, 3], 0)
         r = circuit_3_2.r(0, [1, 0, np.pi, np.pi / 7]).control([1, 2], [1, 1])
-        ci = cast(ControlData, r.control_info["controls"])
+        ci = cast("ControlData", r.control_info["controls"])
         assert r.gate_type == GateTypes.MULTI
         assert isinstance(r, R)
         assert ci.indices == [1, 2]

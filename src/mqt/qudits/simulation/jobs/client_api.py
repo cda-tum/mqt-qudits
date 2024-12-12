@@ -38,7 +38,7 @@ class APIClient:
         response = self.session.post(url, json=payload)
         if response.status_code == 200:
             data = response.json()
-            return cast(str, data.get("job_id"))
+            return cast("str", data.get("job_id"))
         msg = f"Job submission failed with status code {response.status_code}"
         raise RuntimeError(msg)
 

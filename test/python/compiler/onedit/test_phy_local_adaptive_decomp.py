@@ -104,6 +104,6 @@ class TestPhyAdaptiveDecomposition(TestCase):
 
         adapt_circ = test_circ.compileO1("faketraps2six", "adapt")
         u2a = mini_unitary_sim(adapt_circ)
-        tpuni2a = u2a @ v.get_perm_matrix(list(range(dim)), cast(list[list[int]], adapt_circ.final_mappings)[0])  # Pf
+        tpuni2a = u2a @ v.get_perm_matrix(list(range(dim)), cast("list[list[int]]", adapt_circ.final_mappings)[0])  # Pf
         tpuni2a = v.get_perm_matrix(list(range(dim)), inimap).T @ tpuni2a  # Pi dag
         assert np.allclose(tpuni2a, uni_l, rtol=1e-6, atol=1e-6)
