@@ -94,12 +94,12 @@ class PhyMultiSimplePass(CompilerPass):
                 # Create ghost rotation for routing
                 target_qudit = target_qudits[-1]  # Last qudit is the target
                 ghost_rotation = R(
-                        self.circuit,
-                        f"R_ghost_t{target_qudit}",
-                        target_qudit,
-                        [gate.lev_a, gate.lev_b, gate.theta, gate.phi],
-                        dimensions[-1],
-                        None,
+                    self.circuit,
+                    f"R_ghost_t{target_qudit}",
+                    target_qudit,
+                    [gate.lev_a, gate.lev_b, gate.theta, gate.phi],
+                    dimensions[-1],
+                    None,
                 )
 
                 # Get routing operations
@@ -111,12 +111,12 @@ class PhyMultiSimplePass(CompilerPass):
                 # Create new rotation with mapped control levels
                 new_parameters = [rot.lev_a, rot.lev_b, rot.theta, rot.phi]
                 newr = R(
-                        self.circuit,
-                        f"Rt{target_qudits}",
-                        target_qudit,
-                        new_parameters,
-                        dimensions[-1],
-                        ControlData(indices=indices, ctrl_states=new_ctrl_levels),
+                    self.circuit,
+                    f"Rt{target_qudits}",
+                    target_qudit,
+                    new_parameters,
+                    dimensions[-1],
+                    ControlData(indices=indices, ctrl_states=new_ctrl_levels),
                 )
 
                 # Return the sequence of operations
@@ -133,12 +133,12 @@ class PhyMultiSimplePass(CompilerPass):
                 # Create ghost rotation for routing
                 target_qudit = target_qudits[-1]  # Last qudit is the target
                 ghost_rotation = R(
-                        self.circuit,
-                        f"R_ghost_t{target_qudit}",
-                        target_qudit,
-                        [gate.lev_a, gate.lev_b, gate.phi, np.pi / 2],
-                        dimensions[-1],
-                        None,
+                    self.circuit,
+                    f"R_ghost_t{target_qudit}",
+                    target_qudit,
+                    [gate.lev_a, gate.lev_b, gate.phi, np.pi / 2],
+                    dimensions[-1],
+                    None,
                 )
 
                 ghost_rotation.to_matrix()
@@ -154,12 +154,12 @@ class PhyMultiSimplePass(CompilerPass):
                 if (rot.theta * rot.phi) * (gate.phi) < 0:
                     new_parameters = [rot.lev_a, rot.lev_b, -rot.theta]
                 newrz = Rz(
-                        self.circuit,
-                        f"Rt{target_qudits}",
-                        target_qudit,
-                        new_parameters,
-                        dimensions[-1],
-                        ControlData(indices=indices, ctrl_states=new_ctrl_levels),
+                    self.circuit,
+                    f"Rt{target_qudits}",
+                    target_qudit,
+                    new_parameters,
+                    dimensions[-1],
+                    ControlData(indices=indices, ctrl_states=new_ctrl_levels),
                 )
 
                 # Return the sequence of operations

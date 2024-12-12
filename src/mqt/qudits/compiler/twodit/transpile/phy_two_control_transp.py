@@ -100,23 +100,23 @@ class PhyEntSimplePass(CompilerPass):
             if len(indices) == 1:
                 assert len(states) == 1
                 ghost_rotation = R(
-                        self.circuit,
-                        "R_ghost_t" + str(target_qudits[1]),
-                        target_qudits[1],
-                        [gate.lev_a, gate.lev_b, gate.theta, gate.phi],
-                        dimensions[1],
-                        None,
+                    self.circuit,
+                    "R_ghost_t" + str(target_qudits[1]),
+                    target_qudits[1],
+                    [gate.lev_a, gate.lev_b, gate.theta, gate.phi],
+                    dimensions[1],
+                    None,
                 )
                 pi_pulses, rot, pi_backs = self.__routing(ghost_rotation, energy_graph_t)
                 new_ctrl_lev = lp_map_0[states[0]]
                 new_parameters = [rot.lev_a, rot.lev_b, rot.theta, rot.phi]
                 newr = R(
-                        self.circuit,
-                        "Rt" + str(target_qudits),
-                        target_qudits[1],
-                        new_parameters,
-                        dimensions[1],
-                        ControlData(indices=indices, ctrl_states=[new_ctrl_lev]),
+                    self.circuit,
+                    "Rt" + str(target_qudits),
+                    target_qudits[1],
+                    new_parameters,
+                    dimensions[1],
+                    ControlData(indices=indices, ctrl_states=[new_ctrl_lev]),
                 )
                 return [*pi_pulses, newr, *pi_backs]
         elif isinstance(gate, Rz):
@@ -126,12 +126,12 @@ class PhyEntSimplePass(CompilerPass):
             if len(indices) == 1:
                 assert len(states) == 1
                 ghost_rotation = R(
-                        self.circuit,
-                        "R_ghost_t" + str(target_qudits[1]),
-                        target_qudits[1],
-                        [gate.lev_a, gate.lev_b, gate.phi, np.pi],
-                        dimensions[1],
-                        None,
+                    self.circuit,
+                    "R_ghost_t" + str(target_qudits[1]),
+                    target_qudits[1],
+                    [gate.lev_a, gate.lev_b, gate.phi, np.pi],
+                    dimensions[1],
+                    None,
                 )
                 pi_pulses, rot, pi_backs = self.__routing(ghost_rotation, energy_graph_t)
                 new_ctrl_lev = lp_map_0[states[0]]
@@ -139,12 +139,12 @@ class PhyEntSimplePass(CompilerPass):
                 if (rot.theta * rot.phi) * (gate.phi) < 0:
                     new_parameters = [rot.lev_a, rot.lev_b, -rot.theta]
                 newrz = Rz(
-                        self.circuit,
-                        "Rzt" + str(target_qudits),
-                        target_qudits[1],
-                        new_parameters,
-                        dimensions[1],
-                        ControlData(indices=indices, ctrl_states=[new_ctrl_lev]),
+                    self.circuit,
+                    "Rzt" + str(target_qudits),
+                    target_qudits[1],
+                    new_parameters,
+                    dimensions[1],
+                    ControlData(indices=indices, ctrl_states=[new_ctrl_lev]),
                 )
                 return [*pi_backs, newrz, *pi_pulses]
         return []
