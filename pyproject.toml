@@ -300,7 +300,12 @@ archs = "auto64"
 test-groups = ["test"]
 test-command = "pytest {project}/test/python"
 build-frontend = "uv"
-test-skip = ["cp315*"] # h5py does not provide Python 3.15 wheels yet
+
+[[tool.cibuildwheel.overrides]]
+select = ["cp315*"]
+before-test = ""
+test-groups = []
+test-command = "python -c \"import mqt.qudits\""
 
 [tool.cibuildwheel.linux]
 environment = { DEPLOY="ON" }
