@@ -7,13 +7,15 @@
 # Licensed under the MIT License
 
 # set required cmake version
-cmake_minimum_required(VERSION 3.24...4.4)
+cmake_minimum_required(VERSION 3.28...4.4)
 
 # project definition
 project(
   mqt-qudits
   LANGUAGES CXX
   DESCRIPTION "MQT Qudits - A Framework For Mixed-Dimensional Qudit Quantum Computing")
+
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 option(BUILD_MQT_QUDITS_BINDINGS "Build the MQT Qudits Python bindings" OFF)
 if(BUILD_MQT_QUDITS_BINDINGS)
