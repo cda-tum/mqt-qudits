@@ -104,7 +104,7 @@ uv pip install mqt.qudits
 ## System Requirements and Building
 
 Building the project requires a C++ compiler with support for C++20 and CMake
-3.24 or newer. For details on how to build the project, please refer to the
+3.28 or newer. For details on how to build the project, please refer to the
 [documentation](https://mqt.readthedocs.io/projects/qudits). Building (and
 running) is continuously tested under Linux, macOS, and Windows using the
 [latest available system versions for GitHub Actions](https://github.com/actions/runner-images).
