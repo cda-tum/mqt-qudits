@@ -26,7 +26,7 @@ quantum computing. It is part of the
 
 - **Mixed-dimensional quantum circuit support**: Design, simulate, and analyze
   quantum circuits with arbitrary qudit dimensions, not limited to qubits.
-  [Tutorial](https://mqt.readthedocs.io/projects/qudits/en/latest/tutorial.html)
+  [Tutorial](https://mqt.readthedocs.io/projects/qudits/en/stable/tutorial.html)
 - **Python-first API**: Intuitive Python interface for circuit construction,
   simulation, and analysis, with type hints and integration with scientific
   Python libraries.
@@ -76,7 +76,7 @@ To support this endeavor, please consider:
   requests
 - Citing the MQT in your publications (see [Cite This](#cite-this))
 - Citing our research in your publications (see
-  [References](https://mqt.readthedocs.io/projects/qudits/en/latest/references.html))
+  [References](https://mqt.readthedocs.io/projects/qudits/en/stable/references.html))
 - Using the MQT in research and teaching, and sharing feedback and use cases
 - Sponsoring us on GitHub: <https://github.com/sponsors/munich-quantum-toolkit>
 
