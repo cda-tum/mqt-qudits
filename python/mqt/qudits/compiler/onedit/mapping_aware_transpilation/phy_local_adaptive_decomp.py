@@ -239,7 +239,6 @@ class PhyAdaptiveDecomposition:
         support_size = np.count_nonzero(subdiagonal_support)
         for c in range(dimension - 1):
             for r, r2 in itertools.combinations(range(c, dimension), 2):
-                # ponytail: bound exponential search; raise max_nodes to spend more time before QR fallback.
                 if self.TREE.global_id_counter >= self.max_nodes:
                     break
                 if not subdiagonal_support[r2, c]:
