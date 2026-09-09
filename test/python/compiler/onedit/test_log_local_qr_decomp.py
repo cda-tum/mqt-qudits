@@ -12,6 +12,7 @@ from unittest import TestCase
 from unittest.mock import patch
 
 import numpy as np
+import pytest
 
 from mqt.qudits.compiler.compilation_minitools import UnitaryVerifier
 from mqt.qudits.compiler.onedit.mapping_un_aware_transpilation.log_local_adaptive_decomp import (
@@ -20,8 +21,49 @@ from mqt.qudits.compiler.onedit.mapping_un_aware_transpilation.log_local_adaptiv
 )
 from mqt.qudits.compiler.onedit.mapping_un_aware_transpilation.log_local_qr_decomp import QrDecomp
 from mqt.qudits.core import LevelGraph
+from mqt.qudits.core.dfs_tree import Node
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.simulation import MQTQuditProvider
+
+
+@pytest.mark.parametrize("dimension", range(6, 11))
+def test_adaptive_dense_path_graph(dimension: int):
+    rng = np.random.default_rng(427)
+    matrix = rng.normal(size=(dimension, dimension)) + 1j * rng.normal(size=(dimension, dimension))
+    unitary, _ = np.linalg.qr(matrix)
+    circuit = QuantumCircuit(1, [dimension], 0)
+    target = circuit.cu_one(0, unitary)
+    graph = LevelGraph(
+        [(level, level + 1, {}) for level in range(dimension - 1)],
+        list(range(dimension)),
+        rng.permutation(dimension).tolist(),
+        [0],
+        0,
+        circuit,
+    )
+    backend = MQTQuditProvider().get_backend("faketraps2six")
+    backend.energy_level_graphs[0] = graph
+    tree_sizes = []
+    original_execute = LogAdaptiveDecomposition.execute
+    original_add = Node.add
+
+    def execute_and_record(decomposition: LogAdaptiveDecomposition):
+        result = original_execute(decomposition)
+        tree_sizes.append(decomposition.TREE.total_size)
+        return result
+
+    def add_with_limit(node: Node, new_key: int, *args):
+        assert new_key <= 1000, "Adaptive search exceeded its node budget"
+        return original_add(node, new_key, *args)
+
+    with (
+        patch.object(LogAdaptiveDecomposition, "execute", execute_and_record),
+        patch.object(Node, "add", add_with_limit),
+    ):
+        decomposition = LogLocAdaPass(backend).transpile_gate(target)
+
+    assert 1 < tree_sizes[0] <= 1001
+    assert UnitaryVerifier(decomposition, target, [dimension]).verify()
 
 
 class TestLogLocQRPass(TestCase):
@@ -43,12 +85,21 @@ class TestLogLocQRPass(TestCase):
         backend = MQTQuditProvider().get_backend("faketraps2six")
         backend.energy_level_graphs[0] = graph
 
-        def no_adaptive_solution(decomposition: LogAdaptiveDecomposition):
-            return [], (np.inf, np.inf), decomposition.graph
+        searches = []
 
-        with patch.object(LogAdaptiveDecomposition, "execute", no_adaptive_solution):
+        def bounded_search(*args, **kwargs):
+            search = LogAdaptiveDecomposition(*args, **kwargs, max_nodes=1)
+            searches.append(search)
+            return search
+
+        with patch(
+            "mqt.qudits.compiler.onedit.mapping_un_aware_transpilation.log_local_adaptive_decomp.LogAdaptiveDecomposition",
+            side_effect=bounded_search,
+        ):
             decomposition = LogLocAdaPass(backend).transpile_gate(target)
 
+        assert searches[0].TREE.total_size == 2
+        assert not searches[0].TREE.root.finished
         assert decomposition
         assert UnitaryVerifier(decomposition, target, [dimension]).verify()
 
@@ -87,6 +138,37 @@ class TestQrDecomp(TestCase):
 
 
 class TestLogAdaptiveDecomposition(TestCase):
+    @staticmethod
+    def test_node_budget():
+        dimension = 3
+        circuit = QuantumCircuit(1, [dimension], 0)
+        graph = LevelGraph([(0, 1, {}), (1, 2, {})], [0, 1, 2], [0, 1, 2], [0], 0, circuit)
+        target = circuit.r(0, [0, 1, np.pi / 3, np.pi / 5])
+        adaptive = LogAdaptiveDecomposition(target, graph, (np.inf, np.inf), dimension, max_nodes=0)
+        decomposition, best_cost, _ = adaptive.execute()
+
+        assert decomposition == []
+        assert best_cost == (np.inf, np.inf)
+        assert adaptive.TREE.total_size == 1
+
+        adaptive = LogAdaptiveDecomposition(target, graph, (np.inf, np.inf), dimension, max_nodes=1)
+        for _ in range(2):
+            decomposition, best_cost, _ = adaptive.execute()
+            assert np.isfinite(best_cost[1])
+            assert adaptive.TREE.total_size == 2
+            assert UnitaryVerifier(decomposition, target, [dimension]).verify()
+
+        diagonal = circuit.cu_one(0, np.diag(np.exp(1j * np.array([0.2, -0.7, 0.4]))))
+        adaptive = LogAdaptiveDecomposition(diagonal, graph, dimension=dimension, max_nodes=0)
+        decomposition, best_cost, _ = adaptive.execute()
+
+        assert best_cost == (0, 0)
+        assert adaptive.TREE.total_size == 1
+        assert UnitaryVerifier(decomposition, diagonal, [dimension]).verify()
+
+        with pytest.raises(ValueError, match="max_nodes"):
+            LogAdaptiveDecomposition(target, graph, dimension=dimension, max_nodes=-1)
+
     @staticmethod
     def test_execute_path_graph():
         dimension = 4
