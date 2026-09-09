@@ -40,6 +40,8 @@ if TYPE_CHECKING:
 
 np.seterr(all="ignore")
 
+_MAX_SEARCH_NODES = 5_000
+
 
 class PhyLocAdaPass(CompilerPass):
     def __init__(self, backend: Backend, vrz_prop: bool = False) -> None:
@@ -222,6 +224,10 @@ class PhyAdaptiveDecomposition:
 
             raise SequenceFoundError(current_root.key)
 
+        # Bound the exponential search. The caller uses the QR result if the search stops here.
+        if self.TREE.global_id_counter >= _MAX_SEARCH_NODES:
+            return
+
         u_ = current_root.u_of_level
 
         dimension = u_.shape[0]
@@ -262,6 +268,8 @@ class PhyAdaptiveDecomposition:
                 branch_condition = current_root.max_cost[1] - decomp_next_step_cost  # SECOND POSITION IS PHYSICAL COST
                 if branch_condition > 0 or abs(branch_condition) < 1.0e-12:
                     # if cost is better can be only candidate otherwise try them all
+                    if self.TREE.global_id_counter >= _MAX_SEARCH_NODES:
+                        return
                     self.TREE.global_id_counter += 1
                     new_key = self.TREE.global_id_counter
 

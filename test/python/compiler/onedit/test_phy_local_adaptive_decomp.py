@@ -105,6 +105,33 @@ class TestPhyLocAdaPass(TestCase):
         assert compiled.instructions
         _assert_compiled_unitary(compiled, _qft_matrix(dimension), initial_mapping)
 
+    @staticmethod
+    def test_dense_six_level_unitary():
+        dimension = 6
+        rng = np.random.default_rng(0)
+        matrix = rng.normal(size=(dimension, dimension)) + 1j * rng.normal(size=(dimension, dimension))
+        unitary, triangular = np.linalg.qr(matrix)
+        unitary *= (np.diag(triangular) / np.abs(np.diag(triangular))).conj()
+
+        mapping = list(range(dimension))
+        circuit = QuantumCircuit(1, [dimension], 0)
+        circuit.cu_one(0, unitary)
+        graph = LevelGraph(
+            [(level, level + 1, {}) for level in range(dimension - 1)],
+            mapping,
+            mapping,
+            [0],
+            0,
+            circuit,
+        )
+        backend = MQTQuditProvider().get_backend("faketraps2six")
+        backend.energy_level_graphs[0] = graph
+
+        compiled = QuditCompiler.compile_O2(backend, circuit)
+
+        assert compiled.instructions
+        _assert_compiled_unitary(compiled, unitary, mapping)
+
 
 class TestPhyAdaptiveDecomposition(TestCase):
     @staticmethod
