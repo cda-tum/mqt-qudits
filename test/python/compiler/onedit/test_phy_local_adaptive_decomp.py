@@ -44,7 +44,61 @@ def _assert_compiled_unitary(
         actual = gate.to_matrix(identities=0) @ actual
     initial_permutation = np.eye(len(initial_mapping))[:, initial_mapping]
     final_permutation = np.eye(len(initial_mapping))[:, compiled.mappings[0]]
-    assert np.allclose(initial_permutation.T @ actual @ final_permutation, target)
+    assert np.allclose(final_permutation.T @ actual @ initial_permutation, target)
+
+
+@pytest.mark.parametrize("dimension", [2, 3])
+@pytest.mark.parametrize("last_max_nodes", [0, 1000])
+def test_compile_propagated_phases(dimension: int, last_max_nodes: int):
+    circuit = QuantumCircuit(1, [dimension], 0)
+    if dimension == 2:
+        circuit.cu_one(0, np.diag([1, np.exp(1j * np.pi / 3)]))
+        circuit.h(0)
+        initial_mapping = [0, 1]
+        edges = [(0, 1, {})]
+    else:
+        rng = np.random.default_rng(42)
+        for _ in range(3):
+            matrix = rng.normal(size=(dimension, dimension)) + 1j * rng.normal(size=(dimension, dimension))
+            unitary, _ = np.linalg.qr(matrix)
+            circuit.cu_one(0, unitary)
+        circuit.instructions[-1].dag()
+        initial_mapping = rng.permutation(dimension).tolist()
+        edges = [(0, 1, {}), (1, 2, {})]
+    target = np.eye(dimension, dtype=np.complex128)
+    for gate in circuit.instructions:
+        target = gate.to_matrix(identities=0) @ target
+    original_daggers = [gate.dagger for gate in circuit.instructions]
+    graph = LevelGraph(
+        edges,
+        list(range(dimension)),
+        initial_mapping,
+        [0],
+        0,
+        circuit,
+    )
+    backend = MQTQuditProvider().get_backend("faketraps2six")
+    backend.energy_level_graphs[0] = graph
+    searches = []
+
+    def bounded_search(*args, **kwargs):
+        max_nodes = last_max_nodes if len(searches) == len(circuit.instructions) - 1 else 1000
+        search = PhyAdaptiveDecomposition(*args, **kwargs, max_nodes=max_nodes)
+        searches.append(search)
+        return search
+
+    with patch(
+        "mqt.qudits.compiler.onedit.mapping_aware_transpilation.phy_local_adaptive_decomp.PhyAdaptiveDecomposition",
+        side_effect=bounded_search,
+    ):
+        compiled = QuditCompiler.compile_O2(backend, circuit)
+
+    assert all(search.TREE.root.finished and search.phase_propagation for search in searches[:-1])
+    assert searches[-1].TREE.root.finished == bool(last_max_nodes)
+    assert [gate.dagger for gate in circuit.instructions] == original_daggers
+    final_graph = backend.energy_level_graphs[0]
+    assert all(final_graph.nodes[node]["phase_storage"] == 0 for node in final_graph)
+    _assert_compiled_unitary(compiled, target, initial_mapping)
 
 
 @pytest.mark.parametrize("dimension", range(6, 11))

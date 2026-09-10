@@ -48,6 +48,18 @@ class PhyLocAdaPass(CompilerPass):
 
     def transpile_gate(self, gate: Gate) -> list[Gate]:
         energy_graph_i = self.backend.energy_level_graphs[cast("int", gate.target_qudits)]
+        dimension = cast("int", gate.dimensions)
+        phases = np.array([energy_graph_i.nodes[level].get("phase_storage", 0) for level in range(dimension)])
+        # Fold pending phases into the adjoint so the decomposition follows execution order.
+        gate = gates.CustomOne(
+            gate.parent_circuit,
+            "CUo",
+            cast("int", gate.target_qudits),
+            np.exp(1j * phases)[:, None] * gate.to_matrix(identities=0).conj().T,
+            dimension,
+        )
+        for node in energy_graph_i.nodes:
+            energy_graph_i.nodes[node]["phase_storage"] = 0
 
         qr = PhyQrDecomp(gate, energy_graph_i)
 
@@ -64,7 +76,7 @@ class PhyLocAdaPass(CompilerPass):
             for node in new_energy_level_graph.nodes:
                 new_energy_level_graph.nodes[node]["phase_storage"] = 0
         self.backend.energy_level_graphs[cast("int", gate.target_qudits)] = new_energy_level_graph
-        return [op.dag() for op in reversed(matrices_decomposed)]
+        return matrices_decomposed
 
     def transpile(self, circuit: QuantumCircuit) -> QuantumCircuit:
         self.circuit: QuantumCircuit = circuit
