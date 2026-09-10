@@ -83,7 +83,18 @@ class LogAdaptiveDecomposition:
         cost_limit: tuple[float, float] = (0, 0),
         dimension: int = -1,
         z_prop: bool = False,
+        max_nodes: int = 1000,
     ) -> None:
+        """Initialize a search capped at max_nodes generated nodes, excluding the root.
+
+        A zero budget only checks whether the input is already diagonal. If no
+        solution is found within the budget, execute returns an empty sequence
+        and infinite costs so the compiler pass can use its QR decomposition.
+        """
+        if max_nodes < 0:
+            msg = "max_nodes must be non-negative."
+            raise ValueError(msg)
+        self.max_nodes = max_nodes
         self.circuit: QuantumCircuit = gate.parent_circuit
         self.U: NDArray[np.complex128] = gate.to_matrix(identities=0)
         self.qudit_index: int = cast("int", gate.target_qudits)
@@ -95,6 +106,7 @@ class LogAdaptiveDecomposition:
         self.TREE: NAryTree = NAryTree()
 
     def execute(self) -> tuple[list[Gate], tuple[float, float], LevelGraph | None]:
+        self.TREE.global_id_counter = 0
         self.TREE.add(
             0,
             gates.CustomOne(
@@ -116,8 +128,6 @@ class LogAdaptiveDecomposition:
         matrices_decomposed_m: list[Gate] = []
         if matrices_decomposed:
             matrices_decomposed_m, final_graph = self.z_extraction(matrices_decomposed, final_graph)
-
-        self.TREE.print_tree(self.TREE.root, "TREE: ")
 
         return matrices_decomposed_m, best_cost, final_graph
 
@@ -189,6 +199,8 @@ class LogAdaptiveDecomposition:
         support_size = np.count_nonzero(subdiagonal_support)
         for c in range(dimension - 1):
             for r, r2 in itertools.combinations(range(c, dimension), 2):
+                if self.TREE.global_id_counter >= self.max_nodes:
+                    break
                 if not subdiagonal_support[r2, c]:
                     continue
                 theta = 2 * np.arctan2(abs(u_[r2, c]), abs(u_[r, c]))

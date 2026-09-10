@@ -13,11 +13,13 @@ from unittest import TestCase
 from unittest.mock import patch
 
 import numpy as np
+import pytest
 
 from mqt.qudits.compiler import QuditCompiler
 from mqt.qudits.compiler.compilation_minitools import UnitaryVerifier
 from mqt.qudits.compiler.onedit.mapping_aware_transpilation import PhyAdaptiveDecomposition, PhyQrDecomp
 from mqt.qudits.core import LevelGraph
+from mqt.qudits.core.dfs_tree import Node
 from mqt.qudits.quantum_circuit import QuantumCircuit
 from mqt.qudits.simulation import MQTQuditProvider
 
@@ -43,6 +45,47 @@ def _assert_compiled_unitary(
     initial_permutation = np.eye(len(initial_mapping))[:, initial_mapping]
     final_permutation = np.eye(len(initial_mapping))[:, compiled.mappings[0]]
     assert np.allclose(initial_permutation.T @ actual @ final_permutation, target)
+
+
+@pytest.mark.parametrize("dimension", range(6, 11))
+def test_compile_dense_path_graph(dimension: int):
+    rng = np.random.default_rng(427)
+    matrix = rng.normal(size=(dimension, dimension)) + 1j * rng.normal(size=(dimension, dimension))
+    unitary, _ = np.linalg.qr(matrix)
+    initial_mapping = rng.permutation(dimension).tolist()
+    circuit = QuantumCircuit(1, [dimension], 0)
+    circuit.cu_one(0, unitary)
+    graph = LevelGraph(
+        [(level, level + 1, {}) for level in range(dimension - 1)],
+        list(range(dimension)),
+        initial_mapping,
+        [0],
+        0,
+        circuit,
+    )
+    backend = MQTQuditProvider().get_backend("faketraps2six")
+    backend.energy_level_graphs[0] = graph
+    tree_sizes = []
+    original_execute = PhyAdaptiveDecomposition.execute
+    original_add = Node.add
+
+    def execute_and_record(decomposition: PhyAdaptiveDecomposition):
+        result = original_execute(decomposition)
+        tree_sizes.append(decomposition.TREE.total_size)
+        return result
+
+    def add_with_limit(node: Node, new_key: int, *args):
+        assert new_key <= 1000, "Adaptive search exceeded its node budget"
+        return original_add(node, new_key, *args)
+
+    with (
+        patch.object(PhyAdaptiveDecomposition, "execute", execute_and_record),
+        patch.object(Node, "add", add_with_limit),
+    ):
+        compiled = QuditCompiler.compile_O2(backend, circuit)
+
+    assert 1 < tree_sizes[0] <= 1001
+    _assert_compiled_unitary(compiled, unitary, initial_mapping)
 
 
 class TestPhyLocAdaPass(TestCase):
@@ -96,17 +139,59 @@ class TestPhyLocAdaPass(TestCase):
         backend = MQTQuditProvider().get_backend("faketraps2six")
         backend.energy_level_graphs[0] = graph
 
-        def no_adaptive_solution(decomposition: PhyAdaptiveDecomposition):
-            return [], (np.inf, np.inf), decomposition.graph
+        searches = []
 
-        with patch.object(PhyAdaptiveDecomposition, "execute", no_adaptive_solution):
+        def bounded_search(*args, **kwargs):
+            search = PhyAdaptiveDecomposition(*args, **kwargs, max_nodes=1)
+            searches.append(search)
+            return search
+
+        with patch(
+            "mqt.qudits.compiler.onedit.mapping_aware_transpilation.phy_local_adaptive_decomp.PhyAdaptiveDecomposition",
+            side_effect=bounded_search,
+        ):
             compiled = QuditCompiler.compile_O2(backend, circuit)
 
+        assert searches[0].TREE.total_size == 2
+        assert not searches[0].TREE.root.finished
         assert compiled.instructions
         _assert_compiled_unitary(compiled, _qft_matrix(dimension), initial_mapping)
 
 
 class TestPhyAdaptiveDecomposition(TestCase):
+    @staticmethod
+    def test_node_budget():
+        dimension = 3
+        nodes = list(range(dimension))
+        mapping = [1, 0, 2]
+        circuit = QuantumCircuit(1, [dimension], 0)
+        graph = LevelGraph([(0, 1, {}), (1, 2, {})], nodes, mapping, [0], 0, circuit)
+        target = circuit.r(0, [0, 1, np.pi / 3, np.pi / 5])
+        adaptive = PhyAdaptiveDecomposition(target, graph, (np.inf, np.inf), dimension, max_nodes=0)
+        decomposition, best_cost, _ = adaptive.execute()
+
+        assert decomposition == []
+        assert best_cost == (np.inf, np.inf)
+        assert adaptive.TREE.total_size == 1
+
+        adaptive = PhyAdaptiveDecomposition(target, graph, (np.inf, np.inf), dimension, max_nodes=1)
+        for _ in range(2):
+            decomposition, best_cost, final_graph = adaptive.execute()
+            assert np.isfinite(best_cost[1])
+            assert adaptive.TREE.total_size == 2
+            assert UnitaryVerifier(decomposition, target, [dimension], nodes, mapping, final_graph.log_phy_map).verify()
+
+        diagonal = circuit.cu_one(0, np.diag(np.exp(1j * np.array([0.2, -0.7, 0.4]))))
+        adaptive = PhyAdaptiveDecomposition(diagonal, graph, dimension=dimension, max_nodes=0)
+        decomposition, best_cost, final_graph = adaptive.execute()
+
+        assert best_cost == (0, 0)
+        assert adaptive.TREE.total_size == 1
+        assert UnitaryVerifier(decomposition, diagonal, [dimension], nodes, mapping, final_graph.log_phy_map).verify()
+
+        with pytest.raises(ValueError, match="max_nodes"):
+            PhyAdaptiveDecomposition(target, graph, dimension=dimension, max_nodes=-1)
+
     @staticmethod
     def test_execute_preserves_later_column_branch():
         dimension = 4
