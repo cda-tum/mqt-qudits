@@ -64,6 +64,10 @@ endif()
 # Make all declared dependencies available.
 FetchContent_MakeAvailable(${FETCH_PACKAGES})
 
+if(EXISTS "${mqt-core_SOURCE_DIR}/cmake/Cache.cmake")
+  include("${mqt-core_SOURCE_DIR}/cmake/Cache.cmake")
+endif()
+
 # TODO: Remove when https://github.com/google/googletest/issues/4762 is resolved
 if(BUILD_MQT_QUDITS_TESTS)
   if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL
